@@ -1,0 +1,117 @@
+DECL
+
+	--k is sclaing factor. Only 1 discrete mode in this model
+	define MAX_TIME = 1;
+	define k = 1;
+	boole mode_1;
+
+	--species and their covariances.
+	float [0, 3] A;
+	float [0, 0.5] B;
+	float [0, 1] CAB;
+	float [0, 5] CAA;
+	float [0, 1] CBB;
+
+	--rate parameters
+	float [0, 1] k1;
+	float [0, 1] k2;
+
+    --time, delta_time is default minimum precision.
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+
+	--DISCRETE VARS 
+
+	--stoch constants
+	float [0, 2] c1;
+	float [0, 1] c2;
+	float [0, 0] c3;
+	float [0, 1] c4;
+
+
+	--species selectors
+
+	float [0, 1] lam1; --lam1 is 0 if A 1 if B
+	float [0, 1] lam2; --lam2 is 0 if A 1 if B
+	float [0, 1] lam3; --lam3 is 0 if A 1 if B
+
+INIT
+	 --covariances and species originally 0.
+	 CAA =0; 
+	 CAB = 0;
+	 CBB = 0;
+	 A = 0;
+	 B = 0;
+
+	mode_1 = 1;
+
+	c3 = 0;
+
+	--discrete variable encoding. can only take discrete value.
+
+	((c1 = 0) or (c1 = 1) or (c1 = 2)) and ((c2 = 0) or (c2 = 1)) and ((c3 = 0) or (c3 = 1)) and ((c4 = 0) or (c4 = 1));
+
+	((lam1 = 0) or (lam1 = 1)) and ((lam2 = 0) or (lam2 = 1)) and ((lam3 = 0) or (lam3 = 1));
+
+	--rates must be positive.
+	k2 > 0;
+	k1 > 0;
+
+	time = 0;
+
+TRANS
+
+
+	--time evolution
+	time' = time + delta_time;
+
+	--cant be in two modes at once
+	--mode_1' + mode_2' = 1;
+
+    --constant rate constraint;
+    (k1' = k1) and (k2' = k2);
+
+
+    --Additional integer constraints (integer decisions cant change half way through)
+    (c1' = c1) and (c2' = c2) and (c3' = c3) and (c4' = c4);
+    (lam1' = lam1) and (lam2' = lam2) and (lam3' = lam3);
+
+    --Flow
+
+    --discrete paramers cant change.
+    mode_1 -> (d.c1  / d.time = 0);
+    mode_1 -> (d.c2  / d.time = 0);
+    mode_1 -> (d.c3  / d.time = 0);
+    mode_1 -> (d.c4  / d.time = 0);
+
+	mode_1 -> (d.k1  / d.time = 0);
+	mode_1 -> (d.k2  / d.time = 0);
+
+	mode_1 -> (d.lam1   / d.time = 0);
+	mode_1 -> (d.lam2   / d.time = 0);
+	mode_1 -> (d.lam3   / d.time = 0);
+
+	--ODE flow for species and covariances.
+
+	mode_1 -> (d.A / d.time =  k*(c1 + (c2*(1-lam1)) + A*k2*((c4*(1-lam3) - 1)) ) );
+
+	mode_1 -> (d.B / d.time =  k*(c2*lam1) + k*A*k2*c4*lam3);
+
+    mode_1 -> (d.CAA / d.time =   k*(c1 + c2*(1-lam1))^2 + A*k*k2*(c4*(1-lam3) - 1)^2 + CAA*k2*k*(c4*(1-lam3) - 1) + CAA*k*k2*(c4*(1-lam3) - 1));
+ 
+	--mode_1 -> (d.CAA / d.time =  (c1 + c2*(1-lam1))^(2) - CAA*(k2*(-c4*(1-lam3) + 1) + A*0*k2*(1-lam2)*((c3*(1-lam2) - c4*(1-lam3) + 1)) - CAA*(k2*(- c4*(1-lam3) + 1) + A*0*k2*(1-lam2)*(A*(1-lam2) + B*lam2)^0*(c3*(1-lam2) - c4*(1-lam3) + 1)) + A*k2*( - c4*(1-lam3) + 1)^2 - A*CAB*0*k2*lam2*(A*(1-lam2) + B*lam2)^0*(c3*(1-lam2) - c4*(1-lam3) + 1) - A*CAB*0*k2*lam2*((A*(1-lam2) + B*lam2)^0)*(c3*(1-lam2) - c4*(1-lam3) + 1)));
+
+
+	mode_1 -> (d.CAB / d.time = (c2*lam1*(c1 + c2*(1-lam1)))/10 - CAB*(k2*(A*(1-lam2) + B*lam2)^0*(c3*(1-lam2) - c4*(1-lam3) + 1) + A*c3*k2*(1-lam2)*(A*(1-lam2) + B*lam2)^0*(c3*(1-lam2) - c4*(1-lam3) + 1)) - CAA*(k2*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3) + A*c3*k2*(1-lam2)*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3)) + A*k2*(A*(1-lam2) + B*lam2)^0*(c3*lam2 - c4*lam3)*(c3*(1-lam2) - c4*(1-lam3) + 1) - A*CBB*c3*k2*lam2*(A*(1-lam2) + B*lam2)^0*(c3*(1-lam2) - c4*(1-lam3) + 1) - A*CAB*c3*k2*lam2*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3));
+
+	mode_1 -> (d.CBB / d.time = (c2^2*lam1^2)/10 - CAB*(k2*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3) + A*c3*k2*(1-lam2)*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3)) - CAB*(k2*(A*(1-lam2) + B*lam2)^0*(c3*lam2 - c4*lam3) + A*c3*k2*(1-lam2)*(A*(1-lam2) + B*lam2)^0*(c3*lam2 - c4*lam3)) + A*k2*(A*(1-lam2) + B*lam2)^0*(c3*lam2 - c4*lam3)^2 - A*CBB*c3*k2*lam2*(A*(1-lam2) + B*lam2)^0*(c3*lam2 - c4*lam3) - A*CBB*c3*k2*lam2*((A*(1-lam2) + B*lam2)^0)*(c3*lam2 - c4*lam3));
+
+
+ 	-- No state change without time consumption.
+	(delta_time = 0) -> (A' = A) and (B' = B) and (k1' = k1) and (k2' = k2) and (CAB' = CAB) and (CAA' = CAA) and (CBB' = CBB);
+
+
+TARGET
+	--target condition is that the covariance must be greater than the mean concentration value of species.
+	mode_1 and time = MAX_TIME and CAA > A*1.1 and  A > 0.1;

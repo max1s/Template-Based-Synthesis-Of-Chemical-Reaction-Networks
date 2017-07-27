@@ -1,0 +1,374 @@
+CANDIDATE SOLUTION:
+    mode_1 (boolean):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+        @2:  [0,0] (point interval)
+
+    mode_2 (boolean):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [1,1] (point interval)
+
+    dimension_trigger_8 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_28 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    odes_active0 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_3 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_26 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_1 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_8 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_14 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_16 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_30 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_9 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_29 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_0 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_20 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_27 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_2 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_9 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_17 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_15 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_37 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_1 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_21 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_3 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_13 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_16 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_14 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_36 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_6 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_22 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_4 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_12 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_11 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_35 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_7 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_23 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_5 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_11 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_10 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_19 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_33 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_34 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_4 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_24 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_6 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_10 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_13 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_18 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_32 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_2 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_5 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_25 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_0 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_7 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    ode_trigger_15 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_17 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_12 (int):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+
+    dimension_trigger_18 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    ode_trigger_31 (int):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    K (float):
+        @0:  [0.00999999,0.01000001] (width: 1.73472348e-18)
+        @1:  [0.57108437,0.57635797] (width: 0.00527359375)
+        @2:  [0.01445281,0.01972641] (width: 0.00527359375)
+
+    delta_time (float):
+        @0:  [0.3359375,0.34375] (width: 0.0078125)
+        @1:  [0.58398437,0.59277344] (width: 0.0087890625)
+
+    c6 (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    c7 (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    c3c (float):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+        @2:  [1,1] (point interval)
+
+    c4 (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    lam1 (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    choice1 (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    lam2 (float):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+        @2:  [1,1] (point interval)
+
+    Ad (float):
+        @0:  [0.89699999,0.89700001] (width: 1.11022302e-16)
+        @1:  [0.5390625,0.546875] (width: 0.0078125)
+        @2:  [0.21875,0.2265625] (width: 0.0078125)
+
+    c1c (float):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+        @2:  [1,1] (point interval)
+
+    dK_dt (float):
+        @0:  [0.14999999,0.15000001] (width: 1.94289029e-16)
+        @1:  [0,0.00100001) (width: 0.001)
+        @2:  [2.49962499,2.50875196) (width: 0.00912695313)
+
+    time (float):
+        @0:  [0,0] (point interval)
+        @1:  [0.3359375,0.34375] (width: 0.0078125)
+        @2:  [0.92773437,0.9375] (width: 0.009765625)
+
+    k2 (float):
+        @0:  [0.453125,0.4609375] (width: 0.0078125)
+        @1:  [0.453125,0.4609375] (width: 0.0078125)
+        @2:  [0.453125,0.4609375] (width: 0.0078125)
+
+    c5c (float):
+        @0:  [0,0] (point interval)
+        @1:  [0,0] (point interval)
+        @2:  [0,0] (point interval)
+
+    k3 (float):
+        @0:  [0.109375,0.1171875] (width: 0.0078125)
+        @1:  [0.109375,0.1171875] (width: 0.0078125)
+        @2:  [0.109375,0.1171875] (width: 0.0078125)
+
+    k1 (float):
+        @0:  [0.9375,0.9453125] (width: 0.0078125)
+        @1:  [0.9375,0.9453125] (width: 0.0078125)
+        @2:  [0.9375,0.9453125] (width: 0.0078125)
+
+    Bd (float):
+        @0:  [0.00999999,0.01000001] (width: 1.73472348e-18)
+        @1:  [0.5546875,0.5625] (width: 0.0078125)
+        @2:  [0.7890625,0.796875] (width: 0.0078125)
+
+    A (float):
+        @0:  [0.89999999,0.90000001] (width: 1.11022302e-16)
+        @1:  [0.46679687,0.47265626] (width: 0.005859375)
+        @2:  [0.88867187,0.89453125] (width: 0.005859375)
+
+    B (float):
+        @0:  [0.00999999,0.01000001] (width: 1.73472348e-18)
+        @1:  [0.56249999,0.5703125] (width: 0.0078125)
+        @2:  [0.10156249,0.109375] (width: 0.0078125)
+
+    Kd (float):
+        @0:  [0.01299999,0.01300001] (width: 1.73472348e-18)
+        @1:  [0.57108437,0.57637797) (width: 0.00529359375)
+        @2:  [0.984375,0.9921875] (width: 0.0078125)
+
+    c2 (float):
+        @0:  [2,2] (point interval)
+        @1:  [2,2] (point interval)
+        @2:  [2,2] (point interval)
+
+Statistics.
+Number of variables                    : 617
+    Boolean variables                  : 247
+    Integer variables                  : 239
+    Real variables                     : 131
+Number of complex bounds               : 174
+Number of problem clauses              : 1186
+Number of decisions (current / total)  : 132 / 132
+Variables preferred for splitting      : (none)
+Number of point splits                 : 0 / 0
+Number of assignments                  : 2373 / 3489
+    Number of IQ additions             : 2337 / 3450
+Maximum decision level                 : 132 / 132
+Maximum number of deductions per DL    : 2039 / 2039
+Number of conflicts                    : 0 / 2
+Average size of learnt clauses         : 0 / 0
+Maximum backjump distance              : 0 / 0
+Number of restarts                     : 0 / 0
+Number of conflict clauses
+implied by conflict clauses            : 0 / 0
+
+Time solver                            : 1351.09 / 1351.09 sec

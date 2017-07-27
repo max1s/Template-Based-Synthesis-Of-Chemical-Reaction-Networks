@@ -1,0 +1,143 @@
+DECL
+	-- SF refers to the scale factor for rates (as outlined in the paper with number of molecules)
+	define MAX_TIME = 2;
+	define SF = 1;
+	define N = 2; -- N for hill function kinetics
+	define VMaxTP = 1;
+	define VMaxA = 1;
+	define c = 0.01;
+	
+	-- two discrete modes with invariants. Invariants defined within trans section.
+	boole mode_1;
+	boole mode_2;
+
+	--time and delta_time.. delta_time is left undefined in the INIT section and so automatically takes the lowest precision value.
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+	--species
+	float [0, VMaxA] A;
+	float [0, VMaxTP] TP;
+
+	--derivative
+	float [-4, 4] dAdt;
+
+	--rate constants
+	float [0, 1] k1;
+	float [0, 1] k2;
+	float [0, 1] k3;
+	float [0, 1] yA;
+	float [0, 1] yTP;
+	float [0, 1] VA;
+
+	--covariances
+	float [0, 4] covA;
+	float [0, 4] covTP;
+
+
+	--paramts
+	float [0, 0.2] KMTP;
+	float [0, 0.2] KMA2;
+
+INIT
+	A = 0;
+	TP = 0;
+	KMTP > 0;
+	KMA2 > 0;
+	KMTP < 0.2;
+	KMA2 < 0.2;
+
+	yA = 0.1;
+	yTP = 0.1;
+	VA = 0.1;
+
+	covA = 0;
+	covTP = 0;
+	--delta_time = 0.001;
+
+	(k1 = 0) or (k1 = 1);
+	(k2 = 0) or (k2 = 1);
+	(k3 = 0) or (k3 = 1);
+
+	dAdt > 0;
+
+	mode_1 = 1;
+TRANS
+
+	(k1 = 0) or (k1 = 1);
+	(k2 = 0) or (k2 = 1);
+	(k3 = 0) or (k3 = 1);
+
+	k1' = k1;
+	k2' = k2;
+	k3' = k3;
+
+	time' = time + delta_time;
+
+	--cant be in two modes at once
+	mode_1 + mode_2 = 1;
+	mode_1' + mode_2' = 1;
+
+    --constant rate constraint;
+    (k1' = k1) and (k2' = k2) and (k3' = k3);
+  
+
+    --Invariants : in mode 1 dAdt is positive while in mode_2 dAdt is approx. 0.
+
+    mode_1  -> (dAdt >= 0);
+    mode_1' -> (dAdt >= 0);
+
+    mode_2 -> (dAdt  <=  0.0001);
+    mode_2' -> (dAdt <= 0.0001);
+    --mode_2 -> (dAdt >= -0.0001);
+    --mode_2' -> (dAdt >= -0.0001);
+
+
+    mode_1 -> (d.VA / d.time = 0);
+    mode_2 -> (d.VA / d.time = 0);
+
+	--rates only one can be positive
+	k1 + k2 + k3 = 1;
+
+	 -- similarly rates cannot change.
+	mode_1 -> (d.k1  / d.time = 0);
+	mode_1 -> (d.k2  / d.time = 0);
+	mode_1 -> (d.k3  / d.time = 0); 
+
+	mode_1 -> (d.yA / d.time = 0);
+	mode_1 -> (d.yTP / d.time = 0);
+	mode_1 -> (d.KMA2 / d.time = 0);
+	mode_1 -> (d.KMTP / d.time = 0);
+
+
+	--ODE flow
+
+		mode_1 -> (d.A / d.time = SF*(k1*(  VA  -  yA * A  )   + k2*( VA + VMaxA*KMA2/(TP^2 + KMA2 ^2)-yA*A )  + k3*( VA* VMaxA*KMA2/(TP^2 + KMA2^2) -yA*A)));
+
+        mode_1 -> (d.TP/ d.time = SF*(VMaxTP*(A^2)/(A^2 + KMTP^2) - yTP*TP));
+
+        mode_1 -> (d.dAdt / d.time = (- SF*(k1*(VA - yA * A ) + k2*( VA + VMaxA*KMA2/(TP^2 + KMA2^2 )^2 -yA*A ) + k3*( VA* VMaxA*KMA2/(TP^2 + KMA2^2)^2 -yA*A))  + KMA2^2*( SF*(VMaxTP*(A^2)/(A^2 + KMTP^2 ) - yTP*TP))*(-k2*VMaxA-k3*VA*VMaxA)/(KMA2^2 + TP^2)^2));
+
+        mode_2 -> (d.yA / d.time = 0);
+        mode_2 -> (d.yTP / d.time = 0);
+        mode_2 -> (d.KMA2 / d.time = 0);
+        mode_2 -> (d.KMTP / d.time = 0);
+
+
+		mode_2 -> (d.A / d.time = SF*(k1*(  VA  -  yA * A  )   + k2*( VA + VMaxA*KMA2/(TP^2 + KMA2 ^2)-yA*A )  + k3*( VA* VMaxA*KMA2/(TP^2 + KMA2^2) -yA*A)));
+
+        mode_2 -> (d.TP/ d.time = SF*(VMaxTP*(A^2)/(A^2 + KMTP^2) - yTP*TP));
+
+        mode_2 -> (d.dAdt / d.time = (- SF*(k1*(VA - yA * A ) + k2*( VA + VMaxA*KMA2/(TP^2 + KMA2^2 )^2 -yA*A ) + k3*( VA* VMaxA*KMA2/(TP^2 + KMA2^2)^2 -yA*A))  + KMA2^2*( SF*(VMaxTP*(A^2)/(A^2 + KMTP^2 ) - yTP*TP))*(-k2*VMaxA-k3*VA*VMaxA)/(KMA2^2 + TP^2)^2));
+
+
+	-- No state change without time consumption.
+	(delta_time = 0) -> (A' = A) and (TP' = TP) and (dAdt = dAdt) and (k1' = k1) and (k2' = k2) and (k3' = k3);
+
+  	--Jump Condition where to form the top of the bellshape we have dK_dt at inflection point.
+
+    (mode_1 and mode_2') -> (A > c) and (dAdt < 0.0001);
+
+
+TARGET
+	mode_2 and (time <= MAX_TIME) and (A > c); --costfinal

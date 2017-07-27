@@ -1,0 +1,221 @@
+--%%% lamdba1 (A/B) + c1*K ->{k1} c2*K                     
+--%%% c5*lambda2 + c3*K ->{k2} c6*lambda2 + c4*K   
+--%%% ->{k3} c7*K or  lambda2  (a/b) 
+
+DECL
+	-- SF refers to the scale factor for rates (as outlined in the paper with number of molecules)
+	define MAX_TIME = 1;
+	define SF = 1000;
+	
+	-- two discrete modes with invariants. Invariants defined within trans section.
+	boole mode_1;
+	boole mode_2;
+
+	--time and delta_time.. delta_time is left undefined in the INIT section and so automatically takes the lowest precision value.
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+	--species
+	float [0, 1] A;
+	float [0, 1] B;
+	float [0, 1] K;
+
+	--used for calculation of derivative
+	float [0, 1] Ad;
+	float [0, 1] Bd;
+	float [0, 1] Kd;
+
+	--rate constants
+	float [0, 1] k1;
+	float [0, 1] k2;
+	float [0, 1] k3;
+
+	--the value of the d.K / d.time
+	float [-4, 4] dK_dt;
+
+	--DISCRETE VARS 
+
+
+	--stoch constants
+	float [1, 2] c2; 
+	float [0, 1] c4; 
+	float [0, 2] c6; 
+	float [0, 1] c7; 
+
+	float [0, 1] c1c; -- (encoded as (c1c = 0) = 1 stoichiometric constant and 1 = 0 (no constant))
+	float [0, 1] c3c; --(encoded as 0 = 2 and 1 = 0)
+	float [0, 0] c5c; -- (encoded as 0 = 1 and 1 = 0)
+
+	--selector
+	float [0, 0] choice1; -- 0 means c7K 1 means lam2
+
+	--species selectors
+
+	float [0, 0] lam1; --lambda1 = A if lam1 = 0, lambda1 = B if lam1 = 1
+	float [1, 1] lam2; --same for lam2.
+
+
+
+INIT
+	-- a different perturbation of the model in order to calculate an eulerian approximation of the derivative
+	Ad =  0.897;  
+	Bd = 0.01; 
+	Kd = 0.013; 
+
+	time = 0;
+
+	--initial species concentrations
+
+	A = 0.9;
+	B = 0.01;
+	K = 0.01;
+
+	--initial value of dK_dt (scaled for speed. Change to lower value if requiring precision beyond 10-3)
+
+	dK_dt = (Kd - K)*50;
+
+	--rates must be positive
+
+	k1 > 0;
+	k2 > 0;
+	k3 >= 0;
+
+	-- cannot be in two modes at the same time. We start in mode_1.
+	mode_1 = 1;
+	mode_1 + mode_2 = 1;
+
+	--Integer constraints binding floats to discrete values.
+
+	((c2 = 1) or (c2 = 2));
+	((c4 = 0) or (c4 = 1) or (c4 = 2));
+	((c6 = 0) or (c6 = 1) or (c6 = 2));
+	((c7 = 0) or (c7 = 1));
+
+	((c1c = 0) or (c1c = 1));
+	((c3c = 0) or (c3c = 1));
+	((c5c = 0) or  (c5c = 1));
+
+	((lam1 = 0) or (lam1 = 1)) and ((lam2 = 0) or (lam2 = 1));
+
+	((choice1 = 0) or (choice1 = 1));
+
+	--Cost Constraint, used in optimisation algorithm. 
+	--Note that the number of optional species and choice are excluded due to them remaining constant.
+
+	--6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= 60;
+
+TRANS
+
+	time' = time + delta_time;
+
+	(dK_dt = (Kd - K)*50);
+
+	--cant be in two modes at once
+	mode_1' + mode_2' = 1;
+
+    --constant rate constraint;
+    (k1' = k1) and (k2' = k2) and (k3' = k3);
+
+
+    --Additional integer constraints (integer decisions cant change half way through)
+
+	(c1c' = c1c) and (c3c' = c3c) and (c5c' = c5c);
+
+	(c2' = c2) and (c4' = c4)  and (c6' = c6) and (c7' = c7);
+
+	(lam1' = lam1) and (lam2' = lam2);
+
+	(choice1' = choice1);
+
+    --Invariants : in mode 1 dK_dt is positive while in mode_2 dK_dt is approx. negative.
+
+    mode_1  -> (Kd - K >= 0);
+    mode_1' -> (Kd - K >= 0);
+
+    mode_2 -> (Kd - K <=  0.01);
+    mode_2' -> (Kd - K <= 0.01);
+
+    --Discrete parameters must remain constant and so their flow is unchanged.
+
+    mode_1 -> (d.c1c  / d.time = 0);
+    mode_1 -> (d.c2  / d.time = 0);
+    mode_1 -> (d.c3c  / d.time = 0);
+    mode_1 -> (d.c4  / d.time = 0);
+    mode_1 -> (d.c5c  / d.time = 0);
+    mode_1 -> (d.c6  / d.time = 0);
+    mode_1 -> (d.c7  / d.time = 0);
+
+
+    -- similarly rates cannot change.
+	mode_1 -> (d.k1  / d.time = 0);
+	mode_1 -> (d.k2  / d.time = 0);
+	mode_1 -> (d.k3  / d.time = 0);
+
+	mode_1 -> (d.lam1   / d.time = 0);
+	mode_1 -> (d.lam2   / d.time = 0);
+
+	mode_1 -> (d.choice1   / d.time = 0);
+
+
+	--ODE flow
+	mode_1 -> (d.A /d.time = SF*((1-choice1)*k3*(1- lam2) - k1*(1- lam1)*(A*(1- lam1) + B*lam1)*(c1c + K*(1-c1c)) + k2*(1- lam2)*(c6 - (1-c5c))*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))));
+
+	mode_1 -> (d.K/ d.time = SF*(c7*choice1*k3*SF + k1*(A*(1- lam1) + B*lam1)*(c2 - (1-c1c))*(c1c + K*(1-c1c)) - k2*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))*(c3c - c4 + 2*(1-c3c))));
+
+	mode_1 -> (d.B/ d.time = SF*((1-choice1)*k3*lam2 - k1*lam1*(A*(1- lam1) + B*lam1)*(c1c + K*(1-c1c)) + k2*lam2*(c6 - (1-c5c))*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))));
+
+	--used for different perterbation to calculate derivative.
+
+	mode_1 -> (d.Ad /d.time = SF*((1-choice1)*k3*(1- lam2) - k1*(1- lam1)*(Ad*(1- lam1) + Bd*lam1)*(c1c + Kd*(1-c1c)) + k2*(1- lam2)*(c6 - (1-c5c))*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))));
+
+	mode_1 -> (d.Kd / d.time = SF*(c7*choice1*k3*SF + k1*(Ad*(1- lam1) + Bd*lam1)*(c2 - (1-c1c))*(c1c + Kd*(1-c1c)) - k2*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))*(c3c - c4 + 2*(1-c3c))));
+
+	mode_1 -> (d.Bd / d.time = SF*((1-choice1)*k3*lam2 - k1*lam1*(Ad*(1- lam1) + Bd*lam1)*(c1c + Kd*(1-c1c)) + k2*lam2*(c6 - (1-c5c))*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))));
+
+
+	--same flow but the invariant on the first mode has been broken so we enter mode 2.
+    mode_2 -> (d.c1c  / d.time = 0);
+    mode_2 -> (d.c2  / d.time = 0);
+    mode_2 -> (d.c3c  / d.time = 0);
+    mode_2 -> (d.c4  / d.time = 0);
+    mode_2 -> (d.c5c  / d.time = 0);
+    mode_2 -> (d.c6  / d.time = 0);
+    mode_2 -> (d.c7  / d.time = 0);
+
+	mode_2 -> (d.k1  / d.time = 0);
+	mode_2 -> (d.k2  / d.time = 0);
+	mode_2 -> (d.k3  / d.time = 0);
+
+	mode_2 -> (d.lam1   / d.time = 0);
+	mode_2 -> (d.lam2   / d.time = 0);
+
+	mode_2 -> (d.choice1   / d.time = 0);
+
+	mode_2 -> (d.A /d.time = SF*((1-choice1)*k3*(1- lam2) - k1*(1- lam1)*(A*(1- lam1) + B*lam1)*(c1c + K*(1-c1c)) + k2*(1- lam2)*(c6 - (1-c5c))*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))));
+
+	mode_2 -> (d.K/ d.time = SF*(c7*choice1*k3*SF + k1*(A*(1- lam1) + B*lam1)*(c2 - (1-c1c))*(c1c + K*(1-c1c)) - k2*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))*(c3c - c4 + 2*(1-c3c))));
+
+	mode_2 -> (d.B/ d.time = SF*((1-choice1)*k3*lam2 - k1*lam1*(A*(1- lam1) + B*lam1)*(c1c + K*(1-c1c)) + k2*lam2*(c6 - (1-c5c))*((1-c3c)*K^2 + c3c*K)*(c5c + (1-c5c)*(A*(1- lam2) + B*lam2))));
+
+	mode_2 -> (d.Ad /d.time = SF*((1-choice1)*k3*(1- lam2) - k1*(1- lam1)*(Ad*(1- lam1) + Bd*lam1)*(c1c + Kd*(1-c1c)) + k2*(1- lam2)*(c6 - (1-c5c))*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))));
+
+	mode_2 -> (d.Kd / d.time = SF*(c7*choice1*k3*SF + k1*(Ad*(1- lam1) + Bd*lam1)*(c2 - (1-c1c))*(c1c + Kd*(1-c1c)) - k2*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))*(c3c - c4 + 2*(1-c3c))));
+
+	mode_2 -> (d.Bd / d.time = SF*((1-choice1)*k3*lam2 - k1*lam1*(Ad*(1- lam1) + Bd*lam1)*(c1c + Kd*(1-c1c)) + k2*lam2*(c6 - (1-c5c))*((1-c3c)*Kd^2 + c3c*Kd)*(c5c + (1-c5c)*(Ad*(1- lam2) + Bd*lam2))));
+
+
+	-- No state change without time consumption.
+	(delta_time = 0) -> (A' = A) and (B' = B) and (K' = K) and (dK_dt' = dK_dt) and (k1' = k1) and (k2' = k2) and (k3' = k3);
+
+  	--Jump Condition where to form the top of the bellshape we have dK_dt at inflection point.
+    (mode_1 and mode_2') -> (K > 0.3) and (dK_dt < 0.001);
+
+
+TARGET
+	--K diminishes back down to a value between 0 and 0.1 as outlined in the specification.
+	mode_2 and (time <= MAX_TIME) and (K >= 0) and (K < 0.1); 
+
+
+
+
+

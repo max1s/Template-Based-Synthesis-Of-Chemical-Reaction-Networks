@@ -1,0 +1,123 @@
+%%% X ->{k1} 2X
+%%% X + Y ->{k2} 2Y
+%%% Y ->{k3} 
+
+DECL
+
+-- 10s det.
+-- 23s stoch.
+
+	--time horizon
+	define MAX_TIME = 2;
+
+	--modes (all modes have an invariant described later)
+
+	boole mode_1;
+	boole mode_2;
+
+	--rates
+
+	float [0, 1] k1;
+	float [0, 1] k2;
+	float [0, 1] k3;
+
+	-- concentrations of species
+
+	float [0, 1] X;
+	float [0, 1] Y;
+
+	-- L3pt = d.L3p / d.time
+
+	float [0, 1] Xt;
+	float [0, 1] Yt;
+
+	-- L3ptt = d.L3pt / d.time
+	float [-1, 1] L3ptt;
+
+	--variances
+
+	float [0, 1] CX
+	float [0, 1] CY
+	float [0, 1] CXY
+
+
+	-- time and the time step. the time step is defaulted to the smallest minimum splitting width of undefined
+
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+INIT
+	time = 0; 
+	X = 0;
+	Y = 0;
+
+	CX = 0;
+	CY = 0;
+	CXY = 0;
+
+	-- cant be in two modes at the same time.
+	mode_1 + mode_2 = 1;
+
+TRANS
+	-- at each time step we add delta time
+	time' = time + delta_time;
+
+	--cant be in two modes at once
+	mode_1' + mode_2' = 1;
+
+	--Invariants mode_1: L3ptt >= 0 mode_2: L3ptt <= 0. 
+
+    --mode_1 -> (L3pt  >= 0) and (L3ptt >= 0);
+    --mode_1' -> (L3pt  >= 0) and (L3ptt >= 0);
+
+    --mode_2  -> (L3pt > 0) and (L3ptt <= 0);
+    --mode_2'  -> (L3pt > 0) and (L3ptt <= 0);
+
+  
+
+    --ODEs (flow)
+
+    --rates are constant
+
+    (k1' = k1) and (k2' = k2) and (k3' = k3); 
+
+	mode_1 -> (d.k1 / d.time = 0);
+	mode_1 -> (d.k2 / d.time = 0);
+	mode_1 -> (d.k3 / d.time = 0);
+	
+	mode_1 -> (d.X/ d.time = -k1*X + k1*X*X - k2*X*Y );
+	mode_1 -> (d.Y/ d.time = -k2*X*Y + k2*Y*Y - k3*Y);
+
+	mode_1 -> (d.CX / d.time =  X*k1 + 2*covX*(k1 - Y*k2) + X*Y*k2 - 2*X*covXY*k2); 
+	mode_1 -> (d.CXY / d.time =	covXY*(k1 - Y*k2) - covXY*(k3 - X*k2) - X*Y*k2 - X*covY*k2 + Y*covX*k2);                  
+ 	mode_1 -> (d.Y / d.time = Y*k3 - 2*covY*(k3 - X*k2) + X*Y*k2 + 2*Y*covXY*k2);
+
+ 	mode_2 -> (d.k1 / d.time = 0);
+	mode_2 -> (d.k2 / d.time = 0);
+	mode_2 -> (d.k3 / d.time = 0);
+	
+	mode_2 -> (d.X/ d.time = -k1*X + k1*X*X - k2*X*Y );
+	mode_2 -> (d.Y/ d.time = -k2*X*Y + k2*Y*Y - k3*Y);
+
+	mode_2 -> (d.CX / d.time =  X*k1 + 2*covX*(k1 - Y*k2) + X*Y*k2 - 2*X*covXY*k2); 
+	mode_2 -> (d.CXY / d.time =	covXY*(k1 - Y*k2) - covXY*(k3 - X*k2) - X*Y*k2 - X*covY*k2 + Y*covX*k2);                  
+ 	mode_2 -> (d.Y / d.time = Y*k3 - 2*covY*(k3 - X*k2) + X*Y*k2 + 2*Y*covXY*k2);
+
+	-- No state change without time consumption.
+	(delta_time = 0) ->  (L1' = L1) and (L2' = L2) and (L3' = L3) and (L1p' = L1p) and (L2p' = L2p) and (L3p' = L3p) and (CB' = CB);
+
+    --Jump Condition mode_1 and mode_2 next when L3ptt (d.L3pt / d.time = 0) and CL3p <1
+    (mode_1 and mode_2') ->  (L3ptt = 0) and (L3p > 0.05) and (CL3p < 1);
+
+TARGET
+	-- mode_2 and L3p > 0.2 are the target conditions. Has to be reached before time horizon.
+
+	(time <= 1 and L3p > 0.05) and
+	(time < MAX_TIME
+	and mode_2
+	and k1 > 0
+	and k2 > 0
+	and k3 > 0
+	and k4 > 0
+	and ( L3p > 0.1 ));
+
