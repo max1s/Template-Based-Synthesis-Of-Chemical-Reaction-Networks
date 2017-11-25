@@ -58,12 +58,6 @@ class ReactionSketch:
         return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
             self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-
-def AMParametricExample():
-    # reaction1 = ReactionSketch([X], [B], [X, X], )
-    pass
-
-
 class OptionalReaction:
     def __init__(self, r, p, ra):
         self.reactants = r
