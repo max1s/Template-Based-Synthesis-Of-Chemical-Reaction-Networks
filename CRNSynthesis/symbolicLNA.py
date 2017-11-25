@@ -1,4 +1,4 @@
-#import matlab.engine
+# import matlab.engine
 from sympy import *
 from sympy import Matrix
 import ipdb
@@ -7,171 +7,182 @@ import iSATParser
 
 
 class CRN:
-	def __init__(self, s, r, ip):
-		self.species = s
-		self.reactions = r
-		self.initialPopulations = ip
+    def __init__(self, s, r, ip):
+        self.species = s
+        self.reactions = r
+        self.initialPopulations = ip
 
-	def __repr__(self):
-		return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
+    def __repr__(self):
+        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-	def __str__(self):
-		return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
+    def __str__(self):
+        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
 
 class Reaction:
-	def __init__(self, r, p, ra):
-		self.reactants = r
-		self.products = p
-		self.reactionrate = ra
+    def __init__(self, r, p, ra):
+        self.reactants = r
+        self.products = p
+        self.reactionrate = ra
 
-	def __repr__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+    def __repr__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-	def __str__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+    def __str__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+
 
 class stoichPair:
-	def __init__(self, x, y):
-		self.variable = symbols(x)
-		self.coefficient = symbols(y)
-
+    def __init__(self, x, y):
+        self.variable = symbols(x)
+        self.coefficient = symbols(y)
 
 
 class ReactionSketch:
-	def __init__(self, r, opr, p, opp, coeff, ra, isop):
-		self.reactants = r
-		self.products = p
-		self.optionalReactants = opr
-		self.optionalProducts = opp
-		self.coefficients = coeff
-		self.reactionrate = ra
-		self.isOptional = isop
+    def __init__(self, r, opr, p, opp, coeff, ra, isop):
+        self.reactants = r
+        self.products = p
+        self.optionalReactants = opr
+        self.optionalProducts = opp
+        self.coefficients = coeff
+        self.reactionrate = ra
+        self.isOptional = isop
 
+    def __repr__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-	def __repr__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+    def __str__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-	def __str__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
 def AMParametricExample():
-	#reaction1 = ReactionSketch([X], [B], [X, X], )
-	pass
+    # reaction1 = ReactionSketch([X], [B], [X, X], )
+    pass
+
+
 class OptionalReaction:
-	def __init__(self, r, p, ra):
-		self.reactants = r
-		self.products = p
-		self.reactionrate = ra
+    def __init__(self, r, p, ra):
+        self.reactants = r
+        self.products = p
+        self.reactionrate = ra
 
-	def __repr__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+    def __repr__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-	def __str__(self):
-		return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+    def __str__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+
 
 class CRNSketch:
-	def __init__(self, cs, os, r, opr, params):
-		self.species = s
-		self.optionalSpecies = os
-		self.reactions = r
-		self.optionalReactions = os
-		self.parameters = params
+    def __init__(self, cs, os, r, opr, params):
+        self.species = s
+        self.optionalSpecies = os
+        self.reactions = r
+        self.optionalReactions = os
+        self.parameters = params
 
+    def __repr__(self):
+        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-	def __repr__(self):
-		return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
+    def __str__(self):
+        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-	def __str__(self):
-		return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
 def propensity(reactions):
-	propensities = []
-	for reaction in reactions:
-		propensity = symbols(str(reaction.reactionrate))
-		for reactant in reaction.reactants:
-			propensity *= symbols(reactant)
-		propensities.append(propensity)
-	return propensities
+    propensities = []
+    for reaction in reactions:
+        propensity = symbols(str(reaction.reactionrate))
+        for reactant in reaction.reactants:
+            propensity *= symbols(reactant)
+        propensities.append(propensity)
+    return propensities
 
-#alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
-#alpha2=k2*SF*(c50 + c51*(lambda2A*A + lambda2B*B) )*(c31*K + c32*(K^2));
-#alpha3=k3*SF;
+
+# alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
+# alpha2=k2*SF*(c50 + c51*(lambda2A*A + lambda2B*B) )*(c31*K + c32*(K^2));
+# alpha3=k3*SF;
 
 def parametricPropensity(paramCRN):
-	propensities = []
-	for (reaction, i) in zip(paramCRN.reactions, range(len(paramCRN.species))):
-		reactionRate = symbols(str(reaction.reactionrate))
-		for reactant in reaction.reactants:
-			propensity *= symbols(reactant)
-		for optionalReactant in reaction.optionalReactant:
-			propensity *= symbols('(' + optionalReactant +'A' + ' + ' + optionalReactant + 'B' + ')')
+    propensities = []
+    for (reaction, i) in zip(paramCRN.reactions, range(len(paramCRN.species))):
+        reactionRate = symbols(str(reaction.reactionrate))
+        for reactant in reaction.reactants:
+            propensity *= symbols(reactant)
+        for optionalReactant in reaction.optionalReactant:
+            propensity *= symbols('(' + optionalReactant + 'A' + ' + ' + optionalReactant + 'B' + ')')
 
-	return propensities
+    return propensities
+
 
 def netReactionChange(species, reactions):
-	reactionChange = [] #ReferenceFrame('N')
-	for reaction in reactions:
-		netChange = []
-		for specie in species:
-			speciesChange = 0
-			for reactant in reaction.reactants:
-				if specie == reactant:
-					speciesChange -= 1 
-			for product in reaction.products:
-				if specie == product:
-					speciesChange += 1 
-			netChange.append(speciesChange)
-		reactionChange.append(Matrix(1, len(netChange), netChange))
-	return reactionChange
+    reactionChange = []  # ReferenceFrame('N')
+    for reaction in reactions:
+        netChange = []
+        for specie in species:
+            speciesChange = 0
+            for reactant in reaction.reactants:
+                if specie == reactant:
+                    speciesChange -= 1
+            for product in reaction.products:
+                if specie == product:
+                    speciesChange += 1
+            netChange.append(speciesChange)
+        reactionChange.append(Matrix(1, len(netChange), netChange))
+    return reactionChange
 
-#def flowFunction(propensities, reactionChange):
+
+# def flowFunction(propensities, reactionChange):
 #	flow = []
 #	for n in range(0, len(propensities)):
-		#if (sum(reactionChange[n]) != 0):
+# if (sum(reactionChange[n]) != 0):
 #		flow.append(reactionChange[n]*propensities[n]) 
 #	return Matrix(1, len(flow), flow)
 
 def flowFunction(propensities, reactionChange):
-	summationFunction = reactionChange[0]*propensities[0]
-	for n in range(1, len(propensities)):
-		summationFunction += reactionChange[n]*propensities[n]
-	return summationFunction
+    summationFunction = reactionChange[0] * propensities[0]
+    for n in range(1, len(propensities)):
+        summationFunction += reactionChange[n] * propensities[n]
+    return summationFunction
 
 
 def jacobian(flow, species):
-	return flow.jacobian(species)
+    return flow.jacobian(species)
 
 
 def g(propensities, reactionChange):
-	G = zeros(len(reactionChange.row(0)), len(reactionChange.row(0)))
-	for i in range(len(propensities)):
-		G += transpose(reactionChange.row(i)) * reactionChange.row(i) * propensities[i]
-	return G
+    G = zeros(len(reactionChange.row(0)), len(reactionChange.row(0)))
+    for i in range(len(propensities)):
+        G += transpose(reactionChange.row(i)) * reactionChange.row(i) * propensities[i]
+    return G
+
 
 def generateCovarianceMatrix(speciesVector):
-	mat = eye(len(speciesVector))
-	for (m, i) in zip(speciesVector, range(len(speciesVector))):
-		for (n, j) in zip(speciesVector, range(len(speciesVector))):
-			if (m == n):
-				mat[i,j] = 'cov' + m 
-			else:
-				mat[i, j] = 'cov' + n + m
+    mat = eye(len(speciesVector))
+    for (m, i) in zip(speciesVector, range(len(speciesVector))):
+        for (n, j) in zip(speciesVector, range(len(speciesVector))):
+            if (m == n):
+                mat[i, j] = 'cov' + m
+            else:
+                mat[i, j] = 'cov' + n + m
 
-	for x in range(len(speciesVector)):
-		for y in range(len(speciesVector)):
-			mat[x,y] = mat[y,x]
-	#pprint(mat)
-	return mat
+    for x in range(len(speciesVector)):
+        for y in range(len(speciesVector)):
+            mat[x, y] = mat[y, x]
+    # pprint(mat)
+    return mat
 
+# G = reactionChange[1].transpose
+# G=v1'*v1*alpha1
+# G=G+(v2'*v2*alpha2)
+# G=G+(v3'*v3*alpha3)
 
-	# G = reactionChange[1].transpose 	
-	#G=v1'*v1*alpha1
-	#G=G+(v2'*v2*alpha2)
-	#G=G+(v3'*v3*alpha3)
+# C=[covX covXY ;
+#		covXY covY ]
 
-   #C=[covX covXY ;
-   #		covXY covY ]
-
-   #dCovdt=J*C+C*(J')+G
-
+# dCovdt=J*C+C*(J')+G
