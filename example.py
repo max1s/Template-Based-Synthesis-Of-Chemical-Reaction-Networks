@@ -5,6 +5,8 @@ from sympy import init_printing, Matrix, transpose, pprint
 def exampleParametricCRN():
     reaction1 = ReactionSketch(['A'], ['B'], ['K'], [], [2, 1], 'k_1', 0)
     reaction2 = ReactionSketch(['B'], ['B'], ['K'], ['K'], [2, 1], 'k_1', 0)
+    return CRN(['A', 'B', 'K'], [reaction1, reaction2], [5, 2, 1])
+
 
 def exampleCRN():
     reaction1 = Reaction(['A', 'x_1'], ['x_1', 'x_1'], 'k_1')
@@ -20,34 +22,42 @@ def AMExample():
     reaction4 = Reaction(['Y', 'B'], ['Y', 'Y'], 'k_4')
     return CRN(['X', 'Y', 'B'], [reaction1, reaction2, reaction3, reaction4], [5, 3, 1])
 
-if __name__ == "__main__":
-    exampleParametricCRN()
-    init_printing()
-    crn = exampleCRN()
+
+def printCRNDetails(crn):
+    #crn = exampleCRN()
+
+    #crn = AMExample()
+    print "CRN:"
+    print crn
+
     props = propensity(crn.reactions)
+    print "\nPropensities:"
+    print props
+
     nrc = netReactionChange(crn.species, crn.reactions)
-    # props = propensity(crn.reactions)
     flow = flowFunction(props, nrc)
-    # A = Matrix([crn.species])
     J = jacobian(flow, Matrix([crn.species]))
-    # print covar
     G = g(Matrix(props), Matrix(nrc))
     C = generateCovarianceMatrix(crn.species)
 
     dCovdt = J * C + C * transpose(J) + G
-
-    # iSATParser.constructiSATFile()
-    print crn
-    print "propensities:"
-    print props
-
+    print "\ndCovdt:"
+    init_printing()
     pprint(dCovdt)
-    # reactants = crn.reactions.reactants
-    # reactants = [ x.reactants for x in crn.reactions]
+
+    print "\n\n\n"
+    # iSATParser.constructiSATFile()
 
 
-    # eng = matlab.engine.start_matlab()
-    # ret = eng.symbolicLNA(crn.species,[ x.reactants for x in crn.reactions], [ x.products for x in crn.reactions], [ x.reactionrate for x in crn.reactions])
+if __name__ == "__main__":
+    print "Example CRN:"
+    printCRNDetails(exampleCRN())
+
+    print "Example Parametric CRN:"
+    printCRNDetails(exampleParametricCRN())
+
+    print "AM Example:"
+    printCRNDetails(AMExample())
 
 
-    # inspecies, inreactants, inproducts, inrates
+
