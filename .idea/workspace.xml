@@ -2,9 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="85cfea9d-fd65-490f-a49c-5d1838aa1d35" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Specification.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/iSATParser.py" afterPath="$PROJECT_DIR$/iSATParser.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CRNSynthesis/propertyTransformer.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CRNSynthesis/resultsAssembler.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CRNSynthesis/solverCaller.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CRNSynthesis/solverinput.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/CRNSynthesis/symbolicLNA.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/example.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/setup.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/iSATParser.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/resultsAssembler.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/solverCaller.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/solverinput.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/iSATConstructor.py" afterPath="$PROJECT_DIR$/CRNSynthesis/__init__.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/propertyTransformer.py" afterPath="$PROJECT_DIR$/CRNSynthesis/iSATConstructor.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CRNSynthesis/iSATParser.py" afterPath="$PROJECT_DIR$/CRNSynthesis/iSATParser.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/symbolicLNA.py" afterPath="$PROJECT_DIR$/symbolicLNA.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,11 +28,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="55" column="51" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="55" selection-end-column="51" />
+            <state relative-caret-position="-1792">
+              <caret line="70" column="55" lean-forward="false" selection-start-line="70" selection-start-column="55" selection-end-line="70" selection-end-column="55" />
               <folding>
                 <element signature="e#22#41#0" expanded="true" />
               </folding>
@@ -30,26 +42,6 @@
       </file>
       <file leaf-file-name="Specification.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Specification.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="iSATParser.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/iSATParser.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2340">
-              <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="propertyTransformer.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/propertyTransformer.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -251,29 +243,29 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/iSATParser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2340">
+          <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Specification.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="true" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="55" column="51" lean-forward="false" selection-start-line="40" selection-start-column="0" selection-end-line="55" selection-end-column="51" />
+        <state relative-caret-position="-1792">
+          <caret line="70" column="55" lean-forward="false" selection-start-line="70" selection-start-column="55" selection-end-line="70" selection-end-column="55" />
           <folding>
             <element signature="e#22#41#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/iSATParser.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2340">
-          <caret line="156" column="0" lean-forward="true" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>

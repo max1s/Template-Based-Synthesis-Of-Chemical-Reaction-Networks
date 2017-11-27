@@ -1,0 +1,6 @@
+*.pyc
+.idea/workspace.xml
+.idea/tasks.xml
+build/*
+dist/*
+*.egg-info
