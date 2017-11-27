@@ -127,7 +127,6 @@ def parametricPropensity(paramCRN):
 			propensity *= symbols(reactant)
 		for optionalReactant in reaction.optionalReactant:
 			propensity *= symbols('(' + optionalReactant +'A' + ' + ' + optionalReactant + 'B' + ')')
-
 	return propensities
 
 def netReactionChange(species, reactions):
