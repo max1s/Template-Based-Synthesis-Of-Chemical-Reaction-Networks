@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD:iSATParser.py
 class Constant:
     def __init__(self, name, value):
         self.constantName = name
@@ -160,21 +159,3 @@ def MTLConverter(specification, maxtime=1):
 
 
 
-=======
-
-def addSpecies(species, parameters):
-    return "float  [" + str(parameters[0]) + "," + str(parameters[1]) + "] " + species
-
-
-def addStochConstant(stochConstant, parameters):
-    decl = "float  [" + str(parameters[0]) + "," + str(parameters[1]) + "] " + stochConstant
-    # constraints = '((' + parameters[0]  + ['((' + x + '= 1) or ( = 2));' for x in range(int(parameters[0]) + 1, int(parameters[1]) + 1)]
-
-
-def addEquations(species, eq, file):
-    pass
-
-
-def constructiSATFile(reactionSketch, conditions, otherConstraints):
-    pass
->>>>>>> fe6e1cc0be3a49eb905046f06c1c8d95b5900a30:CRNSynthesis/iSATParser.py
