@@ -37,6 +37,13 @@ class LambdaChoice:
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
 
 
+    def contains(self, var):
+        x = ''
+        for lam in self.lambdas:
+            if str(var) in str(lam):
+                x += str(lam)
+        return x
+
 class Choice:
     def __init__(self, choiceName, minNumber, maxNumber):
         self.choiceName = choiceName
@@ -74,49 +81,6 @@ class Species:
             return self.specRep()
         else:
             raise NotImplementedError
-        # elif(len(self.coefficient) is 2):
-        # 	if(self.coefficient[-1] is 2):
-        # 		return "(" + self.coefficient[0]*self.specRep() + self.coefficient[1]*symbols(self.specRep() + "^2") + ")"
-        # 	else:
-        # 		return "(" + self.coefficient[0]  + self.coefficient[1]*self.specRep() + ")"
-        # elif(len(self.coefficient) is 3):
-        # 	if(self.coefficient[-1] is 3):
-        # 		return  "(" + self.coefficient[0]*self.specRep() + self.coefficient[1]*symbols(self.specRep() + "^2") + self.coefficient[2]*symbols(self.specRep() + "^3") +  ")"
-        # 	elif(self.coefficient[-1] is 2):
-        # 		return  "(" + self.coefficient[0] + self.coefficient[1]*self.specRep() + self.coefficient[2]*symbols(self.specRep() + "^2") + ")"
-        #
-
-
-def parametricPropensity(paramCRN):
-    propensities = []
-    for reaction in paramCRN.reactions:
-        propensity = symbols(str(reaction.reactionrate))
-        for reactant in reaction.reactants:
-            propensity *= sympify(reactant.constructPropensity())
-        propensities.append(propensity)
-    return propensities
-
-
-def parametricNetReactionChange(crn):
-    reactionChange = []  # ReferenceFrame('N')
-    for reaction in crn.reactions:
-        netChange = ''
-        for reactant in reaction.reactants:
-            netChange += ("-" + reactant.specRep())
-        for product in reaction.products:
-            if len(netChange) is 0:
-                netChange.append(product.specRep())
-            else:
-                netChange += ("+" + product.specRep())
-        reactionChange.append(sympify(netChange))
-    return reactionChange
-
-
-def parametricFlow(propensities, reactionChange):
-    container = [reactionChange[0] * propensities[0]]
-    for n in range(1, len(propensities)):
-        container.append(reactionChange[n] * propensities[n])
-    return container
 
 
 class ReactionSketch:
@@ -136,10 +100,6 @@ class ReactionSketch:
         return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
             self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
-
-def AMParametricExample():
-    # reaction1 = ReactionSketch([X], [B], [X, X], )
-    pass
 
 
 class OptionalReaction:
@@ -169,139 +129,67 @@ class CRNSketch:
     def __str__(self):
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-
-def exampleCRN():
-    reaction1 = Reaction(['A', 'x_1'], ['x_1', 'x_1'], 'k_1')
-    reaction2 = Reaction(['x_1', 'x_2'], ['x_2', 'x_2'], 'k_2')
-    reaction3 = Reaction(['x_2'], ['B'], 'k_3')
-    return CRN(['A', 'B', 'x_1', 'x_2'], [reaction1, reaction2, reaction3], [5, 2, 1])
-
-
-def AMExample():
-    reaction1 = Reaction(['X', 'Y'], ['X', 'B'], 'k_1')
-    reaction2 = Reaction(['Y', 'X'], ['Y', 'B'], 'k_2')
-    reaction3 = Reaction(['X', 'B'], ['X', 'X'], 'k_3')
-    reaction4 = Reaction(['Y', 'B'], ['Y', 'Y'], 'k_4')
-    return CRN(['X', 'Y', 'B'], [reaction1, reaction2, reaction3, reaction4], [5, 3, 1])
+    def getSpecies(self):
+        x = []
+        for y in self.reactions:
+            for react in y.reactants:
+                if react not in x:
+                    x.append(react.specRep())
+            for react in y.products:
+                if react not in x:
+                    x.append(react.specRep())
+        return x
 
 
-def exampleParametricCRN():
-    X = symbols('X')
-    Y = symbols('Y')
-    B = symbols('B')
 
-    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], 'k_1')
-    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)],
-                         [Species(Y, 1), Species(B, 1)], 'k_2')
-    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
-    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
-
-    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
-
-    prp = (parametricPropensity(crn))
-    nrc = (parametricNetReactionChange(crn))
-    dSpeciesdt = parametricFlow(prp, nrc)
-
-    J = Matrix(dSpeciesdt).jacobian([X, Y, B])
-    pprint(J)
-    pprint(Matrix(prp))
-    pprint(Matrix(nrc))
-    G = parametricG(Matrix(prp), Matrix(nrc))
-
-    C = generateCovarianceMatrix(['X', 'Y', 'B'])
-
-    print(J * C + C * transpose(J)).shape
-    print
-    G.shape
-
-    dCovdt = J * C + C * transpose(J)
-    pprint(dCovdt)
-
-
-# nrc = netReactionChange(crn.species, crn.reactions)
-# #props = propensity(crn.reactions)
-# flow = flowFunction(props,nrc)
-# #A = Matrix([crn.species])
-# J = jacobian(flow, Matrix([crn.species]))
-# #print covar
-# G = g(Matrix(props), Matrix(nrc))
-# C = generateCovarianceMatrix(crn.species)
-#
-# dCovdt = J*C + C*transpose(J)  + G
-#
-# #iSATParser.constructiSATFile()
-# print crn
-# print "propensities:"
-# print props
-#
-# pprint(dCovdt)
-# self.reactants = r
-# self.products = p
-# self.lambdaReactants = opr
-# self.lambdaProducts = opp
-# self.reactionrate = ra
-# self.isOptional = isop
-
-
-# def propensities(reations):
-#	for reaction in reactions:
-
-def propensity(reactions):
+def parametricPropensity(paramCRN):
     propensities = []
-    for reaction in reactions:
+    for reaction in paramCRN.reactions:
         propensity = symbols(str(reaction.reactionrate))
         for reactant in reaction.reactants:
-            propensity *= symbols(reactant)
+            propensity *= sympify(reactant.constructPropensity())
         propensities.append(propensity)
     return propensities
 
 
-# alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
-# alpha2=k2*SF*(c50 + c51*(lambda2A*A + lambda2B*B) )*(c31*K + c32*(K^2));
-# alpha3=k3*SF;
-
-
-def netReactionChange(species, reactions):
-    reactionChange = []  # ReferenceFrame('N')
-    for reaction in reactions:
-        netChange = []
-        for specie in species:
-            speciesChange = 0
-            for reactant in reaction.reactants:
-                if specie == reactant:
-                    speciesChange -= 1
-            for product in reaction.products:
-                if specie == product:
-                    speciesChange += 1
-            netChange.append(speciesChange)
-        reactionChange.append(Matrix(1, len(netChange), netChange))
+def parametricNetReactionChange(crn):
+    reactionChange = []
+    for reaction in crn.reactions:
+        netChange = [''] * len(crn.species)
+        for reactant in reaction.reactants:
+            add(crn.species, netChange, reactant, '-')
+        for product in reaction.products:
+            if len(netChange) is 0:
+                #netChange.append(product.specRep())
+                add(crn.species, netChange, reactant, '+')
+            else:
+                #netChange.append("+" + product.specRep())
+                add(crn.species, netChange, reactant, '+')
+        netChange = [0 if n is '' else n for n in netChange]
+        reactionChange.append(sympify(netChange))
     return reactionChange
 
 
-# def flowFunction(propensities, reactionChange):
-#	flow = []
-#	for n in range(0, len(propensities)):
-# if (sum(reactionChange[n]) != 0):
-#		flow.append(reactionChange[n]*propensities[n])
-#	return Matrix(1, len(flow), flow)
+def add(species, list,  fragment, part):
+    for spec, i in zip(species, range(len(species))):
+        if str(spec) in fragment.specRep():
+            if "lam" in fragment.specRep():
+                list[i] += part + fragment.species.contains(spec) + "*" + str(spec)
+            else:
+                list[i] += part + fragment.specRep()
+    return list
 
-def flowFunction(propensities, reactionChange):
-    summationFunction = reactionChange[0] * propensities[0]
+
+def parametricFlow(propensities, reactionChange):
+    container = [reactionChange[0] * propensities[0]]
     for n in range(1, len(propensities)):
-        summationFunction += reactionChange[n] * propensities[n]
-    return summationFunction
+        container.append(reactionChange[n] * propensities[n])
+
+    return container
+
 
 
 def parametricG(propensities, reactionChange):
-    g = Transpose(reactionChange[0]) * reactionChange[0] * propensities
-    pprint(reactionChange[0])
-    pprint(reactionChange[0].T)
-    pprint(reactionChange[0] * Transpose(reactionChange[0]))
-    pprint(g.shape)
-    quit()
-
-
-def g(propensities, reactionChange):
     G = zeros(max(len(reactionChange.col(0)), len(reactionChange.row(0))),
               max(len(reactionChange.col(0)), len(reactionChange.row(0))))
     for i in range(len(propensities)):
@@ -325,18 +213,74 @@ def generateCovarianceMatrix(speciesVector):
     return mat
 
 
-# G = reactionChange[1].transpose
-# G=v1'*v1*alpha1
-# G=G+(v2'*v2*alpha2)
-# G=G+(v3'*v3*alpha3)
+def exampleParametricCRN():
+    X = symbols('X')
+    Y = symbols('Y')
+    B = symbols('B')
 
-# C=[covX covXY ;
-#		covXY covY ]
+    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], 'k_1')
+    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], 'k_2')
+    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
+    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_4')
 
-# dCovdt=J*C+C*(J')+G
+    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
+    crn.getSpecies()
+    prp = (parametricPropensity(crn))
+    nrc = (parametricNetReactionChange(crn))
+    dSpeciesdt = parametricFlow(prp, Matrix(nrc))
+    J = Matrix(dSpeciesdt).jacobian([X, Y, B])
+    G = parametricG(Matrix(prp), Matrix(nrc))
+
+    C = generateCovarianceMatrix(['X', 'Y', 'B'])
+
+    dCovdt = J * C + C * transpose(J)
+    pprint(dCovdt)
+
 
 if __name__ == "__main__":
     exampleParametricCRN()
+
+
+    # def exampleCRN():
+    #     reaction1 = Reaction(['A', 'x_1'], ['x_1', 'x_1'], 'k_1')
+    #     reaction2 = Reaction(['x_1', 'x_2'], ['x_2', 'x_2'], 'k_2')
+    #     reaction3 = Reaction(['x_2'], ['B'], 'k_3')
+    #     return CRN(['A', 'B', 'x_1', 'x_2'], [reaction1, reaction2, reaction3], [5, 2, 1])
+    #
+    #
+    # def AMExample():
+    #     reaction1 = Reaction(['X', 'Y'], ['X', 'B'], 'k_1')
+    #     reaction2 = Reaction(['Y', 'X'], ['Y', 'B'], 'k_2')
+    #     reaction3 = Reaction(['X', 'B'], ['X', 'X'], 'k_3')
+    #     reaction4 = Reaction(['Y', 'B'], ['Y', 'Y'], 'k_4')
+    #     return CRN(['X', 'Y', 'B'], [reaction1, reaction2, reaction3, reaction4], [5, 3, 1])
+
+        # alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
+    # alpha2=k2*SF*(c50 + c51*(lambda2A*A + lambda2B*B) )*(c31*K + c32*(K^2));
+    # alpha3=k3*SF;
+
+    # def flowFunction(propensities, reactionChange):
+    #	flow = []
+    #	for n in range(0, len(propensities)):
+    # if (sum(reactionChange[n]) != 0):
+    #		flow.append(reactionChange[n]*propensities[n])
+    #	return Matrix(1, len(flow), flow)
+
+    # def g(propensities, reactionChange):
+    #     G = zeros(max(len(reactionChange.col(0)), len(reactionChange.row(0))),
+    #               max(len(reactionChange.col(0)), len(reactionChange.row(0))))
+    #     for i in range(len(propensities)):
+    #         G += transpose(reactionChange.row(i)) * reactionChange.row(i) * propensities[i]
+    #     return G
+    # G = reactionChange[1].transpose
+    # G=v1'*v1*alpha1
+    # G=G+(v2'*v2*alpha2)
+    # G=G+(v3'*v3*alpha3)
+
+    # C=[covX covXY ;
+    #		covXY covY ]
+
+    # dCovdt=J*C+C*(J')+G
 
 
     # exampleParametricCRN()
@@ -372,3 +316,47 @@ if __name__ == "__main__":
 
 
     # inspecies, inreactants, inproducts, inrates
+
+    # def propensity(reactions):
+    #     propensities = []
+    #     for reaction in reactions:
+    #         propensity = symbols(str(reaction.reactionrate))
+    #         for reactant in reaction.reactants:
+    #             propensity *= symbols(reactant)
+    #         propensities.append(propensity)
+    #     return propensities
+    #
+    #
+    # def netReactionChange(species, reactions):
+    #     reactionChange = []  # ReferenceFrame('N')
+    #     for reaction in reactions:
+    #         netChange = []
+    #         for specie in species:
+    #             speciesChange = 0
+    #             for reactant in reaction.reactants:
+    #                 if specie == reactant:
+    #                     speciesChange -= 1
+    #             for product in reaction.products:
+    #                 if specie == product:
+    #                     speciesChange += 1
+    #             netChange.append(speciesChange)
+    #         reactionChange.append(Matrix(1, len(netChange), netChange))
+    #     return reactionChange
+
+    # elif(len(self.coefficient) is 2):
+    # 	if(self.coefficient[-1] is 2):
+    # 		return "(" + self.coefficient[0]*self.specRep() + self.coefficient[1]*symbols(self.specRep() + "^2") + ")"
+    # 	else:
+    # 		return "(" + self.coefficient[0]  + self.coefficient[1]*self.specRep() + ")"
+    # elif(len(self.coefficient) is 3):
+    # 	if(self.coefficient[-1] is 3):
+    # 		return  "(" + self.coefficient[0]*self.specRep() + self.coefficient[1]*symbols(self.specRep() + "^2") + self.coefficient[2]*symbols(self.specRep() + "^3") +  ")"
+    # 	elif(self.coefficient[-1] is 2):
+    # 		return  "(" + self.coefficient[0] + self.coefficient[1]*self.specRep() + self.coefficient[2]*symbols(self.specRep() + "^2") + ")"
+    #
+
+    # def flowFunction(propensities, reactionChange):
+    #     summationFunction = reactionChange[0] * propensities[0]
+    #     for n in range(1, len(propensities)):
+    #         summationFunction += reactionChange[n] * propensities[n]
+    #     return summationFunction
