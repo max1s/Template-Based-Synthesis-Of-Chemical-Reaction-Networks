@@ -20,6 +20,19 @@ class CRN:
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
 
+class RateConstant:
+    def __init__(self, name, min, max):
+       self.name = name
+       self.min = min
+       self.max = max
+
+    def __repr__(self):
+         return self.name
+
+    def __str__(self):
+         return "Rate constant %s <= %s <= %s"  % (self.min, self.name, self.max)
+
+
 class Reaction:
     def __init__(self, r, p, ra):
         self.reactants = r
@@ -145,7 +158,7 @@ class CRNSketch:
 def parametricPropensity(paramCRN):
     propensities = []
     for reaction in paramCRN.reactions:
-        propensity = symbols(str(reaction.reactionrate))
+        propensity = symbols(str(reaction.reactionrate.name))
         for reactant in reaction.reactants:
             propensity *= sympify(reactant.constructPropensity())
         propensities.append(propensity)
@@ -212,19 +225,23 @@ def generateCovarianceMatrix(speciesVector):
     # pprint(mat)
     return mat
 
+def generateAllTokens(crn):
+    t = [x.free_symbols for x in sympify(crn.getSpecies())]
+    a = reduce(lambda x, y : x |y, t)
 
+    print a
 def exampleParametricCRN():
     X = symbols('X')
     Y = symbols('Y')
     B = symbols('B')
 
-    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], 'k_1')
-    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], 'k_2')
-    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
-    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_4')
+    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
+    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
+    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
+    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
 
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
-    crn.getSpecies()
+
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
@@ -234,7 +251,11 @@ def exampleParametricCRN():
     C = generateCovarianceMatrix(['X', 'Y', 'B'])
 
     dCovdt = J * C + C * transpose(J)
-    pprint(dCovdt)
+    #pprint(dCovdt)
+    generateAllTokens(crn)
+    # generateAllTokens()
+
+
 
 
 if __name__ == "__main__":
