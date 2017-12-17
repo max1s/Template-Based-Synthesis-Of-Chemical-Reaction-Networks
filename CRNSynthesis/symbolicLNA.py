@@ -19,6 +19,11 @@ class CRN:
     def __str__(self):
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
+class InputSpecies:
+    def __init__(self, name, concentration, ode):
+        self.name = name
+        self.concentration = concentration
+        self.ode = ode
 
 class RateConstant:
     def __init__(self, name, min, max):
@@ -225,11 +230,37 @@ def generateCovarianceMatrix(speciesVector):
     # pprint(mat)
     return mat
 
-def generateAllTokens(crn):
+def generateAllTokens(crn, derivatives, C = set()):
     t = [x.free_symbols for x in sympify(crn.getSpecies())]
     a = reduce(lambda x, y : x |y, t)
+    b = set()
+    if len(C) is not 0:
+        b = C.free_symbols
+    if derivatives is None:
+        return a | b
+    else:
+        return a | b | derivatives
 
-    print a
+def derivative(species, withRespectTo):
+    return [diff(x, withRespectTo) for x in species]
+
+
+def flowDictionary(crn, species, isLNA, derivatives):
+    a = dict.fromkeys(generateAllTokens(crn, set().add(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
+    prp = (parametricPropensity(crn))
+    nrc = (parametricNetReactionChange(crn))
+    dSpeciesdt = parametricFlow(prp, Matrix(nrc))
+    for sp, i in zip(species, range(len(species))):
+        a[sp] = dSpeciesdt[i]
+    jmat = [symbols(x) for x in species]
+    J = Matrix(dSpeciesdt).jacobian(jmat)
+    G = parametricG(Matrix(prp), Matrix(nrc))
+
+    C = generateCovarianceMatrix(['X', 'Y', 'B'])
+    dCovdt = J * C + C * transpose(J)
+    for x in C.get_rows:
+        pass
+
 def exampleParametricCRN():
     X = symbols('X')
     Y = symbols('Y')
@@ -242,17 +273,9 @@ def exampleParametricCRN():
 
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
 
-    prp = (parametricPropensity(crn))
-    nrc = (parametricNetReactionChange(crn))
-    dSpeciesdt = parametricFlow(prp, Matrix(nrc))
-    J = Matrix(dSpeciesdt).jacobian([X, Y, B])
-    G = parametricG(Matrix(prp), Matrix(nrc))
 
-    C = generateCovarianceMatrix(['X', 'Y', 'B'])
-
-    dCovdt = J * C + C * transpose(J)
     #pprint(dCovdt)
-    generateAllTokens(crn)
+    flowDictionary(crn, ['X', 'Y', 'B'], 1, set().add('dXdt'))
     # generateAllTokens()
 
 
