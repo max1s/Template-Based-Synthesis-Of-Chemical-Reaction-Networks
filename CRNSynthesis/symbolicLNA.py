@@ -1,10 +1,12 @@
 # import matlab.engine
 from sympy import *
 from sympy import Matrix
+import sys
 import ipdb
 from sympy import init_printing
 import iSATParser
 import itertools
+from six import string_types
 
 
 class CRN:
@@ -158,6 +160,16 @@ class CRNSketch:
                     x.append(react.specRep())
         return x
 
+    def getRawSpecies(self):
+        x = []
+        for y in self.reactions:
+            for react in y.reactants:
+                if react not in x:
+                    x.append(react)
+            for react in y.products:
+                if react not in x:
+                    x.append(react)
+        return x
 
 
 def parametricPropensity(paramCRN):
@@ -220,9 +232,9 @@ def generateCovarianceMatrix(speciesVector):
     for (m, i) in zip(speciesVector, range(len(speciesVector))):
         for (n, j) in zip(speciesVector, range(len(speciesVector))):
             if (m == n):
-                mat[i, j] = 'cov' + m
+                mat[i, j] = 'cov' + str(m)
             else:
-                mat[i, j] = 'cov' + n + m
+                mat[i, j] = 'cov' + str(n) + str(m)
 
     for x in range(len(speciesVector)):
         for y in range(len(speciesVector)):
@@ -241,6 +253,8 @@ def generateAllTokens(crn, derivatives, C = set()):
     else:
         return a | b | derivatives
 
+
+
 def derivative(species, withRespectTo):
     return [diff(x, withRespectTo) for x in species]
 
@@ -251,15 +265,62 @@ def flowDictionary(crn, species, isLNA, derivatives):
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
     for sp, i in zip(species, range(len(species))):
-        a[sp] = dSpeciesdt[i]
-    jmat = [symbols(x) for x in species]
+        if isinstance(sp, str):
+            a[symbols(sp)] = dSpeciesdt[i]
+        else:
+            a[sp] = dSpeciesdt[i]
+    jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
     G = parametricG(Matrix(prp), Matrix(nrc))
-
-    C = generateCovarianceMatrix(['X', 'Y', 'B'])
+    C = generateCovarianceMatrix(species)
     dCovdt = J * C + C * transpose(J)
-    for x in C.get_rows:
-        pass
+    for i in range(C.cols*C.rows):
+        a[C[i]] = dCovdt[i]
+    for key in a:
+        if a[key] is None and not isinstance(a[key], str):
+            a[key] = 0
+    return a
+
+def intDictionary(crn, species, covariance, flowdict):
+    #getInt(crn)
+    a = dict.fromkeys(flowdict.keys())
+    t = [x for x in crn.getRawSpecies()]
+    for reaction in crn.reactions:
+        for reactant in reaction.reactants:
+            if isinstance(reactant.species, LambdaChoice):
+                for x in reactant.species.lambdas:
+                    a[x] = len(reactant.species.species)
+            elif isinstance(reactant.species, Choice):
+                for x in reactant.species.choice:
+                    a[symbols(x)] = reactant.species.maxNumber
+            else:
+                a[reactant.species] = reactant.coefficient
+
+        for product in reaction.products:
+            if isinstance(product.species, LambdaChoice):
+                for x in product.species.lambdas:
+                    a[x] = len(product.species.species)
+            elif isinstance(product.species, Choice):
+                for x in product.species.choice:
+                    a[symbols(x)] = product.species.maxNumber
+            else:
+                a[product.species] = product.coefficient
+
+    i = 0
+    for spec in species:
+        i = max(a[spec], i)
+
+    i = i**2 + 1
+
+    for co in covariance:
+        a[co] = i
+
+    return a
+
+
+
+
+
 
 def exampleParametricCRN():
     X = symbols('X')
@@ -275,10 +336,10 @@ def exampleParametricCRN():
 
 
     #pprint(dCovdt)
-    flowDictionary(crn, ['X', 'Y', 'B'], 1, set().add('dXdt'))
-    # generateAllTokens()
+    flow = flowDictionary(crn, [X, Y, B], 1, set().add('dXdt'))
+    ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
 
-
+    print ints
 
 
 if __name__ == "__main__":
