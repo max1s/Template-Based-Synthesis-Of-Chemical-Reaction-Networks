@@ -156,5 +156,8 @@ def MTLConverter(specification, maxtime=1):
     return modes, post
 
 
+def constructSpecification(specification, flow, integerConstraints=None, constants=None, initialValues=None):
+    flows = [Flow(x, 't', y) for x,y in flow]
+
 
 

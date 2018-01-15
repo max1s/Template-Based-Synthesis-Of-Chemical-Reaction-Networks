@@ -4,7 +4,7 @@ from sympy import Matrix
 import sys
 import ipdb
 from sympy import init_printing
-import iSATParser
+import iSATParser as ip
 import itertools
 from six import string_types
 
@@ -309,12 +309,9 @@ def intDictionary(crn, species, covariance, flowdict):
     i = 0
     for spec in species:
         i = max(a[spec], i)
-
     i = i**2 + 1
-
     for co in covariance:
         a[co] = i
-
     return a
 
 
@@ -338,8 +335,8 @@ def exampleParametricCRN():
     #pprint(dCovdt)
     flow = flowDictionary(crn, [X, Y, B], 1, set().add('dXdt'))
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
-
-    print ints
+    specification = [SpecificationPart(0, 'X = 0'), SpecificationPart(0.5, 'X = 0.5'), SpecificationPart(1, 'X = 0') ]
+    file = iSATParser(flow, ints, specification)
 
 
 if __name__ == "__main__":
