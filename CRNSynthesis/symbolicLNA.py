@@ -335,7 +335,7 @@ def exampleParametricCRN():
     #pprint(dCovdt)
     flow = flowDictionary(crn, [X, Y, B], 1, set().add('dXdt'))
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
-    specification = [SpecificationPart(0, 'X = 0'), SpecificationPart(0.5, 'X = 0.5'), SpecificationPart(1, 'X = 0') ]
+    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
     file = iSATParser(flow, ints, specification)
 
 

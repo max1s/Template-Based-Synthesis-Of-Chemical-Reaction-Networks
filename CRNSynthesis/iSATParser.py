@@ -43,7 +43,7 @@ class InitVals:
         self.initial = init
         self.sign = sgn
 
-class IntegerConstraints:
+class IntegerConstraint:
     def __init__(self, var, minInt, maxInt):
         self.variableName = var
         self.minimumInteger = minInt
@@ -62,7 +62,7 @@ class IntegerConstraints:
 
 
 class Initial:
-    def __init__(self, spinitvalpair, integerC, costC):
+    def __init__(self, spinitvalpair, integerC=None, costC=None):
         self.speciesInitialValuePair = spinitvalpair
         self.integerConstraints = integerC
         self.costConstraints = costC
@@ -138,7 +138,7 @@ class SpecificationPart:
         self.time = t
         self.logic = l
 
-def MTLConverter(specification, maxtime=1):
+def MTLConverter(specification, flow, maxtime=1):
     post = Post(maxtime, [], 1)
     modes = []
     timeList = [maxtime]
@@ -149,15 +149,40 @@ def MTLConverter(specification, maxtime=1):
         else:
             if(specificationPart.time not in timeList):
                 noOfModes = noOfModes + 1
-                modes += Mode(noOfModes, [specificationPart], [])
+                modes += Mode(noOfModes, [specificationPart], flow)
                 timeList += specificationPart.time
             else:
                 modes[noOfModes].invariants += specificationPart
     return modes, post
 
 
-def constructSpecification(specification, flow, integerConstraints=None, constants=None, initialValues=None):
-    flows = [Flow(x, 't', y) for x,y in flow]
+def constructSpecification(specification, flow, declaration, integerConstraints=None, constants=None, initialValues=None, costFunction):
+    m_flow = [Flow(x, 't', y) for x,y in flow]
+    m_specification = [SpecificationPart(x, y) for x,y in specification]
+    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints]
+    m_decltypes = [DeclType(x, y[0], y[1], z) for x,y,z in declaration]
+    m_contants = [Constant(x, y) for x,y in constants]
+
+    d = Declaration(m_decltypes, m_contants)
+    i = Initial(m_integerConstraints, None, costFunction)
+    m,p = MTLConverter(specification, m_flow, 1)
+
+    return d,i,m,p
+
+def constructISAT(decl, initial, flow, post):
+    d = decl.constructiSAT()
+    i = initial.constructiSAT()
+    f =[x.constructiSAT() for x in flow]
+    p = post.constructiSAT()
+
+    return d + i + flatten(f) + p
+
+
+
+
+def constructdReal(decl, initial, flow, post):
+    pass
+
 
 
 
