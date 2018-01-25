@@ -13,7 +13,7 @@ class DeclType:
 
     def constructiSAT(self):
         s = ''
-        s += self.type + ' [' + self.minimumParameter + ", " + self.maximumParameter + ']' + self.name + ';'
+        s += self.type + ' [' + str(self.minimumParameter) + ", " + str(self.maximumParameter) + '] ' + str(self.name) + ';'
         return s
 
     def constructdReal(self):
@@ -26,9 +26,10 @@ class Declaration:
 
     def constructiSAT(self):
         s = "DECL \n"
-        for constant in self.declarationOfConstants:
-            "define " + constant.constantName + ' = ' + constant.constantValue + ';\n'
-        s += '\n'
+        if self.declarationOfConstants is not 0:
+            for constant in self.declarationOfConstants:
+                "define " + constant.constantName + ' = ' + constant.constantValue + ';\n'
+            s += '\n'
         for d in self.declarationOfParameter:
             s += d.constructiSAT() + '\n'
         return s
@@ -69,9 +70,10 @@ class Initial:
 
     def constructiSAT(self):
         s = "INIT\n"
-        for pair in self.speciesInitialValuePair:
-            s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
-        s.join(x + ';\n' for x in self.integerConstraints)
+        if self.speciesInitialValuePair is not 0:
+            for pair in self.speciesInitialValuePair:
+                s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
+        s.join(x + ';\n' for x in self.integerConstraints) if self.integerConstraints is not None else 0
         s.join(self.costConstraints)
         return s
 
@@ -86,7 +88,7 @@ class Flow:
 
     def constructiSAT(self):
         s = ""
-        s.join("(" + self.variable + "/" + self.time + " = " + self.flow + ")")
+        s += ("(" + str(self.variable) + "/" + str(self.time) + " = " + str(self.flow) + ")")
         return s
 
     def constructdReal(self):
@@ -99,9 +101,9 @@ class Mode:
         self.flow = fl
 
     def constructiSAT(self):
-        s = "TRANS\n"
-        s.join((self.modeName + ' -> ' + x + ';\n' for x in self.invariants))
-        s.join((self.modeName + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow))
+        s = "TRANS \n "
+        s += ''.join(['mode_' + str(self.modeName) + ' -> ' + str(x) + ';\n' for x in self.invariants])
+        s += ''.join(['mode_' + str(self.modeName) + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow])
         return s
 
     def constructdReal(self):
@@ -116,8 +118,8 @@ class Post:
     def constructiSAT(self):
         s = ""
         s +="TARGET \n"
-        s +=  self.mode + ' ' + "and (time <" + self.time + ") "
-        s.join('and (' + x + ')' for x in self.specification)
+        s +=  str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
+        s.join('and (' + str(x) + ')' for x in self.specification)
         return s
 
     def constructdReal(self):
@@ -144,24 +146,24 @@ def MTLConverter(specification, flow, maxtime=1):
     timeList = [maxtime]
     noOfModes = 1
     for specificationPart in specification:
-        if specificationPart.time is maxtime:
+        if specificationPart[0] is maxtime:
             post.specification += specificationPart
         else:
-            if(specificationPart.time not in timeList):
+            if(specificationPart[0] not in timeList):
                 noOfModes = noOfModes + 1
-                modes += Mode(noOfModes, [specificationPart], flow)
-                timeList += specificationPart.time
+                modes.append(Mode(noOfModes, [specificationPart], flow))
+                timeList.append(specificationPart[0])
             else:
                 modes[noOfModes].invariants += specificationPart
     return modes, post
 
 
-def constructSpecification(specification, flow, declaration, integerConstraints=None, constants=None, initialValues=None, costFunction):
-    m_flow = [Flow(x, 't', y) for x,y in flow]
+def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None):
+    m_flow = [Flow(x, 't', y) for x,y in flow.iteritems()]
     m_specification = [SpecificationPart(x, y) for x,y in specification]
-    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints]
-    m_decltypes = [DeclType(x, y[0], y[1], z) for x,y,z in declaration]
-    m_contants = [Constant(x, y) for x,y in constants]
+    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints] if integerConstraints is not None else 0
+    m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
+    m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0
 
     d = Declaration(m_decltypes, m_contants)
     i = Initial(m_integerConstraints, None, costFunction)
@@ -174,8 +176,8 @@ def constructISAT(decl, initial, flow, post):
     i = initial.constructiSAT()
     f =[x.constructiSAT() for x in flow]
     p = post.constructiSAT()
+    return d + i + ''.join(f) + p
 
-    return d + i + flatten(f) + p
 
 
 

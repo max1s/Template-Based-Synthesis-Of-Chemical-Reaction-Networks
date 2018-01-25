@@ -4,9 +4,9 @@ from sympy import Matrix
 import sys
 import ipdb
 from sympy import init_printing
-import iSATParser as ip
 import itertools
 from six import string_types
+import iSATParser
 
 
 class CRN:
@@ -336,11 +336,13 @@ def exampleParametricCRN():
     flow = flowDictionary(crn, [X, Y, B], 1, set().add('dXdt'))
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
-    file = iSATParser(flow, ints, specification)
-
-
+    #file = iSATParser(flow, ints, specification)
+    d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '' )
+    spec = iSATParser.constructISAT(d,i,m,p)
+    print(spec)
 if __name__ == "__main__":
     exampleParametricCRN()
+
 
 
     # def exampleCRN():
