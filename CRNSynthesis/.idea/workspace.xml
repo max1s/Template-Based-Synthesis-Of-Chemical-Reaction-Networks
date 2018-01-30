@@ -11,11 +11,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="315" column="0" lean-forward="true" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
+            <state relative-caret-position="489">
+              <caret line="395" column="26" lean-forward="false" selection-start-line="395" selection-start-column="26" selection-end-line="395" selection-end-column="26" />
               <folding>
                 <element signature="e#23#42#0" expanded="true" />
               </folding>
@@ -23,10 +23,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="iSATParser.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="iSATParser.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iSATParser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="395">
+            <state relative-caret-position="1252">
               <caret line="177" column="28" lean-forward="false" selection-start-line="177" selection-start-column="28" selection-end-line="177" selection-end-column="28" />
               <folding />
             </state>
@@ -38,15 +38,16 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/symbolicLNA.py" />
         <option value="$PROJECT_DIR$/iSATParser.py" />
+        <option value="$PROJECT_DIR$/symbolicLNA.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="x" value="642" />
-    <option name="width" value="638" />
-    <option name="height" value="800" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="55" />
+    <option name="y" value="23" />
+    <option name="width" value="1225" />
+    <option name="height" value="722" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -117,7 +118,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="642" y="0" width="638" height="800" extended-state="0" />
+    <frame x="0" y="23" width="1280" height="722" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.52684563" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -158,21 +159,21 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
+    <entry file="file://$PROJECT_DIR$/iSATParser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="315" column="0" lean-forward="true" selection-start-line="315" selection-start-column="0" selection-end-line="315" selection-end-column="0" />
-          <folding>
-            <element signature="e#23#42#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="1252">
+          <caret line="177" column="28" lean-forward="false" selection-start-line="177" selection-start-column="28" selection-end-line="177" selection-end-column="28" />
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/iSATParser.py">
+    <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="395">
-          <caret line="177" column="28" lean-forward="false" selection-start-line="177" selection-start-column="28" selection-end-line="177" selection-end-column="28" />
-          <folding />
+        <state relative-caret-position="489">
+          <caret line="395" column="26" lean-forward="false" selection-start-line="395" selection-start-column="26" selection-end-line="395" selection-end-column="26" />
+          <folding>
+            <element signature="e#23#42#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

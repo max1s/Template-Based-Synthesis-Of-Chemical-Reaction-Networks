@@ -217,6 +217,23 @@ def parametricFlow(propensities, reactionChange):
 
     return container
 
+def michmenton(S, Vmax, v, Km):
+    return v * ( Vmax / (Km + S))
+
+def hill(L, n, Ka, k):
+    return k * ( L^n / (Ka^n + L^n) )
+
+def michaelisMentonFlow(species, Vmax, v, Km):
+    m = Matrix(1, len(species))
+    for spec, i in zip(species, len(species)):
+        m[1, i] = michmenton(spec, Vmax, v[i], Km)
+    return m
+
+def hillKineticsFlow(species, Ka, k, n):
+    m = Matrix(1, len(species))
+    for spec, i in zip(species, len(species)):
+        m[1, i] = hill(spec, n, Ka, k[i])
+    return m
 
 
 def parametricG(propensities, reactionChange):
@@ -259,7 +276,37 @@ def derivative(species, withRespectTo):
     return [diff(x, withRespectTo) for x in species]
 
 
-def flowDictionary(crn, species, isLNA, derivatives):
+#rate,ratemax, constant
+def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
+    a = dict.fromkeys(generateAllTokens(crn, set().add(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
+    if kinetics == 'massaction':
+        prp = (parametricPropensity(crn))
+        nrc = (parametricNetReactionChange(crn))
+        dSpeciesdt = parametricFlow(prp, Matrix(nrc))
+    elif kinetics == 'hill':
+        dSpeciesdt = hillKineticsFlow(species,firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
+    elif kinetics == 'michaelis-menton':
+        dSpeciesdt = michaelisMentonFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
+    for sp, i in zip(species, range(len(species))):
+        if isinstance(sp, str):
+            a[symbols(sp)] = dSpeciesdt[i]
+        else:
+            a[sp] = dSpeciesdt[i]
+    jmat = [x for x in species]
+    J = Matrix(dSpeciesdt).jacobian(jmat)
+    G = parametricG(Matrix(prp), Matrix(nrc))
+    C = generateCovarianceMatrix(species)
+    dCovdt = J * C + C * transpose(J)
+    for i in range(C.cols*C.rows):
+        a[C[i]] = dCovdt[i]
+    for key in a:
+        if a[key] is None and not isinstance(a[key], str):
+            a[key] = 0
+    return a
+
+
+
+def hillFlowDictionary(crn, species, isLNA, derivatives):
     a = dict.fromkeys(generateAllTokens(crn, set().add(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
@@ -340,9 +387,13 @@ def exampleParametricCRN():
     d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '' )
     spec = iSATParser.constructISAT(d,i,m,p)
     print(spec)
+
+
+
+
+
 if __name__ == "__main__":
     exampleParametricCRN()
-
 
 
     # def exampleCRN():
