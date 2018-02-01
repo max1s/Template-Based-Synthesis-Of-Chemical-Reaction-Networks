@@ -165,9 +165,10 @@ class Post:
 
     def constructiSAT(self):
         s = ""
-        s +="\nTARGET \n"
-        s += "\t" + str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
+        s += "\nTARGET \n"
+        s += "\tmode_" + str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
         s.join('and (' + str(x) + ')' for x in self.specification)
+        s += ";"
         return s
 
     def constructdReal(self):
