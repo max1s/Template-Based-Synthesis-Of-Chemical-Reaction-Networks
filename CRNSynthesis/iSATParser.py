@@ -134,10 +134,15 @@ class Mode:
         self.flow = fl
 
     def constructiSAT(self):
-        s = "\nTRANS \n "
 
-        s += "\t-- time constraint\n"
-        s += "\ttime' = time + delta_time;\n\n"
+        s = ""
+        if self.modeName == 1:
+            s += "\nTRANS \n "
+            s += "\t-- time constraint\n"
+            s += "\ttime' = time + delta_time;\n\n"
+        else:
+            s += "\n\n"
+
 
         for invariant in self.invariants:
              if invariant[0] is not None:
