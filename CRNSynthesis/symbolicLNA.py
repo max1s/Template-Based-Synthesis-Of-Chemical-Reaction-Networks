@@ -384,7 +384,18 @@ def exampleParametricCRN():
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
     #file = iSATParser(flow, ints, specification)
-    d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '' )
+
+    rate_constants = {}
+    for reaction in crn.reactions:
+        rate = reaction.reactionrate
+        if str(rate) not in rate_constants.keys():
+            rate_constants[str(rate)] = rate
+    rate_constants = rate_constants.values()
+    
+    print "Rate constants:", len(rate_constants)
+    print rate_constants
+
+    d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
     spec = iSATParser.constructISAT(d,i,m,p)
     print(spec)
 

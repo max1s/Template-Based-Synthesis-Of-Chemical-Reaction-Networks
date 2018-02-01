@@ -20,10 +20,11 @@ class DeclType:
         pass
 
 class Declaration:
-    def __init__(self, decltype, decConstants, numModes):
+    def __init__(self, decltype, decConstants, numModes, reactionRates):
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
         self.numModes = numModes
+        self.reactionRates = reactionRates
 
     def constructiSAT(self):
         s = "\nDECL \n"
@@ -36,11 +37,15 @@ class Declaration:
 
         if self.declarationOfConstants is not 0:
             for constant in self.declarationOfConstants:
-                "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
+                s += "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
             s += '\n'
 
         for d in self.declarationOfParameter:
             s += "\t" + d.constructiSAT() + '\n'
+
+        s += "\n\t-- Rate constants\n"
+        for rate in self.reactionRates:
+            s += "\tdefine float %s [%s, %s];\n" % (rate.name, rate.min, rate.max)
 
         s += "\n"
         for i in range(1, self.numModes+1):
@@ -196,15 +201,17 @@ def MTLConverter(specification, flow, maxtime=1):
     return modes, post
 
 
-def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None):
+def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None, rate_constants=None):
     m_flow = [Flow(x, 'time', y) for x,y in flow.iteritems()]
     m_specification = [SpecificationPart(x, y) for x,y in specification]
     m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints] if integerConstraints is not None else 0
     m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
+
+
     m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0
 
     numModes = len(specification)
-    d = Declaration(m_decltypes, m_contants, numModes)
+    d = Declaration(m_decltypes, m_contants, numModes, rate_constants)
     i = Initial(m_integerConstraints, numModes, None, costFunction)
     m,p = MTLConverter(specification, m_flow, 1)
 
