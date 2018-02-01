@@ -20,9 +20,10 @@ class DeclType:
         pass
 
 class Declaration:
-    def __init__(self, decltype, decConstants):
+    def __init__(self, decltype, decConstants, numModes):
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
+        self.numModes = numModes
 
     def constructiSAT(self):
         s = "DECL \n"
@@ -30,8 +31,13 @@ class Declaration:
             for constant in self.declarationOfConstants:
                 "define " + constant.constantName + ' = ' + constant.constantValue + ';\n'
             s += '\n'
+
         for d in self.declarationOfParameter:
             s += d.constructiSAT() + '\n'
+
+        for i in range(1, self.numModes+1):
+            s += "boole mode_%s;\n" % i
+
         return s
 
     def constructdReal(self):
@@ -165,7 +171,7 @@ def constructSpecification(specification, flow, declaration, costFunction, integ
     m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
     m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0
 
-    d = Declaration(m_decltypes, m_contants)
+    d = Declaration(m_decltypes, m_contants, len(specification))
     i = Initial(m_integerConstraints, None, costFunction)
     m,p = MTLConverter(specification, m_flow, 1)
 
