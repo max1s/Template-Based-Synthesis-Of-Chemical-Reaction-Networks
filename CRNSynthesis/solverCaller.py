@@ -54,8 +54,10 @@ def getRunTimeAndResult(file, name):
     vals = getCRNValues(file)
     # We check if the bellshape has been synthesised correctly. Sometimes even if the result is UNSAT, due to the option "--continue-after-not-reaching-horizon"
     # passed to the ODE solver, it will output a candidate solution.
-    return + "  " + file[-1] + "SAT" if vals['K'] > 0.3 else
-    return file[-1] + "UNSAT"
+    if vals['K'] > 0.3:
+        return "  " + file[-1] + "SAT" 
+    else:
+        return file[-1] + "UNSAT"
 
 
 # We call the solver on the command line and wait (using .communicate()) for its output.
