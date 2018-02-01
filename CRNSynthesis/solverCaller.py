@@ -107,8 +107,8 @@ def editCost(filename, i):
                 else:
                     file[linenumber] = 'mode_2 and (time <= MAX_TIME) and (K >= 0) and (K < 0.1) and (6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= ' + cost + '); --costfinal'
 
+    f.write('\n'.join(file)).close()  # This function is used to construct CRN from the output of an individual file.
 
-f.write('\n'.join(file)).close()  # This function is used to construct CRN from the output of an individual file.
 def constructResults(file):
     x = constructCRN(getCRNValues(file))
     for y in x:
