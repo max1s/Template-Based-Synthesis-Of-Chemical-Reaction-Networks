@@ -111,8 +111,12 @@ class Flow:
         self.flow = fl
 
     def constructiSAT(self):
+
+        # Python represents powers as a**b, whereas iSAT uses a^b
+        flow = str(self.flow).replace('**', '^')
+
         s = ""
-        s += ("\t(d." + str(self.variable) + "/d." + str(self.time) + " = " + str(self.flow) + ")")
+        s += ("\t(d." + str(self.variable) + "/d." + str(self.time) + " = " + flow + ")")
         return s
 
     def constructdReal(self):
