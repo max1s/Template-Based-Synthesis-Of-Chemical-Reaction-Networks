@@ -45,7 +45,7 @@ class Declaration:
 
         s += "\n\t-- Rate constants\n"
         for rate in self.reactionRates:
-            s += "\tdefine float %s [%s, %s];\n" % (rate.name, rate.min, rate.max)
+            s += "\tfloat %s [%s, %s];\n" % (rate.name, rate.min, rate.max)
 
         s += "\n"
         for i in range(1, self.numModes+1):
