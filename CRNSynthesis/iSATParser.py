@@ -27,6 +27,13 @@ class Declaration:
 
     def constructiSAT(self):
         s = "\nDECL \n"
+
+        s += "define MAX_TIME = 1;\n"
+
+        s += "\t-- declare time variables\n"
+        s += "\tfloat [0, MAX_TIME] time;\n"
+        s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
+
         if self.declarationOfConstants is not 0:
             for constant in self.declarationOfConstants:
                 "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
@@ -78,6 +85,9 @@ class Initial:
 
     def constructiSAT(self):
         s = "\nINIT\n"
+
+        s += "\ttime = 0;\n\n"
+
         if self.speciesInitialValuePair is not 0:
             for pair in self.speciesInitialValuePair:
                 s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
@@ -116,7 +126,17 @@ class Mode:
 
     def constructiSAT(self):
         s = "\nTRANS \n "
-        s += ''.join(['\tmode_' + str(self.modeName) + ' -> ' + str(x) + ';\n' for x in self.invariants])
+
+        s += "\t-- time constraint\n"
+        s += "\ttime' = time + delta_time;\n\n"
+
+        for invariant in self.invariants:
+             if invariant[0] is not None:
+                    # constraint on mode start time
+                   s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
+             # constraint imposed by mode on state
+             s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
+
         s += ''.join(['\tmode_' + str(self.modeName) + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow])
         return s
 
