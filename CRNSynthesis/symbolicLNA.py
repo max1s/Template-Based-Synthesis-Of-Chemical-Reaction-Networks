@@ -392,8 +392,8 @@ def exampleParametricCRN():
             rate_constants[str(rate)] = rate
     rate_constants = rate_constants.values()
 
-    d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
-    spec = iSATParser.constructISAT(d,i,m,p)
+    d,i,m,p,t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
+    spec = iSATParser.constructISAT(d,i,m,p,t)
     print(spec)
 
 

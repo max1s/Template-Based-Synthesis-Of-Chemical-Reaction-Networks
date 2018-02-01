@@ -62,10 +62,13 @@ class Declaration:
 
 
 class Transition():
-    def __init__(self, decltype, decConstants, reactionRates):
+    def __init__(self, decltype, decConstants, reactionRates, flows, numModes):
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
         self.reactionRates = reactionRates
+
+        self.flow = flows
+        self.numModes = numModes
 
     def constructiSAT(self):
         s = "\n\nTRANS \n\n"
@@ -83,6 +86,13 @@ class Transition():
             s += "\n\t-- Rate constants are fixed\n"
         for rate in self.reactionRates:
             s += "\t(d.%s/d.time = 0);\n" % rate.name
+
+
+        mode_list = ["mode_" + str(x) for x in range(1, self.numModes+1)]
+        modes_string = " or ".join(mode_list)
+
+        s += "\n\n\t-- Flows\n"
+        s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
 
         return s
 
@@ -162,24 +172,22 @@ class Flow:
 
 
 class Mode:
-    def __init__(self, m, inv, fl):
+    def __init__(self, m, inv):
         self.modeName = m
         self.invariants = inv
-        self.flow = fl
 
     def constructiSAT(self):
 
         s = "\n\n"
 
-
         for invariant in self.invariants:
+             s += "\t-- transition into mode %s\n" % self.modeName
              if invariant[0] is not None:
                     # constraint on mode start time
                    s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
              # constraint imposed by mode on state
              s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
 
-        s += ''.join(['\tmode_' + str(self.modeName) + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow])
         return s
 
     def constructdReal(self):
@@ -227,7 +235,7 @@ def MTLConverter(specification, flow, maxtime=1):
             post.specification += specificationPart
         else:
             if(specificationPart[0] not in timeList):
-                modes.append(Mode(noOfModes, [specificationPart], flow))
+                modes.append(Mode(noOfModes, [specificationPart]))
                 noOfModes = noOfModes + 1
                 timeList.append(specificationPart[0])
             else:
@@ -247,7 +255,7 @@ def constructSpecification(specification, flow, declaration, costFunction, integ
     numModes = len(specification)
     d = Declaration(m_decltypes, m_contants, numModes, rate_constants)
     i = Initial(m_integerConstraints, numModes, None, costFunction)
-    t = Transition(m_decltypes, m_contants, rate_constants)
+    t = Transition(m_decltypes, m_contants, rate_constants, m_flow, numModes)
     m,p = MTLConverter(specification, m_flow, 1)
 
     return d,i,m,p,t
