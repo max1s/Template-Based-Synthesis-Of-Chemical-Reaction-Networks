@@ -391,9 +391,6 @@ def exampleParametricCRN():
         if str(rate) not in rate_constants.keys():
             rate_constants[str(rate)] = rate
     rate_constants = rate_constants.values()
-    
-    print "Rate constants:", len(rate_constants)
-    print rate_constants
 
     d,i,m,p = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
     spec = iSATParser.constructISAT(d,i,m,p)
