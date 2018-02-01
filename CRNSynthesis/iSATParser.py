@@ -28,7 +28,7 @@ class Declaration:
     def constructiSAT(self):
         s = "\nDECL \n"
 
-        s += "define MAX_TIME = 1;\n"
+        s += "define MAX_TIME = 1;\n" # TODO: set this sensibly
 
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
@@ -112,7 +112,7 @@ class Flow:
 
     def constructiSAT(self):
         s = ""
-        s += ("\t(" + str(self.variable) + "/" + str(self.time) + " = " + str(self.flow) + ")")
+        s += ("\t(d." + str(self.variable) + "/d." + str(self.time) + " = " + str(self.flow) + ")")
         return s
 
     def constructdReal(self):
@@ -193,7 +193,7 @@ def MTLConverter(specification, flow, maxtime=1):
 
 
 def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None):
-    m_flow = [Flow(x, 't', y) for x,y in flow.iteritems()]
+    m_flow = [Flow(x, 'time', y) for x,y in flow.iteritems()]
     m_specification = [SpecificationPart(x, y) for x,y in specification]
     m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints] if integerConstraints is not None else 0
     m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
