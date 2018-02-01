@@ -150,8 +150,8 @@ def MTLConverter(specification, flow, maxtime=1):
             post.specification += specificationPart
         else:
             if(specificationPart[0] not in timeList):
-                noOfModes = noOfModes + 1
                 modes.append(Mode(noOfModes, [specificationPart], flow))
+                noOfModes = noOfModes + 1
                 timeList.append(specificationPart[0])
             else:
                 modes[noOfModes].invariants += specificationPart
