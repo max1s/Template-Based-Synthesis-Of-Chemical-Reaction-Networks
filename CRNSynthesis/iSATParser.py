@@ -69,10 +69,11 @@ class IntegerConstraint:
 
 
 class Initial:
-    def __init__(self, spinitvalpair, integerC=None, costC=None):
+    def __init__(self, spinitvalpair, numModes, integerC=None, costC=None):
         self.speciesInitialValuePair = spinitvalpair
         self.integerConstraints = integerC
         self.costConstraints = costC
+        self.numModes = numModes
 
     def constructiSAT(self):
         s = "INIT\n"
@@ -81,6 +82,12 @@ class Initial:
                 s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
         s.join(x + ';\n' for x in self.integerConstraints) if self.integerConstraints is not None else 0
         s.join(self.costConstraints)
+
+        # mode exclusion
+        mode_list = ["mode_%s" % x for x in range(1, self.numModes+1)]
+        s += "-- cannot be in two modes at the same time. We start in mode_1.\n"
+        s += "mode_1 = 1;\n"
+        s += " + ".join(mode_list) + " = 1;\n\n"
         return s
 
     def constructdReal(self):
@@ -171,8 +178,9 @@ def constructSpecification(specification, flow, declaration, costFunction, integ
     m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
     m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0
 
-    d = Declaration(m_decltypes, m_contants, len(specification))
-    i = Initial(m_integerConstraints, None, costFunction)
+    numModes = len(specification)
+    d = Declaration(m_decltypes, m_contants, numModes)
+    i = Initial(m_integerConstraints, numModes, None, costFunction)
     m,p = MTLConverter(specification, m_flow, 1)
 
     return d,i,m,p
