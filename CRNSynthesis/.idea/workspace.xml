@@ -11,10 +11,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="symbolicLNA.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="489">
+            <state relative-caret-position="473">
               <caret line="395" column="26" lean-forward="false" selection-start-line="395" selection-start-column="26" selection-end-line="395" selection-end-column="26" />
               <folding>
                 <element signature="e#23#42#0" expanded="true" />
@@ -26,20 +26,52 @@
       <file leaf-file-name="iSATParser.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/iSATParser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1252">
-              <caret line="177" column="28" lean-forward="false" selection-start-line="177" selection-start-column="28" selection-end-line="177" selection-end-column="28" />
+            <state relative-caret-position="1578">
+              <caret line="180" column="0" lean-forward="true" selection-start-line="180" selection-start-column="0" selection-end-line="180" selection-end-column="0" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="solverinput.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/solverinput.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1432">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="19" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CallSolver.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/CallSolver.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="345">
+              <caret line="23" column="22" lean-forward="false" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
+              <folding>
+                <element signature="e#0#24#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
     </leaf>
   </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/iSATParser.py" />
         <option value="$PROJECT_DIR$/symbolicLNA.py" />
+        <option value="$PROJECT_DIR$/iSATParser.py" />
+        <option value="$PROJECT_DIR$/CallSolver.py" />
       </list>
     </option>
   </component>
@@ -50,7 +82,7 @@
     <option name="height" value="722" />
   </component>
   <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
+    <navigator proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -63,30 +95,7 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="CRNSynthesis" type="b2602c69:ProjectViewProjectNode" />
-              <item name="CRNSynthesis" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="CRNSynthesis" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-            </path>
-            <path>
-              <item name="CRNSynthesis" type="b2602c69:ProjectViewProjectNode" />
-              <item name="External Libraries" type="cb654da1:ExternalLibrariesNode" />
-              <item name="&lt; Python 3.6.2 (/usr/local/Cellar/python3/3.6.2/Frameworks/Python.framework/Versions/3.6/bin/python3.6) &gt;" type="70bed36:NamedLibraryElementNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
+    <panes />
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -159,20 +168,40 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="473">
+          <caret line="395" column="26" lean-forward="false" selection-start-line="395" selection-start-column="26" selection-end-line="395" selection-end-column="26" />
+          <folding>
+            <element signature="e#23#42#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/iSATParser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1252">
-          <caret line="177" column="28" lean-forward="false" selection-start-line="177" selection-start-column="28" selection-end-line="177" selection-end-column="28" />
+        <state relative-caret-position="1578">
+          <caret line="180" column="0" lean-forward="true" selection-start-line="180" selection-start-column="0" selection-end-line="180" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/symbolicLNA.py">
+    <entry file="file://$PROJECT_DIR$/solverinput.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="489">
-          <caret line="395" column="26" lean-forward="false" selection-start-line="395" selection-start-column="26" selection-end-line="395" selection-end-column="26" />
+        <state relative-caret-position="-1432">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="19" />
           <folding>
-            <element signature="e#23#42#0" expanded="true" />
+            <element signature="e#0#24#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/CallSolver.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="22" lean-forward="false" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#24#0" expanded="true" />
           </folding>
         </state>
       </provider>

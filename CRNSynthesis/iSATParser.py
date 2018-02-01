@@ -179,9 +179,6 @@ def constructISAT(decl, initial, flow, post):
     return d + i + ''.join(f) + p
 
 
-
-
-
 def constructdReal(decl, initial, flow, post):
     pass
 
