@@ -26,17 +26,18 @@ class Declaration:
         self.numModes = numModes
 
     def constructiSAT(self):
-        s = "DECL \n"
+        s = "\nDECL \n"
         if self.declarationOfConstants is not 0:
             for constant in self.declarationOfConstants:
-                "define " + constant.constantName + ' = ' + constant.constantValue + ';\n'
+                "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
             s += '\n'
 
         for d in self.declarationOfParameter:
-            s += d.constructiSAT() + '\n'
+            s += "\t" + d.constructiSAT() + '\n'
 
+        s += "\n"
         for i in range(1, self.numModes+1):
-            s += "boole mode_%s;\n" % i
+            s += "\tboole mode_%s;\n" % i
 
         return s
 
@@ -57,7 +58,7 @@ class IntegerConstraint:
         self.maximumInteger = maxInt
 
         def constructiSAT(self):
-            s = "("
+            s = "\t("
             for i in range(minInt, maxInt-1):
                 s += "(" + self.variableName + " = " + str(i) + ") or "
             s += "(" + self.variableName + " = " + str(maxInt) + "); \n"
@@ -76,7 +77,7 @@ class Initial:
         self.numModes = numModes
 
     def constructiSAT(self):
-        s = "INIT\n"
+        s = "\nINIT\n"
         if self.speciesInitialValuePair is not 0:
             for pair in self.speciesInitialValuePair:
                 s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
@@ -85,9 +86,9 @@ class Initial:
 
         # mode exclusion
         mode_list = ["mode_%s" % x for x in range(1, self.numModes+1)]
-        s += "-- cannot be in two modes at the same time. We start in mode_1.\n"
-        s += "mode_1 = 1;\n"
-        s += " + ".join(mode_list) + " = 1;\n\n"
+        s += "\t-- cannot be in two modes at the same time. We start in mode_1.\n"
+        s += "\tmode_1 = 1;\n"
+        s += "\t" + " + ".join(mode_list) + " = 1;\n\n"
         return s
 
     def constructdReal(self):
@@ -101,7 +102,7 @@ class Flow:
 
     def constructiSAT(self):
         s = ""
-        s += ("(" + str(self.variable) + "/" + str(self.time) + " = " + str(self.flow) + ")")
+        s += ("\t(" + str(self.variable) + "/" + str(self.time) + " = " + str(self.flow) + ")")
         return s
 
     def constructdReal(self):
@@ -114,9 +115,9 @@ class Mode:
         self.flow = fl
 
     def constructiSAT(self):
-        s = "TRANS \n "
-        s += ''.join(['mode_' + str(self.modeName) + ' -> ' + str(x) + ';\n' for x in self.invariants])
-        s += ''.join(['mode_' + str(self.modeName) + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow])
+        s = "\nTRANS \n "
+        s += ''.join(['\tmode_' + str(self.modeName) + ' -> ' + str(x) + ';\n' for x in self.invariants])
+        s += ''.join(['\tmode_' + str(self.modeName) + ' -> ' + x.constructiSAT() + ';\n' for x in self.flow])
         return s
 
     def constructdReal(self):
@@ -130,8 +131,8 @@ class Post:
 
     def constructiSAT(self):
         s = ""
-        s +="TARGET \n"
-        s +=  str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
+        s +="\nTARGET \n"
+        s += "\t" + str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
         s.join('and (' + str(x) + ')' for x in self.specification)
         return s
 
