@@ -77,6 +77,13 @@ class Transition():
         s += "\ttime' = time + delta_time;\n\n"
 
 
+        terms = ["(%s' = %s)" % (x.name,x.name) for x in self.declarationOfParameter]
+        s += "\t-- No state change without time consumption.\n"
+        s += "\t(delta_time = 0) -> (%s);" % " and ".join(terms)
+        s += "\n\n"
+
+
+
         if self.declarationOfConstants is not 0:
             s += "\t-- Constants are fixed\n"
             for constant in self.declarationOfConstants:
