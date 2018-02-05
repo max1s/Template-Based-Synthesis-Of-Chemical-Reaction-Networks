@@ -181,12 +181,8 @@ def parametricNetReactionChange(crn):
         for reactant in reaction.reactants:
             add(crn.species, netChange, reactant, '-')
         for product in reaction.products:
-            if len(netChange) is 0:
-                #netChange.append(product.specRep())
-                add(crn.species, netChange, reactant, '+')
-            else:
-                #netChange.append("+" + product.specRep())
-                add(crn.species, netChange, reactant, '+')
+            add(crn.species, netChange, product, '+')
+
         netChange = [0 if n is '' else n for n in netChange]
         reactionChange.append(sympify(netChange))
     return reactionChange
