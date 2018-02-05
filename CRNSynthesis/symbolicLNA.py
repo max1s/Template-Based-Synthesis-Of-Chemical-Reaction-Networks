@@ -9,18 +9,6 @@ import iSATParser
 from functools import reduce
 
 
-class CRN:
-    def __init__(self, s, r, ip):
-        self.species = s
-        self.reactions = r
-        self.initialPopulations = ip
-
-    def __repr__(self):
-        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
-
-    def __str__(self):
-        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
-
 class InputSpecies:
     def __init__(self, name, concentration, ode):
         self.name = name
