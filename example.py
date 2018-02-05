@@ -42,8 +42,8 @@ def exampleParametricCRN():
 
     C = generateCovarianceMatrix(['X','Y','B'])
 
-    print (J * C  + C * transpose(J)).shape
-    print G.shape
+    print((J * C  + C * transpose(J)).shape)
+    print(G.shape)
 
     dCovdt = J * C  + C * transpose(J)
     pprint (dCovdt)
@@ -78,12 +78,12 @@ def printCRNDetails(crn):
     #crn = exampleCRN()
 
     #crn = AMExample()
-    print "CRN:"
-    print crn
+    print("CRN:")
+    print(crn)
 
     props = propensity(crn.reactions)
-    print "\nPropensities:"
-    print props
+    print("\nPropensities:")
+    print(props)
 
     nrc = netReactionChange(crn.species, crn.reactions)
     flow = flowFunction(props, nrc)
@@ -92,24 +92,24 @@ def printCRNDetails(crn):
     C = generateCovarianceMatrix(crn.species)
 
     dCovdt = J * C + C * transpose(J) + G
-    print "\ndCovdt:"
+    print("\ndCovdt:")
     init_printing()
     pprint(dCovdt)
 
-    print "\n\n\n"
+    print("\n\n\n")
     # iSATParser.constructiSATFile()
 
 
 
 
 if __name__ == "__main__":
-    print "Example CRN:"
+    print("Example CRN:")
     printCRNDetails(exampleCRN())
 
     #print "AM Example:"
     #printCRNDetails(AMExample())
 
-    print "New Parametric CRN Example:"
+    print("New Parametric CRN Example:")
     exampleParametricCRN()
 
 

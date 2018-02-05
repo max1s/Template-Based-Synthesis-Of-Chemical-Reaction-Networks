@@ -251,10 +251,10 @@ def MTLConverter(specification, flow, maxtime=1):
 
 
 def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None, rate_constants=None):
-    m_flow = [Flow(x, 'time', y) for x,y in flow.iteritems()]
+    m_flow = [Flow(x, 'time', y) for x,y in flow.items()]
     m_specification = [SpecificationPart(x, y) for x,y in specification]
     m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints] if integerConstraints is not None else 0
-    m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.iteritems()]
+    m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.items()]
 
 
     m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0

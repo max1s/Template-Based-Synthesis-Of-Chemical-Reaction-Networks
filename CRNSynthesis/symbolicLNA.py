@@ -7,6 +7,7 @@ from sympy import init_printing
 import itertools
 from six import string_types
 import iSATParser
+from functools import reduce
 
 
 class CRN:
@@ -79,7 +80,7 @@ class Choice:
             chain += " + " + self.choice[1]
         if (self.maxNumber > 1):
             chain += (" + ").join([str(choice) + "*" + str(self.choiceName) + "^" + str(x) for choice, x in
-                                   zip(self.choice, range(2, self.maxNumber))])
+                                   zip(self.choice, list(range(2, self.maxNumber)))])
         return chain
 
 
@@ -200,14 +201,14 @@ def parametricNetReactionChange(crn):
     return reactionChange
 
 
-def add(species, list,  fragment, part):
-    for spec, i in zip(species, range(len(species))):
+def add(species, stoichList,  fragment, part):
+    for spec, i in zip(species, list(range(len(species)))):
         if str(spec) in fragment.specRep():
             if "lam" in fragment.specRep():
-                list[i] += part + fragment.species.contains(spec) + "*" + str(spec)
+                stoichList[i] += part + fragment.species.contains(spec) + "*" + str(spec)
             else:
-                list[i] += part + fragment.specRep()
-    return list
+                stoichList[i] += part + fragment.specRep()
+    return stoichList
 
 
 def parametricFlow(propensities, reactionChange):
@@ -246,8 +247,8 @@ def parametricG(propensities, reactionChange):
 
 def generateCovarianceMatrix(speciesVector):
     mat = eye(len(speciesVector))
-    for (m, i) in zip(speciesVector, range(len(speciesVector))):
-        for (n, j) in zip(speciesVector, range(len(speciesVector))):
+    for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
+        for (n, j) in zip(speciesVector, list(range(len(speciesVector)))):
             if (m == n):
                 mat[i, j] = 'cov' + str(m)
             else:
@@ -287,7 +288,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         dSpeciesdt = hillKineticsFlow(species,firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
     elif kinetics == 'michaelis-menton':
         dSpeciesdt = michaelisMentonFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
-    for sp, i in zip(species, range(len(species))):
+    for sp, i in zip(species, list(range(len(species)))):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
@@ -311,7 +312,7 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
-    for sp, i in zip(species, range(len(species))):
+    for sp, i in zip(species, list(range(len(species)))):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
@@ -330,7 +331,7 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
 
 def intDictionary(crn, species, covariance, flowdict):
     #getInt(crn)
-    a = dict.fromkeys(flowdict.keys())
+    a = dict.fromkeys(list(flowdict.keys()))
     t = [x for x in crn.getRawSpecies()]
     for reaction in crn.reactions:
         for reactant in reaction.reactants:
@@ -388,9 +389,9 @@ def exampleParametricCRN():
     rate_constants = {}
     for reaction in crn.reactions:
         rate = reaction.reactionrate
-        if str(rate) not in rate_constants.keys():
+        if str(rate) not in list(rate_constants.keys()):
             rate_constants[str(rate)] = rate
-    rate_constants = rate_constants.values()
+    rate_constants = list(rate_constants.values())
 
     d,i,m,p,t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
     spec = iSATParser.constructISAT(d,i,m,p,t)

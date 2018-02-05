@@ -9,8 +9,8 @@ from os import walk
 def constructResults(file):
     x = constructCRN(getCRNValues(file))
     for y in x:
-        print y
-    print getRunTimeAndResult(file)
+        print(y)
+    print(getRunTimeAndResult(file))
 
 
 # This function builds a dictionary (vals) of synthesized parameters which are outputed by the solver. It scrapes the output file for the relevant parameters.

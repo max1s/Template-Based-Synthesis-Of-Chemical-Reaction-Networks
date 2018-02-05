@@ -12,8 +12,8 @@ from os import walk
 def constructResults(file):
 	x = constructCRN(getCRNValues(file))
 	for y in x:
-		print y
-	print getRunTimeAndResult(file)
+		print(y)
+	print(getRunTimeAndResult(file))
 
 
 
