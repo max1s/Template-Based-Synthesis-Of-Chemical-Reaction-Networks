@@ -151,7 +151,11 @@ class CRNSketch:
 
     def getSpecies(self):
         x = []
-        for y in self.reactions:
+
+        all_reactions = self.reactions[:]
+        all_reactions.extend(self.optionalReactions)
+
+        for y in all_reactions:
             for react in y.reactants:
                 if react not in x:
                     x.append(react.specRep())
