@@ -9,5 +9,5 @@ setup(name='CRNSynthesis',
       author_email='',
       url='',
       packages=['CRNSynthesis'],
-      install_requires=['sympy', 'ipdb']
+      install_requires=['sympy', 'six']
       )

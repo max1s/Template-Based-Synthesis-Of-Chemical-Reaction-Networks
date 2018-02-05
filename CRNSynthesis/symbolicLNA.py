@@ -2,7 +2,6 @@
 from sympy import *
 from sympy import Matrix
 import sys
-import ipdb
 from sympy import init_printing
 import itertools
 from six import string_types
