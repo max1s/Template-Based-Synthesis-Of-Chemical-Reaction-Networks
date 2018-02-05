@@ -270,7 +270,14 @@ def derivative(species, withRespectTo):
 
 #rate,ratemax, constant
 def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
-    a = dict.fromkeys(generateAllTokens(crn, set().add(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
+    if not derivatives:
+        derivatives = set()
+
+    if isLNA:
+        a = dict.fromkeys(generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species)))
+    else:
+        a = dict.fromkeys(generateAllTokens(crn, set(derivatives)))
+
     if kinetics == 'massaction':
         prp = (parametricPropensity(crn))
         nrc = (parametricNetReactionChange(crn))
@@ -299,7 +306,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
 
 
 def hillFlowDictionary(crn, species, isLNA, derivatives):
-    a = dict.fromkeys(generateAllTokens(crn, set().add(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
+    a = dict.fromkeys(generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
@@ -372,7 +379,9 @@ def exampleParametricCRN():
 
 
     #pprint(dCovdt)
-    flow = flowDictionary(crn, [X, Y, B], 1, set().add('dXdt'))
+    isLNA = False
+    derivatives = None # set(['dXdt']) # set(['dXdt'])
+    flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
     #file = iSATParser(flow, ints, specification)
