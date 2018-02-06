@@ -261,7 +261,7 @@ def generateAllTokens(crn, derivatives, C = set()):
 
 
 def derivative(species, withRespectTo):
-    return [diff(x, withRespectTo) for x in species]
+    return diff(species, withRespectTo)
 
 
 #rate,ratemax, constant
@@ -287,6 +287,10 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
             a[symbols(sp)] = dSpeciesdt[i]
         else:
             a[sp] = dSpeciesdt[i]
+
+    for der in derivatives:
+        a[symbols(der)] = derivative(a[symbols(('X'))], symbols('X'))
+
     jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
     G = parametricG(Matrix(prp), Matrix(nrc))
@@ -311,6 +315,7 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
             a[sp] = dSpeciesdt[i]
+
     jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
     G = parametricG(Matrix(prp), Matrix(nrc))
@@ -376,7 +381,7 @@ def exampleParametricCRN():
 
     #pprint(dCovdt)
     isLNA = False
-    derivatives = None # set(['dXdt']) # set(['dXdt'])
+    derivatives = set(['dXdt']) # set(['dXdt'])
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
