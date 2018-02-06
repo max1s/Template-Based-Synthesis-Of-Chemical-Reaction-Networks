@@ -130,6 +130,7 @@ class CRNSketch:
         self.species = cs
         self.reactions = r
         self.optionalReactions = opr
+        self.t = symbols('t')
 
     def __repr__(self):
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
@@ -248,20 +249,52 @@ def generateCovarianceMatrix(speciesVector):
     return mat
 
 def generateAllTokens(crn, derivatives, C = set()):
-    t = [x.free_symbols for x in sympify(crn.getSpecies())]
-    a = reduce(lambda x, y : x |y, t)
+    sym = [x.free_symbols for x in sympify(crn.getSpecies())]
+    a = reduce(lambda x, y : x |y, sym)
     b = set()
     if len(C) is not 0:
         b = C.free_symbols
     if derivatives is None:
         return a | b
     else:
-        return a | b | derivatives
+        return a | b | sympify(derivatives)
 
 
 
-def derivative(species, withRespectTo):
-    return diff(species, withRespectTo)
+def derivative(species, flowdict, crn):
+
+    # define function for each state variable
+    functions = {}
+    function_reverse = {}
+    for variable in flowdict:
+        new_function = Function(variable.name)(crn.t)
+        functions[variable] = new_function
+        function_reverse[new_function] = variable
+
+    function_flowdict = {}
+    constants = []
+    for variable in flowdict:
+        if flowdict[variable] is None:
+            constants.append(variable.subs(functions))
+        else:
+            function_flowdict[variable.subs(functions)] = flowdict[variable].subs(functions)
+
+    x1 = function_flowdict[functions[species]] # first derivative of species
+    x2 = Derivative(x1, crn.t).doit() # second derivative
+
+    # substitute in to replace first derivatives
+    for function in function_flowdict:
+        derivative_string = "Derivative(" + str(function) + ", t)"
+        x2 = x2.subs(derivative_string, function_flowdict[function])
+
+    for constant in constants:
+        derivative_string = "Derivative(" + str(constant) + ", t)"
+        x2 = x2.subs(derivative_string, 0)
+
+    # replace functions with the corresponding symbols
+    x2 = x2.subs(function_reverse)
+
+    return simplify(x2)
 
 
 #rate,ratemax, constant
@@ -289,8 +322,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
             a[sp] = dSpeciesdt[i]
 
     for der in derivatives:
-        a[symbols(der)] = derivative(a[symbols(('X'))], symbols('X'))
-
+        a[symbols(der)] = derivative(symbols('X'), a, crn)
     jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
     G = parametricG(Matrix(prp), Matrix(nrc))
@@ -370,6 +402,7 @@ def exampleParametricCRN():
     X = symbols('X')
     Y = symbols('Y')
     B = symbols('B')
+
 
     reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
     reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
