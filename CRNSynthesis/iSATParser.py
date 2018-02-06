@@ -8,7 +8,11 @@ class DeclType:
     def __init__(self, name, minparam, maxparam, type):
         self.name = name
         self.minimumParameter = minparam
+
         self.maximumParameter = maxparam
+        if not maxparam:
+            self.maximumParameter =  10
+
         self.type = type
 
     def constructiSAT(self):
