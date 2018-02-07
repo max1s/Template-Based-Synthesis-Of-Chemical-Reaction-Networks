@@ -253,19 +253,16 @@ def generateCovarianceMatrix(speciesVector):
     return mat
 
 
-def generateAllTokens(crn, derivatives, C=set()):
+def generateAllTokens(crn, C=set()):
     sym = [x.free_symbols for x in sympify(crn.getSpecies())]
     a = reduce(lambda x, y: x | y, sym)
     b = set()
     if len(C) is not 0:
         b = C.free_symbols
-    if derivatives is None:
-        return a | b
-    else:
-        return a | b | sympify(derivatives)
+    return a | b
 
 
-def derivative(species, flowdict, crn):
+def derivative(derivatives, flowdict, crn):
     # define function for each state variable
     funcs = {}
     function_reverse = {}
@@ -282,22 +279,37 @@ def derivative(species, flowdict, crn):
         else:
             function_flowdict[variable.subs(funcs)] = flowdict[variable].subs(funcs)
 
-    x1 = function_flowdict[funcs[species]]  # first derivative of species
-    x2 = Derivative(x1, crn.t).doit()  # second derivative
+    results = {}
+    for d in derivatives:
 
-    # substitute in to replace first derivatives
-    for func in function_flowdict:
-        derivative_string = "Derivative(" + str(func) + ", t)"
-        x2 = x2.subs(derivative_string, function_flowdict[func])
+        if d["is_variance"]:
+            species = symbols("cov" + d["variable"])
+        else:
+            species = symbols(d["variable"])
 
-    for constant in constants:
-        derivative_string = "Derivative(" + str(constant) + ", t)"
-        x2 = x2.subs(derivative_string, 0)
+        order = d["order"]
+        name = d["name"]
 
-    # replace functions with the corresponding symbols
-    x2 = x2.subs(function_reverse)
+        x1 = function_flowdict[funcs[species]]  # first derivative of species
 
-    return simplify(x2)
+        xn = x1
+        for i in range(order):
+            xn = Derivative(xn, crn.t).doit()
+
+            # substitute in to replace first derivatives
+            for func in function_flowdict:
+                derivative_string = "Derivative(" + str(func) + ", t)"
+                xn = xn.subs(derivative_string, function_flowdict[func])
+
+            for constant in constants:
+                derivative_string = "Derivative(" + str(constant) + ", t)"
+                xn = xn.subs(derivative_string, 0)
+
+        # replace functions with the corresponding symbols
+        xn = xn.subs(function_reverse)
+        results[symbols(name)] = simplify(xn)
+
+    return results
 
 
 # rate,ratemax, constant
@@ -306,9 +318,9 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         derivatives = set()
 
     if isLNA:
-        a = dict.fromkeys(generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species)))
+        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(species)))
     else:
-        a = dict.fromkeys(generateAllTokens(crn, set(derivatives)))
+        a = dict.fromkeys(generateAllTokens(crn))
 
     if kinetics == 'massaction':
         prp = (parametricPropensity(crn))
@@ -326,8 +338,6 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         else:
             a[sp] = dSpeciesdt[i]
 
-    for der in derivatives:
-        a[symbols(der)] = derivative(symbols('X'), a, crn)
     jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
     G = parametricG(Matrix(prp), Matrix(nrc))
@@ -335,6 +345,9 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     dCovdt = J * C + C * transpose(J)
     for i in range(C.cols * C.rows):
         a[C[i]] = dCovdt[i]
+
+    a.update(derivative(derivatives, a, crn))
+
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
             a[key] = 0
@@ -342,9 +355,11 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
 
 
 def hillFlowDictionary(crn, species, isLNA, derivatives):
-    a = dict.fromkeys(
-        generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(
-        generateAllTokens(crn, set.add(derivatives)))
+    if isLNA:
+        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(species)))
+    else:
+        a = dict.fromkeys(generateAllTokens(crn))
+
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
@@ -416,8 +431,10 @@ def exampleParametricCRN():
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
 
     # pprint(dCovdt)
-    isLNA = False
-    derivatives = {'dXdt'}  # set(['dXdt'])
+    isLNA = True
+    derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
+                   {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
+                   {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
