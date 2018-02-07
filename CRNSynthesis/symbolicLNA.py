@@ -338,13 +338,14 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         else:
             a[sp] = dSpeciesdt[i]
 
-    jmat = [x for x in species]
-    J = Matrix(dSpeciesdt).jacobian(jmat)
-    G = parametricG(Matrix(prp), Matrix(nrc))
-    C = generateCovarianceMatrix(species)
-    dCovdt = J * C + C * transpose(J)
-    for i in range(C.cols * C.rows):
-        a[C[i]] = dCovdt[i]
+    if isLNA:
+        jmat = [x for x in species]
+        J = Matrix(dSpeciesdt).jacobian(jmat)
+        G = parametricG(Matrix(prp), Matrix(nrc))
+        C = generateCovarianceMatrix(species)
+        dCovdt = J * C + C * transpose(J)
+        for i in range(C.cols * C.rows):
+            a[C[i]] = dCovdt[i]
 
     a.update(derivative(derivatives, a, crn))
 
