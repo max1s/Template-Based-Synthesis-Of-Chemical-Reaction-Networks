@@ -5,10 +5,12 @@ import os
 from os import walk
 
 
-# The output from the solver are saved in text files in the folder /bellshaperesults. Using constructResultsSummary() these can be parsed and the results summarised.
+# The output from the solver are saved in text files in the folder /bellshaperesults.
+# Using constructResultsSummary() these can be parsed and the results summarised.
 # Using getRunTimeAndResult(file, name) we can also retrieve the candidate CRN solution from a specific file
 
-# A procedure that automates calls to the solver for each bellshape model where each model increases the discrete statespace as described in the paper.
+# A procedure that automates calls to the solver for each bellshape model
+# where each model increases the discrete statespace as described in the paper.
 def stateSpaceExperiment():
     files = []
     cwd = os.getcwd()
@@ -17,14 +19,14 @@ def stateSpaceExperiment():
     # Each of these different models within the folder /bellshapemodels is tried at 3 precisions 10^-1 10^-3 and 10^-5
 
     for f in files:
-        callSolver(stateSpaceConstructForCommandLine(f, 0.1,
-                                                     "--continue-after-not-reaching-horizon"))  # the option --continue-after-not-reaching-horizon is used as an optimization for the solver.
+        # the option --continue-after-not-reaching-horizon is used as an optimization for the solver.
+        callSolver(stateSpaceConstructForCommandLine(f, 0.1, "--continue-after-not-reaching-horizon"))
         callSolver(stateSpaceConstructForCommandLine(f, 0.001, "--continue-after-not-reaching-horizon"))
         callSolver(stateSpaceConstructForCommandLine(f, 0.00001, "--continue-after-not-reaching-horizon"))
 
 
-# A procedure that calls the solver for costs starting at a maximum cost and decreasing to a minimum cost. In order to generate the results found within the paper
-# We start at a cost of 35 down to 10.
+# A procedure that calls the solver for costs starting at a maximum cost and decreasing to a minimum cost.
+# In order to generate the results found within the paper we start at a cost of 35 down to 10.
 def optimalsynthesisExperiment(maximumcost, minimumcost):
     cwd = os.getcwd()
     cost = maximumcost
@@ -34,8 +36,8 @@ def optimalsynthesisExperiment(maximumcost, minimumcost):
         cost -= 1
 
 
-# Once the solver has generated all of the relevant text files and outputed them to the folder /bellshaperesultsexp1 or /bellshaperesultsexp2  we can
-# construct a summary of the runtimes and results.
+# Once the solver has generated all of the relevant text files and outputed them to the folder
+# /bellshaperesultsexp1 or /bellshaperesultsexp2  we can construct a summary of the runtimes and results.
 def constructResultSummary(experiment):
     files = []
     results = []
@@ -52,7 +54,8 @@ def constructResultSummary(experiment):
 # We can also generate individual runtimes and results.
 def getRunTimeAndResult(file, name):
     vals = getCRNValues(file)
-    # We check if the bellshape has been synthesised correctly. Sometimes even if the result is UNSAT, due to the option "--continue-after-not-reaching-horizon"
+    # We check if the bellshape has been synthesised correctly.
+    # Sometimes even if the result is UNSAT, due to the option "--continue-after-not-reaching-horizon"
     # passed to the ODE solver, it will output a candidate solution.
     if vals['K'] > 0.3:
         return "  " + file[-1] + "SAT" 
@@ -67,12 +70,14 @@ def callSolver(executableString):
     return output
 
 
-# We construct a string which will be executed on the command line for the statespaceexperiment. We also specify where the output will be piped to.
+# We construct a string which will be executed on the command line for the statespaceexperiment.
+#  We also specify where the output will be piped to.
 def stateSpaceConstructForCommandLine(model, precision, otherPrams):
     return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i + bellshapemodels/" + model + " --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams + " > /bellshaperesultsexp1/" + model + precision + ".txt"
 
 
-# We construct a string which will be executed on the command line for the optimal synthesis experiment. We also specify where the output will be piped to.
+# We construct a string which will be executed on the command line for the optimal synthesis experiment.
+# We also specify where the output will be piped to.
 def costConstructForCommandLine(model, precision, cost, otherPrams):
     return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i + bellshape.hys --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams + " > /bellshaperesultsexp2/" + model + cost + precision + ".txt"
 
@@ -109,6 +114,7 @@ def editCost(filename, i):
 
     f.write('\n'.join(file)).close()  # This function is used to construct CRN from the output of an individual file.
 
+
 def constructResults(file):
     x = constructCRN(getCRNValues(file))
     for y in x:
@@ -116,7 +122,8 @@ def constructResults(file):
     print(getRunTimeAndResult(file))
 
 
-# This function builds a dictionary (vals) of synthesized parameters which are outputed by the solver. It scrapes the output file for the relevant parameters.
+# This function builds a dictionary (vals) of synthesized parameters which are outputed by the solver.
+# It scrapes the output file for the relevant parameters.
 def getCRNValues(s):
     vals = {}
 
@@ -126,43 +133,41 @@ def getCRNValues(s):
     for linenumber, line in enumerate(s, 1):
 
         if flag > 0:
+            lower_limit = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+            upper_limit = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']')
+            
             if flag == 1:
-                vals['lambda1'] = 'A' if (
-                re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[') == '0') else 'B'
+                vals['lambda1'] = 'A' if (lower_limit == '0') else 'B'
             if flag == 2:
-                vals['lambda2'] = 'A' if (
-                re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[') == '0') else 'B'
+                vals['lambda2'] = 'A' if (lower_limit == '0') else 'B'
             if flag == 3:
-                vals['c1'] = '1' if (
-                re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[') == '0') else '0'
+                vals['c1'] = '1' if (lower_limit == '0') else '0'
             if flag == 4:
-                vals['c2'] = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+                vals['c2'] = lower_limit
             if flag == 5:
-                vals['c3'] = '2' if (
-                re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[') == '0') else '1'
+                vals['c3'] = '2' if (lower_limit == '0') else '1'
             if flag == 6:
-                vals['c4'] = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+                vals['c4'] = lower_limit
             if flag == 7:
-                vals['c5'] = '1' if (
-                re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[') == '0') else '0'
+                vals['c5'] = '1' if (lower_limit == '0') else '0'
             if flag == 8:
-                vals['c6'] = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+                vals['c6'] = lower_limit
             if flag == 9:
-                vals['c7'] = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+                vals['c7'] = lower_limit
             if flag == 10:
-                vals['choice1'] = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
+                vals['choice1'] = lower_limit
             # We take the average of the parameter interval given for the rates.
             if flag == 11:
-                rate1 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('['))
-                rate2 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']'))
+                rate1 = float(lower_limit)
+                rate2 = float(upper_limit)
                 vals['k1'] = str((rate1 + rate2) / 2)
             if flag == 12:
-                rate1 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('['))
-                rate2 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']'))
+                rate1 = float(lower_limit)
+                rate2 = float(upper_limit)
                 vals['k2'] = str((rate1 + rate2) / 2)
             if flag == 13:
-                rate1 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('['))
-                rate2 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']'))
+                rate1 = float(lower_limit)
+                rate2 = float(upper_limit)
                 vals['k3'] = str((rate1 + rate2) / 2)
             flag = 0
 

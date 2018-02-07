@@ -15,17 +15,18 @@ class InputSpecies:
         self.concentration = concentration
         self.ode = ode
 
+
 class RateConstant:
     def __init__(self, name, minimum, maximum):
-       self.name = name
-       self.min = minimum
-       self.max = maximum
+        self.name = name
+        self.min = minimum
+        self.max = maximum
 
     def __repr__(self):
-         return self.name
+        return self.name
 
     def __str__(self):
-         return "Rate constant %s <= %s <= %s"  % (self.min, self.name, self.max)
+        return "Rate constant %s <= %s <= %s" % (self.min, self.name, self.max)
 
 
 class Reaction:
@@ -44,13 +45,13 @@ class LambdaChoice:
     def constructChoice(self):
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
 
-
     def contains(self, var):
         x = ''
         for lam in self.lambdas:
             if str(var) in str(lam):
                 x += str(lam)
         return x
+
 
 class Choice:
     def __init__(self, choiceName, minNumber, maxNumber):
@@ -107,7 +108,6 @@ class ReactionSketch:
     def __str__(self):
         return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
             self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
-
 
 
 class OptionalReaction:
@@ -174,6 +174,7 @@ def parametricPropensity(paramCRN):
         propensities.append(propensity)
     return propensities
 
+
 def parametricNetReactionChange(crn):
     reactionChange = []
     for reaction in crn.reactions:
@@ -188,7 +189,7 @@ def parametricNetReactionChange(crn):
     return reactionChange
 
 
-def add_stoichiometry_change(species, stoichList,  fragment, part):
+def add_stoichiometry_change(species, stoichList, fragment, part):
     for spec, i in zip(species, list(range(len(species)))):
         if str(spec) in fragment.specRep():
             if "lam" in fragment.specRep():
@@ -205,17 +206,21 @@ def parametricFlow(propensities, reactionChange):
 
     return container
 
+
 def michmenton(S, Vmax, v, Km):
-    return v * ( Vmax / (Km + S))
+    return v * (Vmax / (Km + S))
+
 
 def hill(L, n, Ka, k):
-    return k * ( L^n / (Ka^n + L^n) )
+    return k * (L ^ n / (Ka ^ n + L ^ n))
+
 
 def michaelisMentonFlow(species, Vmax, v, Km):
     m = Matrix(1, len(species))
     for spec, i in zip(species, len(species)):
         m[1, i] = michmenton(spec, Vmax, v[i], Km)
     return m
+
 
 def hillKineticsFlow(species, Ka, k, n):
     m = Matrix(1, len(species))
@@ -247,9 +252,10 @@ def generateCovarianceMatrix(speciesVector):
     # pprint(mat)
     return mat
 
-def generateAllTokens(crn, derivatives, C = set()):
+
+def generateAllTokens(crn, derivatives, C=set()):
     sym = [x.free_symbols for x in sympify(crn.getSpecies())]
-    a = reduce(lambda x, y : x |y, sym)
+    a = reduce(lambda x, y: x | y, sym)
     b = set()
     if len(C) is not 0:
         b = C.free_symbols
@@ -259,9 +265,7 @@ def generateAllTokens(crn, derivatives, C = set()):
         return a | b | sympify(derivatives)
 
 
-
 def derivative(species, flowdict, crn):
-
     # define function for each state variable
     funcs = {}
     function_reverse = {}
@@ -278,8 +282,8 @@ def derivative(species, flowdict, crn):
         else:
             function_flowdict[variable.subs(funcs)] = flowdict[variable].subs(funcs)
 
-    x1 = function_flowdict[funcs[species]] # first derivative of species
-    x2 = Derivative(x1, crn.t).doit() # second derivative
+    x1 = function_flowdict[funcs[species]]  # first derivative of species
+    x2 = Derivative(x1, crn.t).doit()  # second derivative
 
     # substitute in to replace first derivatives
     for func in function_flowdict:
@@ -296,7 +300,7 @@ def derivative(species, flowdict, crn):
     return simplify(x2)
 
 
-#rate,ratemax, constant
+# rate,ratemax, constant
 def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
     if not derivatives:
         derivatives = set()
@@ -311,9 +315,11 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         nrc = (parametricNetReactionChange(crn))
         dSpeciesdt = parametricFlow(prp, Matrix(nrc))
     elif kinetics == 'hill':
-        dSpeciesdt = hillKineticsFlow(species,firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
+        dSpeciesdt = hillKineticsFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
+                                      secondConstant)
     elif kinetics == 'michaelis-menton':
-        dSpeciesdt = michaelisMentonFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions], secondConstant )
+        dSpeciesdt = michaelisMentonFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
+                                         secondConstant)
     for sp, i in zip(species, list(range(len(species)))):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
@@ -327,7 +333,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     G = parametricG(Matrix(prp), Matrix(nrc))
     C = generateCovarianceMatrix(species)
     dCovdt = J * C + C * transpose(J)
-    for i in range(C.cols*C.rows):
+    for i in range(C.cols * C.rows):
         a[C[i]] = dCovdt[i]
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
@@ -335,9 +341,10 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     return a
 
 
-
 def hillFlowDictionary(crn, species, isLNA, derivatives):
-    a = dict.fromkeys(generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(generateAllTokens(crn, set.add(derivatives)))
+    a = dict.fromkeys(
+        generateAllTokens(crn, set(derivatives), generateCovarianceMatrix(species))) if isLNA else dict.fromkeys(
+        generateAllTokens(crn, set.add(derivatives)))
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
     dSpeciesdt = parametricFlow(prp, Matrix(nrc))
@@ -352,15 +359,16 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
     G = parametricG(Matrix(prp), Matrix(nrc))
     C = generateCovarianceMatrix(species)
     dCovdt = J * C + C * transpose(J)
-    for i in range(C.cols*C.rows):
+    for i in range(C.cols * C.rows):
         a[C[i]] = dCovdt[i]
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
             a[key] = 0
     return a
 
+
 def intDictionary(crn, species, covariance, flowdict):
-    #getInt(crn)
+    # getInt(crn)
     a = dict.fromkeys(list(flowdict.keys()))
     t = [x for x in crn.getRawSpecies()]
     for reaction in crn.reactions:
@@ -387,14 +395,10 @@ def intDictionary(crn, species, covariance, flowdict):
     i = 0
     for spec in species:
         i = max(a[spec], i)
-    i = i**2 + 1
+    i = i ** 2 + 1
     for co in covariance:
         a[co] = i
     return a
-
-
-
-
 
 
 def exampleParametricCRN():
@@ -402,22 +406,22 @@ def exampleParametricCRN():
     Y = symbols('Y')
     B = symbols('B')
 
-
-    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
-    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
+    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)],
+                         RateConstant('k_1', 1, 2))
+    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)],
+                         [Species(Y, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
     reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
     reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
 
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
 
-
-    #pprint(dCovdt)
+    # pprint(dCovdt)
     isLNA = False
     derivatives = {'dXdt'}  # set(['dXdt'])
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
-    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]
-    #file = iSATParser(flow, ints, specification)
+    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
+    # file = iSATParser(flow, ints, specification)
 
     rate_constants = {}
     for reaction in crn.reactions:
@@ -426,17 +430,13 @@ def exampleParametricCRN():
             rate_constants[str(rate)] = rate
     rate_constants = list(rate_constants.values())
 
-    d,i,m,p,t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
-    spec = iSATParser.constructISAT(d,i,m,p,t)
+    d, i, m, p, t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
+    spec = iSATParser.constructISAT(d, i, m, p, t)
     print(spec)
-
-
-
 
 
 if __name__ == "__main__":
     exampleParametricCRN()
-
 
     # def exampleCRN():
     #     reaction1 = Reaction(['A', 'x_1'], ['x_1', 'x_1'], 'k_1')
@@ -452,7 +452,7 @@ if __name__ == "__main__":
     #     reaction4 = Reaction(['Y', 'B'], ['Y', 'Y'], 'k_4')
     #     return CRN(['X', 'Y', 'B'], [reaction1, reaction2, reaction3, reaction4], [5, 3, 1])
 
-        # alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
+    # alpha1=k1*SF*(lambda1A*A + lambda1B*B)*(c10+c11*K);
     # alpha2=k2*SF*(c50 + c51*(lambda2A*A + lambda2B*B) )*(c31*K + c32*(K^2));
     # alpha3=k3*SF;
 
@@ -478,7 +478,6 @@ if __name__ == "__main__":
     #		covXY covY ]
 
     # dCovdt=J*C+C*(J')+G
-
 
     # exampleParametricCRN()
     # init_printing()
@@ -507,10 +506,8 @@ if __name__ == "__main__":
     # reactants = crn.reactions.reactants
     # reactants = [ x.reactants for x in crn.reactions]
 
-
     # eng = matlab.engine.start_matlab()
     # ret = eng.symbolicLNA(crn.species,[ x.reactants for x in crn.reactions], [ x.products for x in crn.reactions], [ x.reactionrate for x in crn.reactions])
-
 
     # inspecies, inreactants, inproducts, inrates
 

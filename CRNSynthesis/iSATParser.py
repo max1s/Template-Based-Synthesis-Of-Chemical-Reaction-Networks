@@ -1,8 +1,8 @@
-
 class Constant:
     def __init__(self, name, value):
         self.constantName = name
         self.constantValue = value
+
 
 class DeclType:
     def __init__(self, name, minparam, maxparam, declaration_type):
@@ -11,17 +11,16 @@ class DeclType:
 
         self.maximumParameter = maxparam
         if not maxparam:
-            self.maximumParameter =  10
+            self.maximumParameter = 10
 
         self.type = declaration_type
 
     def constructiSAT(self):
-        s = ''
-        s += self.type + ' [' + str(self.minimumParameter) + ", " + str(self.maximumParameter) + '] ' + str(self.name) + ';'
-        return s
+        return "%s [%s, %s] %s;" % (self.type, self.minimumParameter, self.maximumParameter, self.name)
 
     def constructdReal(self):
         pass
+
 
 class Declaration:
     def __init__(self, decltype, decConstants, numModes, reactionRates):
@@ -33,7 +32,7 @@ class Declaration:
     def constructiSAT(self):
         s = "\nDECL \n"
 
-        s += "define MAX_TIME = 1;\n" # TODO: set this sensibly
+        s += "define MAX_TIME = 1;\n"  # TODO: set this sensibly
 
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
@@ -56,7 +55,7 @@ class Declaration:
             s += "\tfloat [%s, %s] %s;\n" % (rate.min, rate.max, rate.name)
 
         s += "\n\t--Define modes\n"
-        for i in range(1, self.numModes+1):
+        for i in range(1, self.numModes + 1):
             s += "\tboole mode_%s;\n" % i
 
         return s
@@ -80,13 +79,10 @@ class Transition:
         s += "\t-- time constraint\n"
         s += "\ttime' = time + delta_time;\n\n"
 
-
-        terms = ["(%s' = %s)" % (x.name,x.name) for x in self.declarationOfParameter]
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.declarationOfParameter]
         s += "\t-- No state change without time consumption.\n"
         s += "\t(delta_time = 0) -> (%s);" % " and ".join(terms)
         s += "\n\n"
-
-
 
         if self.declarationOfConstants is not 0:
             s += "\t-- Constants are fixed\n"
@@ -98,8 +94,7 @@ class Transition:
         for rate in self.reactionRates:
             s += "\t(d.%s/d.time = 0);\n" % rate.name
 
-
-        mode_list = ["mode_" + str(x) for x in range(1, self.numModes+1)]
+        mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
         modes_string = " or ".join(mode_list)
 
         s += "\n\n\t-- Flows\n"
@@ -108,12 +103,12 @@ class Transition:
         return s
 
 
-
 class InitVals:
     def __init__(self, sp, init, sgn):
         self.species = sp
         self.initial = init
         self.sign = sgn
+
 
 class IntegerConstraint:
     def __init__(self, var, minInt, maxInt):
@@ -123,14 +118,13 @@ class IntegerConstraint:
 
     def constructiSAT(self):
         s = "\t("
-        for i in range(self.minimumInteger, self.maximumInteger-1):
+        for i in range(self.minimumInteger, self.maximumInteger - 1):
             s += "(" + self.variableName + " = " + str(i) + ") or "
         s += "(" + self.variableName + " = " + str(self.maximumInteger) + "); \n"
         return s
 
     def constructdReal(self):
         raise NotImplementedError
-
 
 
 class Initial:
@@ -147,12 +141,12 @@ class Initial:
 
         if self.speciesInitialValuePair is not 0:
             for pair in self.speciesInitialValuePair:
-                s += (pair.species + " " + pair.sign + " " +  pair.initial + ';\n')
+                s += (pair.species + " " + pair.sign + " " + pair.initial + ';\n')
         s.join(x + ';\n' for x in self.integerConstraints) if self.integerConstraints is not None else 0
         s.join(self.costConstraints)
 
         # mode exclusion
-        mode_list = ["mode_%s" % x for x in range(1, self.numModes+1)]
+        mode_list = ["mode_%s" % x for x in range(1, self.numModes + 1)]
         s += "\t-- cannot be in two modes at the same time. We start in mode_1.\n"
         s += "\tmode_1 = 1;\n"
         s += "\t" + " + ".join(mode_list) + " = 1;\n\n"
@@ -161,6 +155,7 @@ class Initial:
     def constructdReal(self):
         raise NotImplementedError
 
+
 class Flow:
     def __init__(self, var, t, fl):
         self.variable = var
@@ -168,7 +163,6 @@ class Flow:
         self.flow = fl
 
     def constructiSAT(self):
-
         # Python represents powers as a**b, whereas iSAT uses a^b
         flow = str(self.flow).replace('**', '^')
 
@@ -178,8 +172,6 @@ class Flow:
 
     def constructdReal(self):
         raise NotImplementedError
-
-
 
 
 class Mode:
@@ -192,28 +184,29 @@ class Mode:
         s = "\n\n"
 
         for invariant in self.invariants:
-             s += "\t-- transition into mode %s\n" % self.modeName
-             if invariant[0] is not None:
-                    # constraint on mode start time
-                   s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
-             # constraint imposed by mode on state
-             s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
+            s += "\t-- transition into mode %s\n" % self.modeName
+            if invariant[0] is not None:
+                # constraint on mode start time
+                s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
+            # constraint imposed by mode on state
+            s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
 
         return s
 
     def constructdReal(self):
         raise NotImplementedError
 
+
 class Post:
     def __init__(self, t, specs, mod):
         self.time = t
-        self.specification =  specs
+        self.specification = specs
         self.mode = mod
 
     def constructiSAT(self):
         s = ""
         s += "\nTARGET \n"
-        s += "\tmode_" + str(self.mode) + ' ' + "and (time <" + str(self.time)+ ") "
+        s += "\tmode_" + str(self.mode) + ' ' + "and (time <" + str(self.time) + ") "
         s.join('and (' + str(x) + ')' for x in self.specification)
         s += ";"
         return s
@@ -236,6 +229,7 @@ class SpecificationPart:
         self.time = t
         self.logic = l
 
+
 def MTLConverter(specification, flow, maxtime=1):
     post = Post(maxtime, [], 1)
     modes = []
@@ -254,35 +248,34 @@ def MTLConverter(specification, flow, maxtime=1):
     return modes, post
 
 
-def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None, initialValues=None, rate_constants=None):
-    m_flow = [Flow(x, 'time', y) for x,y in flow.items()]
-    m_specification = [SpecificationPart(x, y) for x,y in specification]
-    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x,y in integerConstraints] if integerConstraints is not None else 0
-    m_decltypes = [DeclType(x, 0, y, 'float') for x,y in declaration.items()]
+def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None,
+                           initialValues=None, rate_constants=None):
+    m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
+    m_specification = [SpecificationPart(x, y) for x, y in specification]
+    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x, y in
+                            integerConstraints] if integerConstraints is not None else 0
+    m_decltypes = [DeclType(x, 0, y, 'float') for x, y in declaration.items()]
 
-
-    m_contants = [Constant(x, y) for x,y in constants] if constants is not None else 0
+    m_contants = [Constant(x, y) for x, y in constants] if constants is not None else 0
 
     numModes = len(specification)
     d = Declaration(m_decltypes, m_contants, numModes, rate_constants)
     i = Initial(m_integerConstraints, numModes, None, costFunction)
     t = Transition(m_decltypes, m_contants, rate_constants, m_flow, numModes)
-    m,p = MTLConverter(specification, m_flow, 1)
+    m, p = MTLConverter(specification, m_flow, 1)
 
-    return d,i,m,p,t
+    return d, i, m, p, t
+
 
 def constructISAT(decl, initial, flow, post, transitionStart):
     d = decl.constructiSAT()
     i = initial.constructiSAT()
 
     t = transitionStart.constructiSAT()
-    f =[x.constructiSAT() for x in flow]
+    f = [x.constructiSAT() for x in flow]
     p = post.constructiSAT()
     return d + i + t + ''.join(f) + p
 
+
 def constructdReal(decl, initial, flow, post):
     pass
-
-
-
-

@@ -5,10 +5,12 @@ import os
 from os import walk
 import paramiko
 
+
 def callLocalSolver(executableString):
     p = sub.Popen(executableString.split(), stdout=sub.PIPE, stderr=sub.PIPE)
     output, errors = p.communicate()
     return output
+
 
 def callRemoteServer(executableString, server='', username='', password=''):
     p = sub.Popen(executableString.split(), stdout=sub.PIPE, stderr=sub.PIPE)
@@ -18,8 +20,10 @@ def callRemoteServer(executableString, server='', username='', password=''):
     output, errors = p.communicate()
     return output
 
+
 def ftpFileToServer():
     pass
+
 
 def saveFileLocally():
     pass
