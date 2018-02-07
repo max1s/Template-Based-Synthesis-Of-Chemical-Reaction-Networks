@@ -61,13 +61,13 @@ class Choice:
 
     def constructChoice(self):
         chain = ""
-        if (self.minNumber == 0):
+        if self.minNumber == 0:
             chain += self.choice[0]
-        if (self.maxNumber > 0):
+        if self.maxNumber > 0:
             chain += " + " + self.choice[1]
-        if (self.maxNumber > 1):
-            chain += (" + ").join([str(choice) + "*" + str(self.choiceName) + "^" + str(x) for choice, x in
-                                   zip(self.choice, list(range(2, self.maxNumber)))])
+        if self.maxNumber > 1:
+            chain += " + ".join([str(choice) + "*" + str(self.choiceName) + "^" + str(x) for choice, x in
+                                 zip(self.choice, list(range(2, self.maxNumber)))])
         return chain
 
 
@@ -85,7 +85,7 @@ class Species:
             return str(self.coefficient) + "*" + str(self.species)
 
     def constructPropensity(self):
-        if (isinstance(self.coefficient, int)):
+        if isinstance(self.coefficient, int):
             return self.specRep()
         else:
             raise NotImplementedError
@@ -237,7 +237,7 @@ def generateCovarianceMatrix(speciesVector):
     mat = eye(len(speciesVector))
     for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
         for (n, j) in zip(speciesVector, list(range(len(speciesVector)))):
-            if (m == n):
+            if m == n:
                 mat[i, j] = 'cov' + str(m)
             else:
                 mat[i, j] = 'cov' + str(n) + str(m)

@@ -28,7 +28,7 @@ def stateSpaceExperiment():
 def optimalsynthesisExperiment(maximumcost, minimumcost):
     cwd = os.getcwd()
     cost = maximumcost
-    while (cost > 0):
+    while cost > 0:
         editCost("bellshape.hys", cost)
         callSolver(costConstructForCommandLine("bellshape.hys", 0.1, cost, "--continue-after-not-reaching-horizon"))
         cost -= 1
@@ -78,13 +78,13 @@ def costConstructForCommandLine(model, precision, cost, otherPrams):
 
 
 def constructforCommandLine(model, precision, otherPrams):
-    if (model != ""):
-        if (precision != ""):
+    if model != "":
+        if precision != "":
             return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape" + model + ".hys + --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams
         else:
             return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape" + model + ".hys + --prabs=0.01 --msw=0.1 " + otherPrams
     else:
-        if (precision != ""):
+        if precision != "":
             return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape.hys + --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams
         else:
             return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape.hys + --prabs=0.01 --msw=0.1 " + otherPrams
@@ -164,7 +164,7 @@ def getCRNValues(s):
                 rate1 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('['))
                 rate2 = float(re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']'))
                 vals['k3'] = str((rate1 + rate2) / 2)
-            flag = 0;
+            flag = 0
 
         if 'lam1 (float):' in line:
             storedLineNo = linenumber

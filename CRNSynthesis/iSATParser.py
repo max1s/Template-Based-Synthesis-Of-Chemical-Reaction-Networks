@@ -65,7 +65,7 @@ class Declaration:
         raise NotImplementedError
 
 
-class Transition():
+class Transition:
     def __init__(self, decltype, decConstants, reactionRates, flows, numModes):
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
@@ -245,7 +245,7 @@ def MTLConverter(specification, flow, maxtime=1):
         if specificationPart[0] is maxtime:
             post.specification += specificationPart
         else:
-            if(specificationPart[0] not in timeList):
+            if specificationPart[0] not in timeList:
                 modes.append(Mode(noOfModes, [specificationPart]))
                 noOfModes = noOfModes + 1
                 timeList.append(specificationPart[0])
