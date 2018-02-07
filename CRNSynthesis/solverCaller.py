@@ -44,8 +44,8 @@ def constructResultSummary(experiment):
         files.extend(filenames)
 
     for f in files:
-        file = open("/bellshapemodelsresults/" + f).read().split('\n')
-        results.append(getRunTimeAndResult(file, f))
+        fp = open("/bellshapemodelsresults/" + f).read().split('\n')
+        results.append(getRunTimeAndResult(fp, f))
     return results
 
 

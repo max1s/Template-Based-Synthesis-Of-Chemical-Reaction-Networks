@@ -16,10 +16,10 @@ class InputSpecies:
         self.ode = ode
 
 class RateConstant:
-    def __init__(self, name, min, max):
+    def __init__(self, name, minimum, maximum):
        self.name = name
-       self.min = min
-       self.max = max
+       self.min = minimum
+       self.max = maximum
 
     def __repr__(self):
          return self.name
@@ -174,22 +174,21 @@ def parametricPropensity(paramCRN):
         propensities.append(propensity)
     return propensities
 
-
 def parametricNetReactionChange(crn):
     reactionChange = []
     for reaction in crn.reactions:
         netChange = [''] * len(crn.species)
         for reactant in reaction.reactants:
-            add(crn.species, netChange, reactant, '-')
+            add_stoichiometry_change(crn.species, netChange, reactant, '-')
         for product in reaction.products:
-            add(crn.species, netChange, product, '+')
+            add_stoichiometry_change(crn.species, netChange, product, '+')
 
         netChange = [0 if n is '' else n for n in netChange]
         reactionChange.append(sympify(netChange))
     return reactionChange
 
 
-def add(species, stoichList,  fragment, part):
+def add_stoichiometry_change(species, stoichList,  fragment, part):
     for spec, i in zip(species, list(range(len(species)))):
         if str(spec) in fragment.specRep():
             if "lam" in fragment.specRep():
@@ -264,28 +263,28 @@ def generateAllTokens(crn, derivatives, C = set()):
 def derivative(species, flowdict, crn):
 
     # define function for each state variable
-    functions = {}
+    funcs = {}
     function_reverse = {}
     for variable in flowdict:
         new_function = Function(variable.name)(crn.t)
-        functions[variable] = new_function
+        funcs[variable] = new_function
         function_reverse[new_function] = variable
 
     function_flowdict = {}
     constants = []
     for variable in flowdict:
         if flowdict[variable] is None:
-            constants.append(variable.subs(functions))
+            constants.append(variable.subs(funcs))
         else:
-            function_flowdict[variable.subs(functions)] = flowdict[variable].subs(functions)
+            function_flowdict[variable.subs(funcs)] = flowdict[variable].subs(funcs)
 
-    x1 = function_flowdict[functions[species]] # first derivative of species
+    x1 = function_flowdict[funcs[species]] # first derivative of species
     x2 = Derivative(x1, crn.t).doit() # second derivative
 
     # substitute in to replace first derivatives
-    for function in function_flowdict:
-        derivative_string = "Derivative(" + str(function) + ", t)"
-        x2 = x2.subs(derivative_string, function_flowdict[function])
+    for func in function_flowdict:
+        derivative_string = "Derivative(" + str(func) + ", t)"
+        x2 = x2.subs(derivative_string, function_flowdict[func])
 
     for constant in constants:
         derivative_string = "Derivative(" + str(constant) + ", t)"
@@ -414,7 +413,7 @@ def exampleParametricCRN():
 
     #pprint(dCovdt)
     isLNA = False
-    derivatives = set(['dXdt']) # set(['dXdt'])
+    derivatives = {'dXdt'}  # set(['dXdt'])
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0') ]

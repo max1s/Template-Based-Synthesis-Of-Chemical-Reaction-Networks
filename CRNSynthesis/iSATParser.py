@@ -5,7 +5,7 @@ class Constant:
         self.constantValue = value
 
 class DeclType:
-    def __init__(self, name, minparam, maxparam, type):
+    def __init__(self, name, minparam, maxparam, declaration_type):
         self.name = name
         self.minimumParameter = minparam
 
@@ -13,7 +13,7 @@ class DeclType:
         if not maxparam:
             self.maximumParameter =  10
 
-        self.type = type
+        self.type = declaration_type
 
     def constructiSAT(self):
         s = ''
@@ -123,9 +123,9 @@ class IntegerConstraint:
 
     def constructiSAT(self):
         s = "\t("
-        for i in range(minInt, maxInt-1):
+        for i in range(self.minimumInteger, self.maximumInteger-1):
             s += "(" + self.variableName + " = " + str(i) + ") or "
-        s += "(" + self.variableName + " = " + str(maxInt) + "); \n"
+        s += "(" + self.variableName + " = " + str(self.maximumInteger) + "); \n"
         return s
 
     def constructdReal(self):
