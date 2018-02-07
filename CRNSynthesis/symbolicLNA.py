@@ -164,6 +164,14 @@ class CRNSketch:
                     x.append(react)
         return x
 
+    def getRateConstants(self):
+        rate_constants = {}
+        for reaction in self.reactions:
+            rate = reaction.reactionrate
+            if str(rate) not in list(rate_constants.keys()):
+                rate_constants[str(rate)] = rate
+        rate_constants = list(rate_constants.values())
+        return rate_constants
 
 def parametricPropensity(paramCRN):
     propensities = []
@@ -431,26 +439,20 @@ def exampleParametricCRN():
     reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
     reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
 
-    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
-
     # pprint(dCovdt)
     isLNA = True
     derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
                    {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
                    {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
-    flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
-    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
     # file = iSATParser(flow, ints, specification)
 
-    rate_constants = {}
-    for reaction in crn.reactions:
-        rate = reaction.reactionrate
-        if str(rate) not in list(rate_constants.keys()):
-            rate_constants[str(rate)] = rate
-    rate_constants = list(rate_constants.values())
+    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
 
-    d, i, m, p, t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=rate_constants)
+    flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
+    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
+
+    d, i, m, p, t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=crn.getRateConstants())
     spec = iSATParser.constructISAT(d, i, m, p, t)
     print(spec)
 
