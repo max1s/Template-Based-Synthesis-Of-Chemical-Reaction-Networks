@@ -121,15 +121,15 @@ class IntegerConstraint:
         self.minimumInteger = minInt
         self.maximumInteger = maxInt
 
-        def constructiSAT(self):
-            s = "\t("
-            for i in range(minInt, maxInt-1):
-                s += "(" + self.variableName + " = " + str(i) + ") or "
-            s += "(" + self.variableName + " = " + str(maxInt) + "); \n"
-            return s
+    def constructiSAT(self):
+        s = "\t("
+        for i in range(minInt, maxInt-1):
+            s += "(" + self.variableName + " = " + str(i) + ") or "
+        s += "(" + self.variableName + " = " + str(maxInt) + "); \n"
+        return s
 
-        def constructdReal(self):
-            raise NotImplementedError
+    def constructdReal(self):
+        raise NotImplementedError
 
 
 
