@@ -383,7 +383,7 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
     return a
 
 
-def intDictionary(crn, species, covariance, flowdict):
+def intDictionary(crn, species, isLNA, flowdict):
     # getInt(crn)
     a = dict.fromkeys(list(flowdict.keys()))
     t = [x for x in crn.getRawSpecies()]
@@ -412,8 +412,10 @@ def intDictionary(crn, species, covariance, flowdict):
     for spec in species:
         i = max(a[spec], i)
     i = i ** 2 + 1
-    for co in covariance:
-        a[co] = i
+
+    if isLNA:
+        for co in generateCovarianceMatrix(species):
+            a[co] = i
     return a
 
 
@@ -437,7 +439,7 @@ def exampleParametricCRN():
                    {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
                    {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
-    ints = intDictionary(crn, [X, Y, B], generateCovarianceMatrix([X, Y, B]), flow)
+    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
     # file = iSATParser(flow, ints, specification)
 
