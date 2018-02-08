@@ -153,17 +153,6 @@ class CRNSketch:
                     x.append(react.specRep())
         return x
 
-    def getRawSpecies(self):
-        x = []
-        for y in self.reactions:
-            for react in y.reactants:
-                if react not in x:
-                    x.append(react)
-            for react in y.products:
-                if react not in x:
-                    x.append(react)
-        return x
-
     def getRateConstants(self):
         rate_constants = {}
         for reaction in self.reactions:
@@ -394,7 +383,6 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
 def intDictionary(crn, species, isLNA, flowdict):
     # getInt(crn)
     a = dict.fromkeys(list(flowdict.keys()))
-    t = [x for x in crn.getRawSpecies()]
     for reaction in crn.reactions:
         for reactant in reaction.reactants:
             if isinstance(reactant.species, LambdaChoice):
