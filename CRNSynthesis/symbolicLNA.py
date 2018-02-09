@@ -228,21 +228,29 @@ class CRNSketch:
     def __str__(self):
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-    def getSpeciesStrings(self):
-        # Construct list of only those species (or InputSpecies) that participate in a reaction
-        x = []
+    def generateAllTokens(self, C=set()):
+
+        species_strings = [] # entries will be strings representing caluses that appear reactants/products
 
         all_reactions = self.reactions[:]
         all_reactions.extend(self.optionalReactions)
 
         for y in all_reactions:
-            for react in y.reactants:
-                if react not in x:
-                    x.append(react.specRep())
-            for react in y.products:
-                if react not in x:
-                    x.append(react.specRep())
-        return x
+            reactants_or_products = y.reactants[:]
+            reactants_or_products.extend(y.products)
+            for react in reactants_or_products:
+                if react not in species_strings:
+                    species_strings.append(react.specRep())
+
+
+        sym = [x.free_symbols for x in sympify(species_strings)]
+        a = reduce(lambda x, y: x | y, sym)
+        b = set()
+        if len(C) is not 0:
+            b = C.free_symbols
+        return a | b
+
+
 
     def getSpecies(self, include_inputs=True):
         # Construct list of only those species (or InputSpecies) that participate in a reaction
@@ -385,15 +393,6 @@ def generateCovarianceMatrix(speciesVector):
     return mat
 
 
-def generateAllTokens(crn, C=set()):
-    sym = [x.free_symbols for x in sympify(crn.getSpeciesStrings())]
-    a = reduce(lambda x, y: x | y, sym)
-    b = set()
-    if len(C) is not 0:
-        b = C.free_symbols
-    return a | b
-
-
 def derivative(derivatives, flowdict, crn):
     # define function for each state variable
     funcs = {}
@@ -449,9 +448,9 @@ def flowDictionary(crn, isLNA, derivatives, kinetics='massaction', firstConstant
         derivatives = set()
 
     if isLNA:
-        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(crn.species)))
+        a = dict.fromkeys(crn.generateAllTokens(generateCovarianceMatrix(crn.species)))
     else:
-        a = dict.fromkeys(generateAllTokens(crn))
+        a = dict.fromkeys(crn.generateAllTokens())
 
     if kinetics == 'massaction':
         prp = (parametricPropensity(crn))
