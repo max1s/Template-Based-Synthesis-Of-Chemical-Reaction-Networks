@@ -182,6 +182,7 @@ class CRNSketch:
         return rate_constants
 
 def parametricPropensity(paramCRN):
+    # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
     propensities = []
     for reaction in paramCRN.reactions:
         propensity = symbols(str(reaction.reactionrate.name))
@@ -192,7 +193,9 @@ def parametricPropensity(paramCRN):
 
 
 def parametricNetReactionChange(crn):
-    reactionChange = []
+    # Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
+
+    change = []
     for reaction in crn.reactions:
         netChange = [''] * len(crn.species)
         for reactant in reaction.reactants:
@@ -201,18 +204,18 @@ def parametricNetReactionChange(crn):
             add_stoichiometry_change(crn.species, netChange, product, '+')
 
         netChange = [0 if n is '' else n for n in netChange]
-        reactionChange.append(sympify(netChange))
-    return reactionChange
+        change.append(sympify(netChange))
+    return change
 
 
 def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
     for i, sp in enumerate(species):
         if str(sp) in fragment.specRep():
             if "lam" in fragment.specRep():
-                stoichiometry_change[i] += " " + sign + fragment.species.contains(sp) + "*" + str(sp)
+                new_term = " %s%s * %s" % (sign, fragment.coefficient, fragment.species.contains(sp))
             else:
-                stoichiometry_change[i] += " " + sign + fragment.specRep()
-
+                new_term = "%s%s" % (sign, fragment.coefficient)
+            stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
 
 
