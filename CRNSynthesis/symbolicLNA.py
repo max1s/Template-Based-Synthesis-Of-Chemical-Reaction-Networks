@@ -244,16 +244,8 @@ def hillKineticsFlow(species, Ka, k, n):
         m[1, i] = hill(spec, n, Ka, k[i])
     return m
 
-
-def parametricG(propensities, reactionChange):
-    G = zeros(max(len(reactionChange.col(0)), len(reactionChange.row(0))),
-              max(len(reactionChange.col(0)), len(reactionChange.row(0))))
-    for i in range(len(propensities)):
-        G += transpose(reactionChange.row(i)) * reactionChange.row(i) * propensities[i]
-    return G
-
-
 def generateCovarianceMatrix(speciesVector):
+    # TODO: make sure we ignore InputSpecies
     mat = eye(len(speciesVector))
     for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
         for (n, j) in zip(speciesVector, list(range(len(speciesVector)))):
@@ -390,7 +382,6 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
 
     jmat = [x for x in species]
     J = Matrix(dSpeciesdt).jacobian(jmat)
-    G = parametricG(Matrix(prp), Matrix(nrc))
     C = generateCovarianceMatrix(species)
     dCovdt = J * C + C * transpose(J)
     for i in range(C.cols * C.rows):
