@@ -314,10 +314,10 @@ class CRNSketch:
 #        return a
 
 
-def parametricPropensity(paramCRN):
+def parametricPropensity(crn):
     # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
     propensities = []
-    for reaction in paramCRN.reactions:
+    for reaction in crn.reactions:
         propensity = symbols(str(reaction.reactionrate.name))
         for reactant in reaction.reactants:
             propensity *= sympify(reactant.constructPropensity())
