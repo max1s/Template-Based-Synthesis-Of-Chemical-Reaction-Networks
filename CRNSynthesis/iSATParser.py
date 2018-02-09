@@ -23,10 +23,8 @@ class DeclType:
 
 
 class Declaration:
-    def __init__(self, crn, decltype, decConstants, numModes, reactionRates):
+    def __init__(self, crn, numModes, reactionRates):
         self.crn = crn
-        self.declarationOfParameter = decltype
-        self.declarationOfConstants = decConstants
         self.numModes = numModes
         self.reactionRates = reactionRates
 
@@ -38,11 +36,6 @@ class Declaration:
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
         s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
-
-        if self.declarationOfConstants is not 0:
-            s += "\t-- Define constants\n"
-            for constant in self.declarationOfConstants:
-                s += "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
 
         if len(self.crn.state_variables) > 0:
             s += "\n\t-- Define State Variables\n"
@@ -76,10 +69,8 @@ class Declaration:
 
 
 class Transition:
-    def __init__(self, crn, decltype, decConstants, reactionRates, flows, numModes):
+    def __init__(self, crn, reactionRates, flows, numModes):
         self.crn = crn
-        self.declarationOfParameter = decltype
-        self.declarationOfConstants = decConstants
         self.reactionRates = reactionRates
 
         self.flow = flows
@@ -91,15 +82,23 @@ class Transition:
         s += "\t-- time constraint\n"
         s += "\ttime' = time + delta_time;\n\n"
 
-        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.declarationOfParameter]
-        s += "\t-- No state change without time consumption.\n"
-        s += "\t(delta_time = 0) -> (%s);" % " and ".join(terms)
-        s += "\n\n"
 
-        if self.declarationOfConstants is not 0:
-            s += "\t-- Constants are fixed\n"
-            for constant in self.declarationOfConstants:
-                s += "\t(d.%s/d.time = 0);\n" % constant.constantName
+        s += "\t-- No state change without time consumption.\n"
+
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.state_variables]
+        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.choice_variables]
+        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.reactionRates]
+        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+
+        terms = []
+        for lambda_choice in self.crn.lambda_variables:
+            terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
+        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+        s += "\n"
 
         if len(self.reactionRates) > 0:
             s += "\n\t-- Rate constants are fixed\n"
@@ -150,23 +149,14 @@ class IntegerConstraint:
 
 
 class Initial:
-    def __init__(self, crn, spinitvalpair, numModes, integerC=None, costC=None):
+    def __init__(self, crn, numModes):
         self.crn = crn
-        self.speciesInitialValuePair = spinitvalpair
-        self.integerConstraints = integerC
-        self.costConstraints = costC
         self.numModes = numModes
 
     def constructiSAT(self):
         s = "\nINIT\n"
 
         s += "\ttime = 0;\n\n"
-
-        if self.speciesInitialValuePair is not 0:
-            for pair in self.speciesInitialValuePair:
-                s += (pair.species + " " + pair.sign + " " + pair.initial + ';\n')
-        s.join(x + ';\n' for x in self.integerConstraints) if self.integerConstraints is not None else 0
-        s.join(self.costConstraints)
 
         # mode exclusion
         mode_list = ["mode_%s" % x for x in range(1, self.numModes + 1)]
@@ -282,33 +272,23 @@ def MTLConverter(specification, flow, maxtime=1):
     return modes, post
 
 
-def constructSpecification(crn, specification, flow, costFunction='', integerConstraints=None, constants=None,
-                           initialValues=None, rate_constants=None):
+def constructISAT(crn, specification, flow, costFunction=''):
+    rate_constants = crn.getRateConstants()
+
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     m_specification = [SpecificationPart(x, y) for x, y in specification]
-    m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x, y in
-                            integerConstraints] if integerConstraints is not None else 0
-
-    m_contants = [Constant(x, y) for x, y in constants] if constants is not None else 0
-
     numModes = len(specification)
-    d = Declaration(crn, [], m_contants, numModes, rate_constants)
-    i = Initial(crn, m_integerConstraints, numModes, None, costFunction)
-    t = Transition(crn, [], m_contants, rate_constants, m_flow, numModes)
-    m, p = MTLConverter(specification, m_flow, 1)
 
-    return d, i, m, p, t
+    d = Declaration(crn, numModes, rate_constants).constructiSAT()
+    i = Initial(crn, numModes).constructiSAT()
+    t = Transition(crn, rate_constants, m_flow, numModes).constructiSAT()
 
-
-def constructISAT(decl, initial, flow, post, transitionStart):
-    d = decl.constructiSAT()
-    i = initial.constructiSAT()
-
-    t = transitionStart.constructiSAT()
+    flow, post = MTLConverter(specification, m_flow, 1)
     f = [x.constructiSAT() for x in flow]
     p = post.constructiSAT()
+
     return d + i + t + ''.join(f) + p
 
 
-def constructdReal(decl, initial, flow, post):
+def constructdReal(crn, specification, flow, costFunction=''):
     pass

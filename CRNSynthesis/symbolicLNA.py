@@ -460,8 +460,7 @@ def exampleParametricCRN():
 
     crn.getEntityNames(isLNA) # TOD: should update records as things added to crn . . .
 
-    d, i, m, p, t = iSATParser.constructSpecification(crn, specification, flow, rate_constants=crn.getRateConstants())
-    spec = iSATParser.constructISAT(d, i, m, p, t)
+    spec = iSATParser.constructISAT(crn, specification, flow, costFunction='')
     print(spec)
 
 
