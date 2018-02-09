@@ -18,22 +18,39 @@ class InputSpecies:
     def iSATDefinition(self):
         return "\tfloat[%s, %s] %s;\n" % (0, 100, self.name) # TODO: set min/max better
 
+    def iSATInitialization(self):
+        return ""
+
+
 class Species:
-    def __init__(self, name, initial_value=None):
+    def __init__(self, name, initial_value=None, initial_min=None, initial_max=None):
         self.name = name
         self.symbol = Symbol(name)
         self.initial_value = initial_value
 
-        self.minNumber = 0
-        self.maxNumber = 10 # TODO: make arguments
+        self.initial_min = initial_min
+        self.initial_max = initial_max
 
     def __str__(self):
         return self.name
 
     def iSATDefinition(self):
-        return "\tfloat[%s, %s] %s;\n" % (self.minNumber, self.maxNumber, self.name)
+        return "\tfloat[0, %s] %s;\n" % (10, self.name)
 
+    def iSATInitialization(self):
+        if self.initial_value:
+            return "\t%s = %s;\n" % (self.name, self.initial_value)
 
+        terms = []
+        if self.initial_min:
+            terms.append("(%s >= %s)" % (self.name, self.initial_min))
+
+        if self.initial_max:
+            terms.append("(%s <= %s)" % (self.name, self.initial_max))
+
+        if len(terms) > 0:
+            return "\t" + " and ".join(terms) + ";\n"
+        return ""
 
 class Term:
     # Represents conjunction of a species (or InputSpecies) with a stoichiometric coefficient
@@ -433,8 +450,8 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
 
 
 def exampleParametricCRN():
-    X = Species('X')
-    Y = Species('Y')
+    X = Species('X', initial_max=5)
+    Y = Species('Y', initial_value=12)
     B = Species('B')
 
     reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)],

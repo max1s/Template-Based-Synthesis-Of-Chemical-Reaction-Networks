@@ -174,6 +174,12 @@ class Initial:
         for c in self.crn.choice_variables:
             s += c.format_constraint()
 
+        if len(self.crn.state_variables) > 0:
+            s += "\n\t-- Limits on initial conditions\n"
+        for sp in self.crn.state_variables:
+            s += sp.iSATInitialization()
+
+
         return s
 
     def constructdReal(self):
