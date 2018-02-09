@@ -98,7 +98,11 @@ class LambdaChoice:
             # generate term in which only element i is on
             subclauses = []
             for lam in self.lambdas:
-                subclauses.append("(%s = %s)" % (lam, lam == active_value))
+                if lam == active_value:
+                    subclauses.append("(%s = 1)" % lam)
+                else:
+                    subclauses.append("(%s = 0)" % lam)
+
             clause = "(" + " and ".join(subclauses) + ")"
             clauses.append(clause)
 
