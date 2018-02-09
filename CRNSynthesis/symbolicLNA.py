@@ -298,30 +298,80 @@ class CRNSketch:
         rate_constants = list(rate_constants.values())
         return rate_constants
 
-def parametricPropensity(crn):
-    # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
-    propensities = []
-    for reaction in crn.reactions:
-        propensity = symbols(str(reaction.reactionrate.name))
-        for reactant in reaction.reactants:
-            propensity *= sympify(reactant.constructPropensity())
-        propensities.append(propensity)
-    return propensities
+    def flow(self, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
+        if not derivatives:
+            derivatives = set()
 
+        if isLNA:
+            a = dict.fromkeys(self.generateAllTokens(generateCovarianceMatrix(self.real_species)))
+        else:
+            a = dict.fromkeys(self.generateAllTokens())
 
-def parametricNetReactionChange(crn):
-    # Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
+        if kinetics == 'massaction':
+            propensities = self.parametricPropensity()
+            stoichiometry_change = self.parametricNetReactionChange()
+            dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities)
+        elif kinetics == 'hill':
+            dSpeciesdt = hillKineticsFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.reactions],
+                                          secondConstant)
+        elif kinetics == 'michaelis-menton':
+            dSpeciesdt = michaelisMentonFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.reactions],
+                                             secondConstant)
+        for i, sp in enumerate(self.real_species):
+            if isinstance(sp, str):
+                a[symbols(sp)] = dSpeciesdt[i]
+            else:
+                a[sp.symbol] = dSpeciesdt[i]
 
-    change = []
-    for reaction in crn.reactions:
-        netChange = ['0'] * len(crn.real_species)
-        for reactant in reaction.reactants:
-            add_stoichiometry_change(crn.real_species, netChange, reactant, '-')
-        for product in reaction.products:
-            add_stoichiometry_change(crn.real_species, netChange, product, '+')
+        if isLNA:
+            jmat = [sp.symbol for sp in self.species]
+            J = Matrix(dSpeciesdt).jacobian(jmat)
+            C = generateCovarianceMatrix(self.species)
+            dCovdt = J * C + C * transpose(J)
+            for i in range(C.cols * C.rows):
+                a[C[i]] = dCovdt[i]
 
-        change.append(sympify(netChange))
-    return change
+        a.update(derivative(derivatives, a))
+
+        for sp in self.input_species:
+            a[sp.symbol] = sp.ode
+
+        constants_to_remove = []
+        for key in a:
+            if a[key] is None and not isinstance(a[key], str):
+                a[key] = 0
+            if str(key) not in [str(sp) for sp in self.species]:
+                constants_to_remove.append(key)
+
+        # remove constant keys from flowDict, as they are handled separately when output generated
+        for key in constants_to_remove:
+            a.pop(key, None)
+
+        return a
+
+    def parametricPropensity(self):
+        # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
+        propensities = []
+        for reaction in self.reactions:
+            propensity = symbols(str(reaction.reactionrate.name))
+            for reactant in reaction.reactants:
+                propensity *= sympify(reactant.constructPropensity())
+            propensities.append(propensity)
+        return propensities
+
+    def parametricNetReactionChange(self):
+        # Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
+
+        change = []
+        for reaction in self.reactions:
+            netChange = ['0'] * len(self.real_species)
+            for reactant in reaction.reactants:
+                add_stoichiometry_change(self.real_species, netChange, reactant, '-')
+            for product in reaction.products:
+                add_stoichiometry_change(self.real_species, netChange, product, '+')
+
+            change.append(sympify(netChange))
+        return change
 
 
 def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
@@ -334,9 +384,6 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
 
-
-def parametricFlow(propensities, reactionChange):
-    return Matrix(reactionChange).transpose() * Matrix(propensities)
 
 # TODO: these have same bug as parametric flow
 # should just be modifying propensity calculation
@@ -353,6 +400,7 @@ def hillKineticsFlow(species, Ka, k, n):
         m[1, i] = k[i] * (spec ^ n / (Ka ** n + spec ** n))
     return m
 
+
 def generateCovarianceMatrix(speciesVector):
     mat = eye(len(speciesVector))
     for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
@@ -368,12 +416,12 @@ def generateCovarianceMatrix(speciesVector):
     return mat
 
 
-def derivative(derivatives, flowdict, crn):
+def derivative(derivatives, flowdict):
     # define function for each state variable
     funcs = {}
     function_reverse = {}
     for variable in flowdict:
-        new_function = Function(variable.name)(crn.t)
+        new_function = Function(variable.name)(Symbol('t'))
         funcs[variable] = new_function
         function_reverse[new_function] = variable
 
@@ -400,7 +448,7 @@ def derivative(derivatives, flowdict, crn):
 
         xn = x1
         for i in range(order):
-            xn = Derivative(xn, crn.t).doit()
+            xn = Derivative(xn, Symbol('t')).doit()
 
             # substitute in to replace first derivatives
             for func in function_flowdict:
@@ -416,58 +464,6 @@ def derivative(derivatives, flowdict, crn):
         results[symbols(name)] = simplify(xn)
 
     return results
-
-
-def flowDictionary(crn, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
-    if not derivatives:
-        derivatives = set()
-
-    if isLNA:
-        a = dict.fromkeys(crn.generateAllTokens(generateCovarianceMatrix(crn.real_species)))
-    else:
-        a = dict.fromkeys(crn.generateAllTokens())
-
-    if kinetics == 'massaction':
-        prp = (parametricPropensity(crn))
-        nrc = (parametricNetReactionChange(crn))
-        dSpeciesdt = parametricFlow(prp, nrc)
-    elif kinetics == 'hill':
-        dSpeciesdt = hillKineticsFlow(crn.species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
-                                      secondConstant)
-    elif kinetics == 'michaelis-menton':
-        dSpeciesdt = michaelisMentonFlow(crn.species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
-                                         secondConstant)
-    for i, sp in enumerate(crn.real_species):
-        if isinstance(sp, str):
-            a[symbols(sp)] = dSpeciesdt[i]
-        else:
-            a[sp.symbol] = dSpeciesdt[i]
-
-    if isLNA:
-        jmat = [sp.symbol for sp in crn.species]
-        J = Matrix(dSpeciesdt).jacobian(jmat)
-        C = generateCovarianceMatrix(crn.species)
-        dCovdt = J * C + C * transpose(J)
-        for i in range(C.cols * C.rows):
-            a[C[i]] = dCovdt[i]
-
-    a.update(derivative(derivatives, a, crn))
-
-    for sp in crn.input_species:
-        a[sp.symbol] = sp.ode
-
-    constants_to_remove = []
-    for key in a:
-        if a[key] is None and not isinstance(a[key], str):
-            a[key] = 0
-        if str(key) not in [str(sp) for sp in crn.species]:
-            constants_to_remove.append(key)
-
-    # remove constant keys from flowDict, as they are handled separately when output generated
-    for key in constants_to_remove:
-        a.pop(key, None)
-
-    return a
 
 
 def exampleParametricCRN():
@@ -493,9 +489,9 @@ def exampleParametricCRN():
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
 
     crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
-    flow = flowDictionary(crn, isLNA, derivatives)
+    flow = crn.flow(isLNA, derivatives)
     spec = iSATParser.constructISAT(crn, specification, flow, costFunction='')
-    
+
     print(spec)
 
 
