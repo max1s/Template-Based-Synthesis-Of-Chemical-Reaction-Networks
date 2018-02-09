@@ -10,10 +10,46 @@ from functools import reduce
 
 
 class InputSpecies:
-    def __init__(self, name, concentration, ode):
-        self.name = name
-        self.concentration = concentration
+    def __init__(self, name, ode, initial_value=None):
+        self.name = name  # a string, to be printed
+        self.symbol = Symbol(name)  # a sympy symbol, to be used when constructing formulae
+        self.initial_value = initial_value
         self.ode = ode
+
+    def __str__(self):
+        return self.name
+
+
+class Species:
+    def __init__(self, name, initial_value=None):
+        self.name = name
+        self.symbol = Symbol(name)
+        self.initial_value = initial_value
+        self.ode = ode
+
+    def __str__(self):
+        return self.name
+
+
+class Term:
+    # Represents conjunction of a species (or InputSpecies) with a stoichiometric coefficient
+    def __init__(self, species, coefficient):
+        self.species = species
+        self.coefficient = coefficient
+
+    def specRep(self):
+        if isinstance(self.species, LambdaChoice):
+            return str(self.coefficient) + "*" + self.species.constructChoice()
+        elif isinstance(self.species, Choice):
+            return str(self.coefficient) + "*" + " ( " + str(self.species.constructChoice()) + " ) "
+        else:
+            return str(self.coefficient) + "*" + str(self.species.name)
+
+    def constructPropensity(self):
+        if isinstance(self.coefficient, int):
+            return self.specRep()
+        else:
+            raise NotImplementedError
 
 
 class RateConstant:
@@ -72,26 +108,6 @@ class Choice:
         return chain
 
 
-class Species:
-    def __init__(self, species, coefficient):
-        self.species = species
-        self.coefficient = coefficient
-
-    def specRep(self):
-        if isinstance(self.species, LambdaChoice):
-            return str(self.coefficient) + "*" + self.species.constructChoice()
-        elif isinstance(self.species, Choice):
-            return str(self.coefficient) + "*" + " ( " + str(self.species.constructChoice()) + " ) "
-        else:
-            return str(self.coefficient) + "*" + str(self.species)
-
-    def constructPropensity(self):
-        if isinstance(self.coefficient, int):
-            return self.specRep()
-        else:
-            raise NotImplementedError
-
-
 class ReactionSketch:
     def __init__(self, r, opr, p, opp, ra, isop):
         self.reactants = r
@@ -126,10 +142,12 @@ class OptionalReaction:
 
 
 class CRNSketch:
-    def __init__(self, cs, r, opr):
+    def __init__(self, cs, r, opr, input_species=None):
         self.species = cs
         self.reactions = r
         self.optionalReactions = opr
+        self.input_species = input_species
+
         self.t = symbols('t')
 
     def __repr__(self):
@@ -139,6 +157,7 @@ class CRNSketch:
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
     def getSpecies(self):
+        # Construct list of only those species (or InputSpecies) that participate in a reaction
         x = []
 
         all_reactions = self.reactions[:]
@@ -333,18 +352,20 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
-            a[sp] = dSpeciesdt[i]
+            a[sp.symbol] = dSpeciesdt[i]
 
     if isLNA:
-        jmat = [x for x in species]
+        jmat = [sp.symbol for sp in species]
         J = Matrix(dSpeciesdt).jacobian(jmat)
-        G = parametricG(Matrix(prp), Matrix(nrc))
         C = generateCovarianceMatrix(species)
         dCovdt = J * C + C * transpose(J)
         for i in range(C.cols * C.rows):
             a[C[i]] = dCovdt[i]
 
     a.update(derivative(derivatives, a, crn))
+
+    for sp in crn.input_species:
+        a[sp.symbol] = sp.ode
 
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
@@ -416,26 +437,30 @@ def intDictionary(crn, species, isLNA, flowdict):
 
 
 def exampleParametricCRN():
-    X = symbols('X')
-    Y = symbols('Y')
-    B = symbols('B')
+    X = Species('X')
+    Y = Species('Y')
+    B = Species('B')
 
-    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)],
+    reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)],
                          RateConstant('k_1', 1, 2))
-    reaction2 = Reaction([Species(LambdaChoice([X, Y], 2), 1), Species(Choice(X, 0, 2), 2)],
-                         [Species(Y, 1), Species(B, 1)], RateConstant('k_1', 1, 2))
-    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
-    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], RateConstant('k_1', 1, 2))
+    reaction2 = Reaction([Term(LambdaChoice([X, Y], 2), 1), Term(Choice(X, 0, 2), 2)],
+                         [Term(Y, 1), Term(B, 1)], RateConstant('k_2', 1, 2))
+    reaction3 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_3', 1, 2))
+    reaction4 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_4', 1, 2))
+
+    input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
+    reaction5 = Reaction([Term(input1, 1)], [Term(B, 1)], RateConstant('k_input', 1, 2))
 
     # pprint(dCovdt)
-    isLNA = True
+    isLNA = False
     derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
                    {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
                    {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
+    derivatives = []
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
     # file = iSATParser(flow, ints, specification)
 
-    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3], [reaction4])
+    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
 
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
     ints = intDictionary(crn, [X, Y, B], isLNA, flow)
