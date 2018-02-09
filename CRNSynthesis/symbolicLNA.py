@@ -42,19 +42,27 @@ class Term:
         self.coefficient = coefficient
 
     def specRep(self):
+        coefficient = self.coefficient
+        if isinstance(coefficient, Choice):
+            coefficient = coefficient.symbol
+
         if isinstance(self.species, LambdaChoice):
-            return str(self.coefficient) + "*" + self.species.constructChoice()
-        elif isinstance(self.species, Choice):
-            return str(self.coefficient) + "*" + " ( " + str(self.species.constructChoice()) + " ) "
+            return str(coefficient) + "*" + self.species.constructChoice()
         else:
-            return str(self.coefficient) + "*" + str(self.species.name)
+            return str(coefficient) + "*" + str(self.species.name)
 
     def constructPropensity(self):
-        if isinstance(self.coefficient, int):
-            return self.specRep()
-        else:
+        if not isinstance(self.coefficient, int) and not isinstance(self.coefficient, Choice):
             raise NotImplementedError
 
+        coefficient = self.coefficient
+        if isinstance(coefficient, Choice):
+            coefficient = coefficient.symbol
+
+        if isinstance(self.species, LambdaChoice):
+            return self.species.constructChoice() + "**" + str(coefficient)
+        else:
+            return str(self.species.name) + "**" + str(coefficient)
 
 class RateConstant:
     def __init__(self, name, minimum, maximum):
@@ -113,23 +121,22 @@ class LambdaChoice:
         return "\n".join(declarations)
 
 class Choice:
-    def __init__(self, choiceName, minNumber, maxNumber):
-        self.choiceName = choiceName
-        self.choice = ['c' + str(choiceName) + str(x) for x in range(minNumber, maxNumber)]
-        self.minNumber = minNumber
-        self.maxNumber = maxNumber
+    def __init__(self, choiceNumber, minValue, maxValue):
+        self.choiceNumber = choiceNumber
+        self.name = str('c' + str(self.choiceNumber))
+        self.symbol = Symbol(self.name)
+        self.minValue = minValue
+        self.maxValue = maxValue
 
-    def constructChoice(self):
-        chain = ""
-        if self.minNumber == 0:
-            chain += self.choice[0]
-        if self.maxNumber > 0:
-            chain += " + " + self.choice[1]
-        if self.maxNumber > 1:
-            chain += " + ".join([str(choice) + "*" + str(self.choiceName) + "^" + str(x) for choice, x in
-                                 zip(self.choice, list(range(2, self.maxNumber)))])
-        return chain
+    def format_constraint(self):
+        clauses = ["(%s = %s)" % (self.name, x) for x in range(self.minValue, self.maxValue+1)]
+        return "\t" + " or ".join(clauses) + ";\n"
 
+    def iSATDefinition(self):
+        return "\tfloat[%s, %s] %s;\n" % (self.minValue, self.maxValue, self.name)
+
+    def __str__(self):
+        return 'c' + str(self.choiceNumber)
 
 class ReactionSketch:
     def __init__(self, r, opr, p, opp, ra, isop):
@@ -216,15 +223,18 @@ class CRNSketch:
             terms = reaction.reactants[:]
             terms.extend(reaction.products)
 
+
             for term in terms:
                 if isinstance(term.species, LambdaChoice):
                     self.lambda_variables.add(term.species)
-                elif isinstance(term.species, Choice):
-                    self.choice_variables.add(term.species)
                 else:
                     self.state_variables.add(term.species)
 
-                # TODO: do we need to add every species that appear nested in a choice/lambda?
+                if isinstance(term.coefficient, Choice):
+                    self.choice_variables.add(term.coefficient)
+
+
+        # TODO: do we need to add every species that appear nested in a choice/lambda?
 
         # TODO: what's this for?
 #        a = dict.fromkeys(list(flowdict.keys()))
@@ -429,7 +439,7 @@ def exampleParametricCRN():
 
     reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)],
                          RateConstant('k_1', 1, 2))
-    reaction2 = Reaction([Term(LambdaChoice([X, Y], 2), 1), Term(Choice(X, 0, 2), 2)],
+    reaction2 = Reaction([Term(LambdaChoice([X, Y], 2), 1), Term(X, Choice(0, 0, 3))],
                          [Term(Y, 1), Term(B, 1)], RateConstant('k_2', 1, 2))
     reaction3 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_3', 1, 2))
     reaction4 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_4', 1, 2))

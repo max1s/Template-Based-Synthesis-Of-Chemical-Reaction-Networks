@@ -54,6 +54,12 @@ class Declaration:
         for lam in self.crn.lambda_variables:
             s += lam.iSATDefinition() + "\n"
 
+        if len(self.crn.choice_variables) > 0:
+            s += "\n\t-- Choice Variables\n"
+        for c in self.crn.choice_variables:
+            s += c.iSATDefinition() + "\n"
+
+
         if len(self.reactionRates) > 0:
             s += "\n\t-- Rate constants\n"
         for rate in self.reactionRates:
@@ -104,6 +110,11 @@ class Transition:
             s += "\n\t-- Lambda variables are fixed\n"
         for lam in self.crn.lambda_variables:
             s += "".join(["\t(d.%s/d.time = 0);\n" % x.name for x in lam.lambdas])
+
+        if len(self.crn.choice_variables) > 0:
+            s += "\n\t-- Choice variables are fixed\n"
+        for c in self.crn.choice_variables:
+            s += "\t(d.%s/d.time = 0);\n" % c.name
 
         mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
         modes_string = " or ".join(mode_list)
@@ -168,6 +179,10 @@ class Initial:
         for lam in self.crn.lambda_variables:
             s += lam.format_constraint()
 
+        if len(self.crn.choice_variables) > 0:
+            s += "\n\t-- Integer encoding of choice variables\n"
+        for c in self.crn.choice_variables:
+            s += c.format_constraint()
 
         return s
 
