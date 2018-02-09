@@ -1,7 +1,6 @@
 from sympy import *
 import itertools
 from six import string_types
-import iSATParser
 from functools import reduce
 
 
@@ -464,36 +463,3 @@ def derivative(derivatives, flowdict):
         results[symbols(name)] = simplify(xn)
 
     return results
-
-
-def exampleParametricCRN():
-    X = Species('X', initial_max=5)
-    Y = Species('Y', initial_value=12)
-    B = Species('B')
-
-    reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)],
-                         RateConstant('k_1', 1, 2))
-    reaction2 = Reaction([Term(LambdaChoice([X, Y], 2), 1), Term(X, Choice(0, 0, 3))],
-                         [Term(Y, 1), Term(B, 1)], RateConstant('k_2', 1, 2))
-    reaction3 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_3', 1, 2))
-    reaction4 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_4', 1, 2))
-
-    input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
-    reaction5 = Reaction([Term(input1, 1)], [Term(B, 1)], RateConstant('k_input', 1, 2))
-
-    isLNA = False
-    derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
-                   {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
-                   {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
-    derivatives = []
-    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
-
-    crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
-    flow = crn.flow(isLNA, derivatives)
-    spec = iSATParser.constructISAT(crn, specification, flow, costFunction='')
-
-    print(spec)
-
-
-if __name__ == "__main__":
-    exampleParametricCRN()

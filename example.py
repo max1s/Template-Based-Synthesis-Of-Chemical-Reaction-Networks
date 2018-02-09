@@ -1,115 +1,103 @@
 from CRNSynthesis.symbolicLNA import *
+from CRNSynthesis import iSATParser
 from sympy import init_printing, Matrix, transpose, pprint
 
-
 def exampleCRN():
-    reaction1 = Reaction(['A', 'x_1'], ['x_1', 'x_1'], 'k_1')
-    reaction2 = Reaction(['x_1', 'x_2'], ['x_2', 'x_2'], 'k_2')
-    reaction3 = Reaction(['x_2'], ['B'], 'k_3')
-    return CRN(['A', 'B', 'x_1', 'x_2'], [reaction1, reaction2, reaction3], [5, 2, 1])
+    A = Species('A')
+    B = Species('B')
+    x1 = Species('x_1')
+    x2 = Species('x_2')
+
+    reaction1 = Reaction([Term(A,1), Term(x1,1)], [Term(x1,1), Term(x1,1)], RateConstant('k_1', 1, 2))
+    reaction2 = Reaction([Term(x1,1), Term(x2,1)], [Term(x2,2)], RateConstant('k_2', 1, 2))
+    reaction3 = Reaction([Term(x2,1)], [Term(B,1)], RateConstant('k_3', 1, 2))
+
+    crn = CRNSketch([reaction1, reaction2, reaction3], [], [])
+    isLNA = False
+    derivatives = []
+    specification = []
+
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
 def AMExample():
-    reaction1 = Reaction(['X', 'Y'], ['X', 'B'], 'k_1')
-    reaction2 = Reaction(['Y', 'X'], ['Y', 'B'], 'k_2')
-    reaction3 = Reaction(['X', 'B'], ['X', 'X'], 'k_3')
-    reaction4 = Reaction(['Y', 'B'], ['Y', 'Y'], 'k_4')
-    return CRN(['X', 'Y', 'B'], [reaction1, reaction2, reaction3, reaction4], [5, 3, 1])
+    X = Species('X')
+    Y = Species('Y')
+    B = Species('B')
+
+
+    reaction1 = Reaction([Term(X,1), Term(Y,1)], [Term(X,1), Term(B,1)], RateConstant('k_1', 0.1, 10))
+    reaction2 = Reaction([Term(Y,1), Term(X,1)], [Term(Y,1), Term(B,1)], RateConstant('k_2', 0.1, 10))
+    reaction3 = Reaction([Term(X,1), Term(B,1)], [Term(X,1), Term(X,1)], RateConstant('k_3', 0.1, 10))
+    reaction4 = Reaction([Term(Y,1), Term(B,1)], [Term(Y,1), Term(Y,1)], RateConstant('k_4', 0.1, 10))
+
+    crn = CRNSketch([reaction1, reaction2, reaction3, reaction4], [], [])
+    isLNA = False
+    derivatives = []
+    specification = []
+
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
+
 
 def exampleParametricCRN():
 
-    X = symbols('X')
-    Y = symbols('Y')
-    B = symbols('B')
+    X = Species('X')
+    Y = Species('Y')
+    B = Species('B')
+
+    k1 = RateConstant('k_1', 0.1, 10)
+    k2 = RateConstant('k_2', 0.1, 10)
+    k3 = RateConstant('k_3', 0.1, 10)
 
 
-    reaction1 = Reaction([Species(LambdaChoice([X, Y], 1), 1), Species(Y, 1)], [Species(X, 1), Species(B, 1)], 'k_1')
-    reaction2 = Reaction([Species(LambdaChoice([X,Y], 2), 1), Species(Choice(X, 0, 2), 2)], [Species(Y, 1), Species(B, 1)], 'k_2')
-    reaction3 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
-    reaction4 = Reaction([Species(X, 1), Species(B, 1)], [Species(X, 1), Species(X, 1)], 'k_3')
+    reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)], k1)
+    reaction2 = Reaction([Term(LambdaChoice([X,Y], 2), 1), Term(X, Choice(0, 0, 2))], [Term(Y, 1), Term(B, 1)], k2)
+    reaction3 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], k3)
+    reaction4 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], k3)
 
-    crn = CRNSketch([X, Y, B], [reaction1,reaction2,reaction3], [reaction4])
+    crn = CRNSketch([reaction1,reaction2,reaction3], [reaction4], [])
 
-    prp = (parametricPropensity(crn))
-    nrc = (parametricNetReactionChange(crn))
-    dSpeciesdt = parametricFlow(prp, nrc)
+    isLNA = False
+    derivatives = []
+    specification = []
 
-    J = Matrix(dSpeciesdt).jacobian([X, Y, B])
-    pprint(J)
-    pprint(Matrix(prp))
-    pprint(Matrix(nrc))
-    G = parametricG(Matrix(prp), Matrix(nrc))
-
-    C = generateCovarianceMatrix(['X','Y','B'])
-
-    print((J * C  + C * transpose(J)).shape)
-    print(G.shape)
-
-    dCovdt = J * C  + C * transpose(J)
-    pprint (dCovdt)
-    # nrc = netReactionChange(crn.species, crn.reactions)
-    # #props = propensity(crn.reactions)
-    # flow = flowFunction(props,nrc)
-    # #A = Matrix([crn.species])
-    # J = jacobian(flow, Matrix([crn.species]))
-    # #print covar
-    # G = g(Matrix(props), Matrix(nrc))
-    # C = generateCovarianceMatrix(crn.species)
-    #
-    # dCovdt = J*C + C*transpose(J)  + G
-    #
-    # #iSATParser.constructiSATFile()
-    # print crn
-    # print "propensities:"
-    # print props
-    #
-    # pprint(dCovdt)
-    # self.reactants = r
-    # self.products = p
-    # self.lambdaReactants = opr
-    # self.lambdaProducts = opp
-    # self.reactionrate = ra
-    # self.isOptional = isop
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
+def exampleParametricCRN_complete():
+    X = Species('X', initial_max=5)
+    Y = Species('Y', initial_value=12)
+    B = Species('B')
 
+    reaction1 = Reaction([Term(LambdaChoice([X, Y], 1), 1), Term(Y, 1)], [Term(X, 1), Term(B, 1)],
+                         RateConstant('k_1', 1, 2))
+    reaction2 = Reaction([Term(LambdaChoice([X, Y], 2), 1), Term(X, Choice(0, 0, 3))],
+                         [Term(Y, 1), Term(B, 1)], RateConstant('k_2', 1, 2))
+    reaction3 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_3', 1, 2))
+    reaction4 = Reaction([Term(X, 1), Term(B, 1)], [Term(X, 1), Term(X, 1)], RateConstant('k_4', 1, 2))
 
-def printCRNDetails(crn):
-    #crn = exampleCRN()
+    input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
+    reaction5 = Reaction([Term(input1, 1)], [Term(B, 1)], RateConstant('k_input', 1, 2))
 
-    #crn = AMExample()
-    print("CRN:")
-    print(crn)
+    isLNA = False
+    derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
+                   {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
+                   {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
+    derivatives = []
+    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
 
-    props = propensity(crn.reactions)
-    print("\nPropensities:")
-    print(props)
-
-    nrc = netReactionChange(crn.species, crn.reactions)
-    flow = flowFunction(props, nrc)
-    J = flow.jacobian(Matrix([crn.species]))
-    G = g(Matrix(props), Matrix(nrc))
-    C = generateCovarianceMatrix(crn.species)
-
-    dCovdt = J * C + C * transpose(J) + G
-    print("\ndCovdt:")
-    init_printing()
-    pprint(dCovdt)
-
-    print("\n\n\n")
-    # iSATParser.constructiSATFile()
-
+    crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
 
 if __name__ == "__main__":
-    print("Example CRN:")
-    printCRNDetails(exampleCRN())
-
-    #print "AM Example:"
-    #printCRNDetails(AMExample())
-
-    print("New Parametric CRN Example:")
-    exampleParametricCRN()
-
+    # print exampleCRN()
+    # print AMExample()
+    # print exampleParametricCRN()
+    print exampleParametricCRN_complete()
 
