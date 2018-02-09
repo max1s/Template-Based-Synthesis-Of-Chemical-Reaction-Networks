@@ -192,13 +192,12 @@ def parametricNetReactionChange(crn):
 
     change = []
     for reaction in crn.reactions:
-        netChange = [''] * len(crn.species)
+        netChange = ['0'] * len(crn.species)
         for reactant in reaction.reactants:
             add_stoichiometry_change(crn.species, netChange, reactant, '-')
         for product in reaction.products:
             add_stoichiometry_change(crn.species, netChange, product, '+')
 
-        netChange = [0 if n is '' else n for n in netChange]
         change.append(sympify(netChange))
     return change
 
