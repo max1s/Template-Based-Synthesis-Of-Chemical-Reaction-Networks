@@ -42,6 +42,11 @@ class Declaration:
         for d in self.crn.state_variables:
             s += d.iSATDefinition()
 
+        if len(self.crn.input_variables) > 0:
+            s += "\n\t-- Define Input Variables\n"
+        for d in self.crn.input_variables:
+            s += d.iSATDefinition()
+
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t-- Lambda Variables\n"
         for lam in self.crn.lambda_variables:
@@ -118,6 +123,11 @@ class Transition:
         mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
         modes_string = " or ".join(mode_list)
 
+        if len(self.crn.input_variables) > 0:
+            s += "\n\n\t-- Inputs\n"
+        for sp in self.crn.input_variables:
+            s += '\t(%s) -> (d.%s/d.time = %s);\n' % (modes_string, sp.name, sp.ode)
+
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
 
@@ -177,6 +187,11 @@ class Initial:
         if len(self.crn.state_variables) > 0:
             s += "\n\t-- Limits on initial conditions\n"
         for sp in self.crn.state_variables:
+            s += sp.iSATInitialization()
+
+        if len(self.crn.input_variables) > 0:
+            s += "\n\t-- Initial conditions of inputs\n"
+        for sp in self.crn.input_variables:
             s += sp.iSATInitialization()
 
 

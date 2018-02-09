@@ -234,6 +234,7 @@ class CRNSketch:
         self.choice_variables = set()
         self.lambda_variables = set()
         self.state_variables = set()
+        self.input_variables = set()
 
         for reaction in self.reactions:
 
@@ -244,6 +245,8 @@ class CRNSketch:
             for term in terms:
                 if isinstance(term.species, LambdaChoice):
                     self.lambda_variables.add(term.species)
+                elif isinstance(term.species, InputSpecies):
+                    self.input_variables.add(term.species)
                 else:
                     self.state_variables.add(term.species)
 
