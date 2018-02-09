@@ -216,26 +216,19 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
 def parametricFlow(propensities, reactionChange):
     return Matrix(reactionChange).transpose() * Matrix(propensities)
 
-
-def michmenton(S, Vmax, v, Km):
-    return v * (Vmax / (Km + S))
-
-
-def hill(L, n, Ka, k):
-    return k * (L ^ n / (Ka ^ n + L ^ n))
-
-
+# TODO: these have same bug as parametric flow
+# should just be modifying propensity calculation
 def michaelisMentonFlow(species, Vmax, v, Km):
     m = Matrix(1, len(species))
     for spec, i in zip(species, len(species)):
-        m[1, i] = michmenton(spec, Vmax, v[i], Km)
+        m[1, i] = v[i] * (Vmax / (Km + spec))
     return m
 
 
 def hillKineticsFlow(species, Ka, k, n):
     m = Matrix(1, len(species))
     for spec, i in zip(species, len(species)):
-        m[1, i] = hill(spec, n, Ka, k[i])
+        m[1, i] = k[i] * (spec ^ n / (Ka ** n + spec ** n))
     return m
 
 def generateCovarianceMatrix(speciesVector):
