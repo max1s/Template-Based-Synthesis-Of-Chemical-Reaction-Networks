@@ -37,14 +37,14 @@ class Declaration:
         s += "\tfloat [0, MAX_TIME] time;\n"
         s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
 
-        if len(self.crn.state_variables) > 0:
+        if len(self.crn.real_species) > 0:
             s += "\n\t-- Define State Variables\n"
-        for d in self.crn.state_variables:
+        for d in self.crn.real_species:
             s += d.iSATDefinition()
 
-        if len(self.crn.input_variables) > 0:
+        if len(self.crn.input_species) > 0:
             s += "\n\t-- Define Input Variables\n"
-        for d in self.crn.input_variables:
+        for d in self.crn.input_species:
             s += d.iSATDefinition()
 
         if len(self.crn.lambda_variables) > 0:
@@ -90,7 +90,7 @@ class Transition:
 
         s += "\t-- No state change without time consumption.\n"
 
-        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.state_variables]
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.choice_variables]
@@ -179,14 +179,14 @@ class Initial:
         for c in self.crn.choice_variables:
             s += c.format_constraint()
 
-        if len(self.crn.state_variables) > 0:
+        if len(self.crn.real_species) > 0:
             s += "\n\t-- Limits on initial conditions\n"
-        for sp in self.crn.state_variables:
+        for sp in self.crn.real_species:
             s += sp.iSATInitialization()
 
-        if len(self.crn.input_variables) > 0:
+        if len(self.crn.input_species) > 0:
             s += "\n\t-- Initial conditions of inputs\n"
-        for sp in self.crn.input_variables:
+        for sp in self.crn.input_species:
             s += sp.iSATInitialization()
 
 
