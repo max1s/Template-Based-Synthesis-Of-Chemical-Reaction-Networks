@@ -160,6 +160,7 @@ class LambdaChoice:
         declarations = ["\tfloat[0, 1] %s;" % str(lam) for lam in self.lambdas]
         return "\n".join(declarations)
 
+
 class Choice:
     def __init__(self, choiceNumber, minValue, maxValue):
         self.choiceNumber = choiceNumber
@@ -177,23 +178,6 @@ class Choice:
 
     def __str__(self):
         return 'c' + str(self.choiceNumber)
-
-class ReactionSketch:
-    def __init__(self, r, opr, p, opp, ra, isop):
-        self.reactants = r
-        self.products = p
-        self.lambdaReactants = opr
-        self.lambdaProducts = opp
-        self.reactionrate = ra
-        self.isOptional = isop
-
-    def __repr__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
-
-    def __str__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
 
 class OptionalReaction:
