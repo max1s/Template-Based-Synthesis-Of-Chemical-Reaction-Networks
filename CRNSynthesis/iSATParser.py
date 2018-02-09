@@ -56,6 +56,11 @@ class Declaration:
         for c in self.crn.choice_variables:
             s += c.iSATDefinition() + "\n"
 
+        if len(self.crn.optionalReactions) > 0:
+            s += "\n\t-- Optional Reaction Variables\n"
+        for optional_reaction in self.crn.optionalReactions:
+            s += "\tfloat [0, 1] %s;\n" % optional_reaction.variable_name
+
         if len(self.crn.getRateConstants()) > 0:
             s += "\n\t-- Rate constants\n"
         for rate in self.crn.getRateConstants():
@@ -96,6 +101,9 @@ class Transition:
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
+        terms = ["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions]
+        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+
         terms = []
         for lambda_choice in self.crn.lambda_variables:
             terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
@@ -116,6 +124,11 @@ class Transition:
             s += "\n\t-- Choice variables are fixed\n"
         for c in self.crn.choice_variables:
             s += "\t(d.%s/d.time = 0);\n" % c.name
+
+        if len(self.crn.optionalReactions) > 0:
+            s += "\n\t-- Optional reaction variables are fixed\n"
+        for c in self.crn.optionalReactions:
+            s += "\t(d.%s/d.time = 0);\n" % c.variable_name
 
         mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
         modes_string = " or ".join(mode_list)
@@ -175,6 +188,13 @@ class Initial:
             s += "\n\t-- Integer encoding of choice variables\n"
         for c in self.crn.choice_variables:
             s += c.format_constraint()
+
+        if len(self.crn.choice_variables) > 0:
+            s += "\n\t-- Integer encoding of optional reaction variables\n"
+        for optional_reaction in self.crn.optionalReactions:
+            s += "\t(%s = 0) or (%s = 1);\n" % (optional_reaction.variable_name, optional_reaction.variable_name)
+
+
 
         if len(self.crn.real_species) > 0:
             s += "\n\t-- Limits on initial conditions\n"

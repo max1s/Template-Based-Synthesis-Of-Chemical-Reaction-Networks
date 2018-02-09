@@ -116,6 +116,16 @@ class Reaction:
         self.reactants = r
         self.products = p
         self.reactionrate = ra
+        self.is_optional = False
+        self.variable_name = "" # Boolean variable indicating whether optional reaction occurs
+
+    def __repr__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+
+    def __str__(self):
+        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
+            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
 
 
 class LambdaChoice:
@@ -180,25 +190,14 @@ class Choice:
         return 'c' + str(self.choiceNumber)
 
 
-class OptionalReaction:
-    def __init__(self, r, p, ra):
-        self.reactants = r
-        self.products = p
-        self.reactionrate = ra
-
-    def __repr__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
-
-    def __str__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
-
-
 class CRNSketch:
-    def __init__(self, r, opr, input_species=None):
-        self.reactions = r
-        self.optionalReactions = opr
+    def __init__(self, reactions, optional_reactions, input_species=None):
+        self.reactions = reactions
+        self.optionalReactions = optional_reactions
+
+        self.all_reactions = self.reactions[:]
+        self.all_reactions.extend(self.optionalReactions)
+
         self.input_species = input_species
 
         self.species = self.getSpecies()
@@ -211,14 +210,18 @@ class CRNSketch:
 
         self.t = symbols('t')
 
+        for i, reaction in enumerate(self.optionalReactions):
+            reaction.is_optional = True
+            reaction.variable_name = "o" + str(i)
+
     def __repr__(self):
-        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
+        return "[" + '\n' + '\n'.join([str(x) for x in self.all_reactions]) + "\n]"
 
     def __str__(self):
-        return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
+        return "[" + '\n' + '\n'.join([str(x) for x in self.all_reactions]) + "\n]"
 
     def record_decision_variables(self):
-        for reaction in self.reactions:
+        for reaction in self.all_reactions:
             terms = reaction.reactants[:]
             terms.extend(reaction.products)
 
@@ -232,11 +235,7 @@ class CRNSketch:
     def generateAllTokens(self, C=set()):
 
         species_strings = [] # entries will be strings representing caluses that appear reactants/products
-
-        all_reactions = self.reactions[:]
-        all_reactions.extend(self.optionalReactions)
-
-        for y in all_reactions:
+        for y in self.all_reactions:
             reactants_or_products = y.reactants[:]
             reactants_or_products.extend(y.products)
             for react in reactants_or_products:
@@ -256,11 +255,7 @@ class CRNSketch:
     def getSpecies(self, include_inputs=True):
         # Construct list of only those species (or InputSpecies) that participate in a reaction
         x = set()
-
-        all_reactions = self.reactions[:]
-        all_reactions.extend(self.optionalReactions)
-
-        for y in all_reactions:
+        for y in self.all_reactions:
             reactants_or_products = y.reactants[:]
             reactants_or_products.extend(y.products)
             for sp in reactants_or_products:
@@ -274,7 +269,7 @@ class CRNSketch:
 
     def getRateConstants(self):
         rate_constants = {}
-        for reaction in self.reactions:
+        for reaction in self.all_reactions:
             rate = reaction.reactionrate
             if str(rate) not in list(rate_constants.keys()):
                 rate_constants[str(rate)] = rate
@@ -295,10 +290,10 @@ class CRNSketch:
             stoichiometry_change = self.parametricNetReactionChange()
             dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities)
         elif kinetics == 'hill':
-            dSpeciesdt = hillKineticsFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.reactions],
+            dSpeciesdt = hillKineticsFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.all_reactions],
                                           secondConstant)
         elif kinetics == 'michaelis-menton':
-            dSpeciesdt = michaelisMentonFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.reactions],
+            dSpeciesdt = michaelisMentonFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.all_reactions],
                                              secondConstant)
         for i, sp in enumerate(self.real_species):
             if isinstance(sp, str):
@@ -335,10 +330,13 @@ class CRNSketch:
     def parametricPropensity(self):
         # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
         propensities = []
-        for reaction in self.reactions:
+        for reaction in self.all_reactions:
             propensity = symbols(str(reaction.reactionrate.name))
             for reactant in reaction.reactants:
                 propensity *= sympify(reactant.constructPropensity())
+            if reaction.is_optional:
+                propensity *= sympify(reaction.variable_name)
+
             propensities.append(propensity)
         return propensities
 
@@ -346,7 +344,7 @@ class CRNSketch:
         # Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
 
         change = []
-        for reaction in self.reactions:
+        for reaction in self.all_reactions:
             netChange = ['0'] * len(self.real_species)
             for reactant in reaction.reactants:
                 add_stoichiometry_change(self.real_species, netChange, reactant, '-')
