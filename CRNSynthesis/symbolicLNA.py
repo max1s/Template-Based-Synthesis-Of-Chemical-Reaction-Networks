@@ -94,8 +94,9 @@ class Term:
 
     def get_species(self):
         return self.species.get_species()
+
     def get_real_species(self):
-        return self.species.get_species()
+        return self.species.get_real_species()
 
 
 class RateConstant:
@@ -128,10 +129,10 @@ class LambdaChoice:
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
 
     def get_species(self):
-        return self.species
+        return sum([x.get_species() for x in self.species], [])  # flatten list-of-lists into list
 
     def get_real_species(self):
-        return self.species
+        return sum([x.get_real_species() for x in self.species], [])  # flatten list-of-lists into list
 
     def contains(self, variable):
         x = ''
@@ -378,7 +379,6 @@ def hillKineticsFlow(species, Ka, k, n):
     return m
 
 def generateCovarianceMatrix(speciesVector):
-    # TODO: make sure we ignore InputSpecies
     mat = eye(len(speciesVector))
     for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
         for (n, j) in zip(speciesVector, list(range(len(speciesVector)))):
@@ -448,7 +448,7 @@ def flowDictionary(crn, isLNA, derivatives, kinetics='massaction', firstConstant
         derivatives = set()
 
     if isLNA:
-        a = dict.fromkeys(crn.generateAllTokens(generateCovarianceMatrix(crn.species)))
+        a = dict.fromkeys(crn.generateAllTokens(generateCovarianceMatrix(crn.real_species)))
     else:
         a = dict.fromkeys(crn.generateAllTokens())
 
@@ -462,7 +462,7 @@ def flowDictionary(crn, isLNA, derivatives, kinetics='massaction', firstConstant
     elif kinetics == 'michaelis-menton':
         dSpeciesdt = michaelisMentonFlow(crn.species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
                                          secondConstant)
-    for sp, i in zip(crn.species, list(range(len(crn.species)))):
+    for i, sp in enumerate(crn.real_species):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
