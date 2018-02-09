@@ -1,8 +1,4 @@
-# import matlab.engine
 from sympy import *
-from sympy import Matrix
-import sys
-from sympy import init_printing
 import itertools
 from six import string_types
 import iSATParser
@@ -25,7 +21,6 @@ class Species:
         self.name = name
         self.symbol = Symbol(name)
         self.initial_value = initial_value
-        self.ode = ode
 
     def __str__(self):
         return self.name
@@ -257,7 +252,6 @@ def generateCovarianceMatrix(speciesVector):
     for x in range(len(speciesVector)):
         for y in range(len(speciesVector)):
             mat[x, y] = mat[y, x]
-    # pprint(mat)
     return mat
 
 
@@ -320,7 +314,6 @@ def derivative(derivatives, flowdict, crn):
     return results
 
 
-# rate,ratemax, constant
 def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
     if not derivatives:
         derivatives = set()
@@ -365,35 +358,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     return a
 
 
-def hillFlowDictionary(crn, species, isLNA, derivatives):
-    if isLNA:
-        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(species)))
-    else:
-        a = dict.fromkeys(generateAllTokens(crn))
-
-    prp = (parametricPropensity(crn))
-    nrc = (parametricNetReactionChange(crn))
-    dSpeciesdt = parametricFlow(prp, nrc)
-    for sp, i in zip(species, list(range(len(species)))):
-        if isinstance(sp, str):
-            a[symbols(sp)] = dSpeciesdt[i]
-        else:
-            a[sp] = dSpeciesdt[i]
-
-    jmat = [x for x in species]
-    J = Matrix(dSpeciesdt).jacobian(jmat)
-    C = generateCovarianceMatrix(species)
-    dCovdt = J * C + C * transpose(J)
-    for i in range(C.cols * C.rows):
-        a[C[i]] = dCovdt[i]
-    for key in a:
-        if a[key] is None and not isinstance(a[key], str):
-            a[key] = 0
-    return a
-
-
 def intDictionary(crn, species, isLNA, flowdict):
-    # getInt(crn)
     a = dict.fromkeys(list(flowdict.keys()))
     for reaction in crn.reactions:
         for reactant in reaction.reactants:
@@ -442,7 +407,6 @@ def exampleParametricCRN():
     input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
     reaction5 = Reaction([Term(input1, 1)], [Term(B, 1)], RateConstant('k_input', 1, 2))
 
-    # pprint(dCovdt)
     isLNA = False
     derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
                    {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
