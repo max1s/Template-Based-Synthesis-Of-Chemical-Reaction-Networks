@@ -217,11 +217,7 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
 
 
 def parametricFlow(propensities, reactionChange):
-    container = [reactionChange[0] * propensities[0]]
-    for n in range(1, len(propensities)):
-        container.append(reactionChange[n] * propensities[n])
-
-    return container
+    return Matrix(reactionChange).transpose() * Matrix(propensities)
 
 
 def michmenton(S, Vmax, v, Km):
@@ -334,7 +330,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     if kinetics == 'massaction':
         prp = (parametricPropensity(crn))
         nrc = (parametricNetReactionChange(crn))
-        dSpeciesdt = parametricFlow(prp, Matrix(nrc))
+        dSpeciesdt = parametricFlow(prp, nrc)
     elif kinetics == 'hill':
         dSpeciesdt = hillKineticsFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
                                       secondConstant)
@@ -374,7 +370,7 @@ def hillFlowDictionary(crn, species, isLNA, derivatives):
 
     prp = (parametricPropensity(crn))
     nrc = (parametricNetReactionChange(crn))
-    dSpeciesdt = parametricFlow(prp, Matrix(nrc))
+    dSpeciesdt = parametricFlow(prp, nrc)
     for sp, i in zip(species, list(range(len(species)))):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
