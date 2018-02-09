@@ -1,27 +1,3 @@
-class Constant:
-    def __init__(self, name, value):
-        self.constantName = name
-        self.constantValue = value
-
-
-class DeclType:
-    def __init__(self, name, minparam, maxparam, declaration_type):
-        self.name = name
-        self.minimumParameter = minparam
-
-        self.maximumParameter = maxparam
-        if not maxparam:
-            self.maximumParameter = 10
-
-        self.type = declaration_type
-
-    def constructiSAT(self):
-        return "%s [%s, %s] %s;" % (self.type, self.minimumParameter, self.maximumParameter, self.name)
-
-    def constructdReal(self):
-        pass
-
-
 class Declaration:
     def __init__(self, crn, numModes):
         self.crn = crn
@@ -137,30 +113,6 @@ class Transition:
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
 
         return s
-
-
-class InitVals:
-    def __init__(self, sp, init, sgn):
-        self.species = sp
-        self.initial = init
-        self.sign = sgn
-
-
-class IntegerConstraint:
-    def __init__(self, var, minInt, maxInt):
-        self.variableName = var
-        self.minimumInteger = minInt
-        self.maximumInteger = maxInt
-
-    def constructiSAT(self):
-        s = "\t("
-        for i in range(self.minimumInteger, self.maximumInteger - 1):
-            s += "(" + self.variableName + " = " + str(i) + ") or "
-        s += "(" + self.variableName + " = " + str(self.maximumInteger) + "); \n"
-        return s
-
-    def constructdReal(self):
-        raise NotImplementedError
 
 
 class Initial:
