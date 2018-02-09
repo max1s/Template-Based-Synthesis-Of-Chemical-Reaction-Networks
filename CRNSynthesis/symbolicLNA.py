@@ -99,7 +99,7 @@ class Term:
 
 
 class RateConstant:
-    def __init__(self, name, minimum, maximum):
+    def __init__(self, name, minimum=0.1, maximum=10):
         self.name = name
         self.min = minimum
         self.max = maximum

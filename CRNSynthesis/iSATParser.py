@@ -23,10 +23,9 @@ class DeclType:
 
 
 class Declaration:
-    def __init__(self, crn, numModes, reactionRates):
+    def __init__(self, crn, numModes):
         self.crn = crn
         self.numModes = numModes
-        self.reactionRates = reactionRates
 
     def constructiSAT(self):
         s = "\nDECL \n"
@@ -57,10 +56,9 @@ class Declaration:
         for c in self.crn.choice_variables:
             s += c.iSATDefinition() + "\n"
 
-
-        if len(self.reactionRates) > 0:
+        if len(self.crn.getRateConstants()) > 0:
             s += "\n\t-- Rate constants\n"
-        for rate in self.reactionRates:
+        for rate in self.crn.getRateConstants():
             s += "\tfloat [%s, %s] %s;\n" % (rate.min, rate.max, rate.name)
 
         s += "\n\t--Define modes\n"
@@ -74,9 +72,8 @@ class Declaration:
 
 
 class Transition:
-    def __init__(self, crn, reactionRates, flows, numModes):
+    def __init__(self, crn, flows, numModes):
         self.crn = crn
-        self.reactionRates = reactionRates
 
         self.flow = flows
         self.numModes = numModes
@@ -96,7 +93,7 @@ class Transition:
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.choice_variables]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
-        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.reactionRates]
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = []
@@ -105,9 +102,9 @@ class Transition:
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
         s += "\n"
 
-        if len(self.reactionRates) > 0:
+        if len(self.crn.getRateConstants()) > 0:
             s += "\n\t-- Rate constants are fixed\n"
-        for rate in self.reactionRates:
+        for rate in self.crn.getRateConstants():
             s += "\t(d.%s/d.time = 0);\n" % rate.name
 
         if len(self.crn.lambda_variables) > 0:
@@ -289,15 +286,13 @@ def MTLConverter(specification, flow, maxtime=1):
 
 
 def constructISAT(crn, specification, flow, costFunction=''):
-    rate_constants = crn.getRateConstants()
-
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     m_specification = [SpecificationPart(x, y) for x, y in specification]
     numModes = len(specification)
 
-    d = Declaration(crn, numModes, rate_constants).constructiSAT()
+    d = Declaration(crn, numModes).constructiSAT()
     i = Initial(crn, numModes).constructiSAT()
-    t = Transition(crn, rate_constants, m_flow, numModes).constructiSAT()
+    t = Transition(crn, m_flow, numModes).constructiSAT()
 
     flow, post = MTLConverter(specification, m_flow, 1)
     f = [x.constructiSAT() for x in flow]
