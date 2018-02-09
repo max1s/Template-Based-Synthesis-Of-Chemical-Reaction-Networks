@@ -21,6 +21,11 @@ class InputSpecies:
     def iSATInitialization(self):
         return "\t%s = %s;\n" % (self.name, self.initial_value)
 
+    def get_species(self):
+        return [self]
+
+    def get_real_species(self):
+        return []
 
 class Species:
     def __init__(self, name, initial_value=None, initial_min=None, initial_max=None):
@@ -52,6 +57,12 @@ class Species:
             return "\t" + " and ".join(terms) + ";\n"
         return ""
 
+    def get_species(self):
+        return [self]
+
+    def get_real_species(self):
+        return [self]
+
 class Term:
     # Represents conjunction of a species (or InputSpecies) with a stoichiometric coefficient
     def __init__(self, species, coefficient):
@@ -81,6 +92,12 @@ class Term:
         else:
             return str(self.species.name) + "**" + str(coefficient)
 
+    def get_species(self):
+        return self.species.get_species()
+    def get_real_species(self):
+        return self.species.get_species()
+
+
 class RateConstant:
     def __init__(self, name, minimum, maximum):
         self.name = name
@@ -109,6 +126,12 @@ class LambdaChoice:
 
     def constructChoice(self):
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
+
+    def get_species(self):
+        return self.species
+
+    def get_real_species(self):
+        return self.species
 
     def contains(self, variable):
         x = ''
@@ -189,11 +212,13 @@ class OptionalReaction:
 
 
 class CRNSketch:
-    def __init__(self, cs, r, opr, input_species=None):
-        self.species = cs
+    def __init__(self, r, opr, input_species=None):
         self.reactions = r
         self.optionalReactions = opr
         self.input_species = input_species
+
+        self.species = self.getSpecies()
+        self.real_species = self.getSpecies(include_inputs=False)
 
         self.t = symbols('t')
 
@@ -203,7 +228,7 @@ class CRNSketch:
     def __str__(self):
         return "[" + '\n' + '\n'.join([str(x) for x in self.reactions]) + "\n]"
 
-    def getSpecies(self):
+    def getSpeciesStrings(self):
         # Construct list of only those species (or InputSpecies) that participate in a reaction
         x = []
 
@@ -218,6 +243,25 @@ class CRNSketch:
                 if react not in x:
                     x.append(react.specRep())
         return x
+
+    def getSpecies(self, include_inputs=True):
+        # Construct list of only those species (or InputSpecies) that participate in a reaction
+        x = set()
+
+        all_reactions = self.reactions[:]
+        all_reactions.extend(self.optionalReactions)
+
+        for y in all_reactions:
+            reactants_or_products = y.reactants[:]
+            reactants_or_products.extend(y.products)
+            for sp in reactants_or_products:
+                if sp not in x:
+                    if include_inputs:
+                        x = x.union(sp.get_species())
+                    else:
+                        x = x.union(sp.get_real_species())
+
+        return list(x)
 
     def getRateConstants(self):
         rate_constants = {}
@@ -286,11 +330,11 @@ def parametricNetReactionChange(crn):
 
     change = []
     for reaction in crn.reactions:
-        netChange = ['0'] * len(crn.species)
+        netChange = ['0'] * len(crn.real_species)
         for reactant in reaction.reactants:
-            add_stoichiometry_change(crn.species, netChange, reactant, '-')
+            add_stoichiometry_change(crn.real_species, netChange, reactant, '-')
         for product in reaction.products:
-            add_stoichiometry_change(crn.species, netChange, product, '+')
+            add_stoichiometry_change(crn.real_species, netChange, product, '+')
 
         change.append(sympify(netChange))
     return change
@@ -342,7 +386,7 @@ def generateCovarianceMatrix(speciesVector):
 
 
 def generateAllTokens(crn, C=set()):
-    sym = [x.free_symbols for x in sympify(crn.getSpecies())]
+    sym = [x.free_symbols for x in sympify(crn.getSpeciesStrings())]
     a = reduce(lambda x, y: x | y, sym)
     b = set()
     if len(C) is not 0:
@@ -400,12 +444,12 @@ def derivative(derivatives, flowdict, crn):
     return results
 
 
-def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
+def flowDictionary(crn, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
     if not derivatives:
         derivatives = set()
 
     if isLNA:
-        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(species)))
+        a = dict.fromkeys(generateAllTokens(crn, generateCovarianceMatrix(crn.species)))
     else:
         a = dict.fromkeys(generateAllTokens(crn))
 
@@ -414,21 +458,21 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
         nrc = (parametricNetReactionChange(crn))
         dSpeciesdt = parametricFlow(prp, nrc)
     elif kinetics == 'hill':
-        dSpeciesdt = hillKineticsFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
+        dSpeciesdt = hillKineticsFlow(crn.species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
                                       secondConstant)
     elif kinetics == 'michaelis-menton':
-        dSpeciesdt = michaelisMentonFlow(species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
+        dSpeciesdt = michaelisMentonFlow(crn.species, firstConstant, [y.reactionrate for y in x for x in crn.reactions],
                                          secondConstant)
-    for sp, i in zip(species, list(range(len(species)))):
+    for sp, i in zip(crn.species, list(range(len(crn.species)))):
         if isinstance(sp, str):
             a[symbols(sp)] = dSpeciesdt[i]
         else:
             a[sp.symbol] = dSpeciesdt[i]
 
     if isLNA:
-        jmat = [sp.symbol for sp in species]
+        jmat = [sp.symbol for sp in crn.species]
         J = Matrix(dSpeciesdt).jacobian(jmat)
-        C = generateCovarianceMatrix(species)
+        C = generateCovarianceMatrix(crn.species)
         dCovdt = J * C + C * transpose(J)
         for i in range(C.cols * C.rows):
             a[C[i]] = dCovdt[i]
@@ -442,7 +486,7 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
             a[key] = 0
-        if str(key) not in [str(sp) for sp in species]:
+        if str(key) not in [str(sp) for sp in crn.species]:
             constants_to_remove.append(key)
 
     # remove constant keys from flowDict, as they are handled separately when output generated
@@ -474,9 +518,9 @@ def exampleParametricCRN():
     derivatives = []
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
 
-    crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
+    crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
 
-    flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
+    flow = flowDictionary(crn, isLNA, derivatives)
 
     crn.getEntityNames(isLNA) # TOD: should update records as things added to crn . . .
 
