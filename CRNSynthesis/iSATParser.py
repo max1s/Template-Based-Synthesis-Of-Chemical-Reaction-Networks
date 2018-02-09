@@ -23,7 +23,8 @@ class DeclType:
 
 
 class Declaration:
-    def __init__(self, decltype, decConstants, numModes, reactionRates):
+    def __init__(self, crn, decltype, decConstants, numModes, reactionRates):
+        self.crn = crn
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
         self.numModes = numModes
@@ -42,12 +43,16 @@ class Declaration:
             s += "\t-- Define constants\n"
             for constant in self.declarationOfConstants:
                 s += "\tdefine " + constant.constantName + ' = ' + constant.constantValue + ';\n'
-            s += '\n'
 
         if len(self.declarationOfParameter) > 0:
-            s += "\t-- Define State Variables\n"
+            s += "\n\t-- Define State Variables\n"
         for d in self.declarationOfParameter:
             s += "\t" + d.constructiSAT() + '\n'
+
+        if len(self.crn.lambda_variables) > 0:
+            s += "\n\t-- Lambda Variables\n"
+        for lam in self.crn.lambda_variables:
+            s += lam.iSATDefinition() + "\n"
 
         if len(self.reactionRates) > 0:
             s += "\n\t-- Rate constants\n"
@@ -65,7 +70,8 @@ class Declaration:
 
 
 class Transition:
-    def __init__(self, decltype, decConstants, reactionRates, flows, numModes):
+    def __init__(self, crn, decltype, decConstants, reactionRates, flows, numModes):
+        self.crn = crn
         self.declarationOfParameter = decltype
         self.declarationOfConstants = decConstants
         self.reactionRates = reactionRates
@@ -93,6 +99,11 @@ class Transition:
             s += "\n\t-- Rate constants are fixed\n"
         for rate in self.reactionRates:
             s += "\t(d.%s/d.time = 0);\n" % rate.name
+
+        if len(self.crn.lambda_variables) > 0:
+            s += "\n\t-- Lambda variables are fixed\n"
+        for lam in self.crn.lambda_variables:
+            s += "".join(["\t(d.%s/d.time = 0);\n" % x.name for x in lam.lambdas])
 
         mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
         modes_string = " or ".join(mode_list)
@@ -128,7 +139,8 @@ class IntegerConstraint:
 
 
 class Initial:
-    def __init__(self, spinitvalpair, numModes, integerC=None, costC=None):
+    def __init__(self, crn, spinitvalpair, numModes, integerC=None, costC=None):
+        self.crn = crn
         self.speciesInitialValuePair = spinitvalpair
         self.integerConstraints = integerC
         self.costConstraints = costC
@@ -150,6 +162,13 @@ class Initial:
         s += "\t-- cannot be in two modes at the same time. We start in mode_1.\n"
         s += "\tmode_1 = 1;\n"
         s += "\t" + " + ".join(mode_list) + " = 1;\n\n"
+
+        if len(self.crn.lambda_variables) > 0:
+            s += "\n\t-- Integer encoding of lambda variables\n"
+        for lam in self.crn.lambda_variables:
+            s += lam.format_constraint()
+
+
         return s
 
     def constructdReal(self):
@@ -248,20 +267,21 @@ def MTLConverter(specification, flow, maxtime=1):
     return modes, post
 
 
-def constructSpecification(specification, flow, declaration, costFunction, integerConstraints=None, constants=None,
+def constructSpecification(crn, specification, flow, declaration, costFunction, integerConstraints=None, constants=None,
                            initialValues=None, rate_constants=None):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     m_specification = [SpecificationPart(x, y) for x, y in specification]
     m_integerConstraints = [IntegerConstraint(x, y.min, y.max) for x, y in
                             integerConstraints] if integerConstraints is not None else 0
-    m_decltypes = [DeclType(x, 0, y, 'float') for x, y in declaration.items()]
+
+    #m_decltypes = [DeclType(x, 0, y, 'float') for x, y in declaration.items()]
 
     m_contants = [Constant(x, y) for x, y in constants] if constants is not None else 0
 
     numModes = len(specification)
-    d = Declaration(m_decltypes, m_contants, numModes, rate_constants)
-    i = Initial(m_integerConstraints, numModes, None, costFunction)
-    t = Transition(m_decltypes, m_contants, rate_constants, m_flow, numModes)
+    d = Declaration(crn, [], m_contants, numModes, rate_constants)
+    i = Initial(crn, m_integerConstraints, numModes, None, costFunction)
+    t = Transition(crn, [], m_contants, rate_constants, m_flow, numModes)
     m, p = MTLConverter(specification, m_flow, 1)
 
     return d, i, m, p, t

@@ -22,8 +22,15 @@ class Species:
         self.symbol = Symbol(name)
         self.initial_value = initial_value
 
+        self.minNumber = 0
+        self.maxNumber = 10 # TODO: make arguments
+
     def __str__(self):
         return self.name
+
+    def iSATDefinition(self):
+        return "\tfloat[%s, %s] %s;\n" % (self.minNumber, self.maxNumber, self.name)
+
 
 
 class Term:
@@ -76,13 +83,28 @@ class LambdaChoice:
     def constructChoice(self):
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
 
-    def contains(self, var):
+    def contains(self, variable):
         x = ''
         for lam in self.lambdas:
-            if str(var) in str(lam):
+            if str(variable) in str(lam):
                 x += str(lam)
         return x
 
+    def format_constraint(self):
+        clauses = []
+        for active_value in self.lambdas:
+            # generate term in which only element i is on
+            subclauses = []
+            for lam in self.lambdas:
+                subclauses.append("(%s = %s)" % (lam, lam == active_value))
+            clause = "(" + " and ".join(subclauses) + ")"
+            clauses.append(clause)
+
+        return "\t" + " or ".join(clauses) + ";\n"
+
+    def iSATDefinition(self):
+        declarations = ["\tfloat[0, 1] %s;" % str(lam) for lam in self.lambdas]
+        return "\n".join(declarations)
 
 class Choice:
     def __init__(self, choiceName, minNumber, maxNumber):
@@ -175,6 +197,42 @@ class CRNSketch:
                 rate_constants[str(rate)] = rate
         rate_constants = list(rate_constants.values())
         return rate_constants
+
+    def getEntityNames(self, isLNA):
+        # record the things that must be defined
+
+        self.choice_variables = set()
+        self.lambda_variables = set()
+        self.state_variables = set()
+
+        for reaction in self.reactions:
+
+            terms = reaction.reactants[:]
+            terms.extend(reaction.products)
+
+            for term in terms:
+                if isinstance(term.species, LambdaChoice):
+                    self.lambda_variables.add(term.species)
+                elif isinstance(term.species, Choice):
+                    self.choice_variables.add(term.species)
+                else:
+                    self.state_variables.add(term.species)
+
+                # TODO: do we need to add every species that appear nested in a choice/lambda?
+
+        # TODO: what's this for?
+#        a = dict.fromkeys(list(flowdict.keys()))
+
+#        i = 0
+#        for spec in species:
+#            i = max(a[spec], i)
+#        i = i ** 2 + 1
+
+#        if isLNA:
+#            for co in generateCovarianceMatrix(species):
+#                a[co] = i
+#        return a
+
 
 def parametricPropensity(paramCRN):
     # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
@@ -344,43 +402,17 @@ def flowDictionary(crn, species, isLNA, derivatives, kinetics='massaction', firs
     for sp in crn.input_species:
         a[sp.symbol] = sp.ode
 
+    constants_to_remove = []
     for key in a:
         if a[key] is None and not isinstance(a[key], str):
             a[key] = 0
-    return a
+        if str(key) not in [str(sp) for sp in species]:
+            constants_to_remove.append(key)
 
+    # remove constant keys from flowDict, as they are handled separately when output generated
+    for key in constants_to_remove:
+        a.pop(key, None)
 
-def intDictionary(crn, species, isLNA, flowdict):
-    a = dict.fromkeys(list(flowdict.keys()))
-    for reaction in crn.reactions:
-        for reactant in reaction.reactants:
-            if isinstance(reactant.species, LambdaChoice):
-                for x in reactant.species.lambdas:
-                    a[x] = len(reactant.species.species)
-            elif isinstance(reactant.species, Choice):
-                for x in reactant.species.choice:
-                    a[symbols(x)] = reactant.species.maxNumber
-            else:
-                a[reactant.species] = reactant.coefficient
-
-        for product in reaction.products:
-            if isinstance(product.species, LambdaChoice):
-                for x in product.species.lambdas:
-                    a[x] = len(product.species.species)
-            elif isinstance(product.species, Choice):
-                for x in product.species.choice:
-                    a[symbols(x)] = product.species.maxNumber
-            else:
-                a[product.species] = product.coefficient
-
-    i = 0
-    for spec in species:
-        i = max(a[spec], i)
-    i = i ** 2 + 1
-
-    if isLNA:
-        for co in generateCovarianceMatrix(species):
-            a[co] = i
     return a
 
 
@@ -410,9 +442,11 @@ def exampleParametricCRN():
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
 
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
-    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
+#    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
 
-    d, i, m, p, t = iSATParser.constructSpecification(specification, flow, ints, '', rate_constants=crn.getRateConstants())
+    crn.getEntityNames(isLNA) # TOD: should update records as things added to crn . . .
+
+    d, i, m, p, t = iSATParser.constructSpecification(crn, specification, flow, [], '', rate_constants=crn.getRateConstants())
     spec = iSATParser.constructISAT(d, i, m, p, t)
     print(spec)
 
