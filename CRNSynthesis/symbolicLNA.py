@@ -19,7 +19,7 @@ class InputSpecies:
         return "\tfloat[%s, %s] %s;\n" % (0, 100, self.name) # TODO: set min/max better
 
     def iSATInitialization(self):
-        return ""
+        return "\t%s = %s;\n" % (self.name, self.initial_value)
 
 
 class Species:
