@@ -205,14 +205,15 @@ def parametricNetReactionChange(crn):
     return reactionChange
 
 
-def add_stoichiometry_change(species, stoichList, fragment, part):
-    for spec, i in zip(species, list(range(len(species)))):
-        if str(spec) in fragment.specRep():
+def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
+    for i, sp in enumerate(species):
+        if str(sp) in fragment.specRep():
             if "lam" in fragment.specRep():
-                stoichList[i] += part + fragment.species.contains(spec) + "*" + str(spec)
+                stoichiometry_change[i] += " " + sign + fragment.species.contains(sp) + "*" + str(sp)
             else:
-                stoichList[i] += part + fragment.specRep()
-    return stoichList
+                stoichiometry_change[i] += " " + sign + fragment.specRep()
+
+    return stoichiometry_change
 
 
 def parametricFlow(propensities, reactionChange):
