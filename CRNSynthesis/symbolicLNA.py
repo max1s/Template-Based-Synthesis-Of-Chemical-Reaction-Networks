@@ -15,6 +15,8 @@ class InputSpecies:
     def __str__(self):
         return self.name
 
+    def iSATDefinition(self):
+        return "\tfloat[%s, %s] %s;\n" % (0, 100, self.name) # TODO: set min/max better
 
 class Species:
     def __init__(self, name, initial_value=None):
@@ -437,16 +439,14 @@ def exampleParametricCRN():
                    {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
     derivatives = []
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
-    # file = iSATParser(flow, ints, specification)
 
     crn = CRNSketch([X, Y, B], [reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
 
     flow = flowDictionary(crn, [X, Y, B], isLNA, derivatives)
-#    ints = intDictionary(crn, [X, Y, B], isLNA, flow)
 
     crn.getEntityNames(isLNA) # TOD: should update records as things added to crn . . .
 
-    d, i, m, p, t = iSATParser.constructSpecification(crn, specification, flow, [], '', rate_constants=crn.getRateConstants())
+    d, i, m, p, t = iSATParser.constructSpecification(crn, specification, flow, rate_constants=crn.getRateConstants())
     spec = iSATParser.constructISAT(d, i, m, p, t)
     print(spec)
 
