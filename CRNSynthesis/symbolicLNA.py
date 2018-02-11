@@ -114,7 +114,16 @@ class RateConstant:
 class Reaction:
     def __init__(self, r, p, ra):
         self.reactants = r
+
+        for i, r in enumerate(self.reactants):
+            if isinstance(r, tuple):
+                self.reactants[i] = Term(r[0], r[1])
+
         self.products = p
+        for i, p in enumerate(self.products):
+            if isinstance(r, tuple):
+                self.products[i] = Term(p[0], p[1])
+
         self.reactionrate = ra
         self.is_optional = False
         self.variable_name = "" # Boolean variable indicating whether optional reaction occurs
