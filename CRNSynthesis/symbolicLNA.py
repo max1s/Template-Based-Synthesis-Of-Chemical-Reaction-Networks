@@ -253,6 +253,10 @@ class CRNSketch:
 
 
         sym = [x.free_symbols for x in sympify(species_strings)]
+
+        if len(sym) == 0:
+            return []
+
         a = reduce(lambda x, y: x | y, sym)
         b = set()
         if len(C) is not 0:
