@@ -260,7 +260,7 @@ def MTLConverter(specification, flow, maxtime=1):
 def constructISAT(crn, specification, flow, costFunction=''):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     m_specification = [SpecificationPart(x, y) for x, y in specification]
-    numModes = min(1, len(specification))
+    numModes = max(1, len(specification))
 
     d = Declaration(crn, numModes).constructiSAT()
     i = Initial(crn, numModes).constructiSAT()
