@@ -94,10 +94,28 @@ def exampleParametricCRN_complete():
     return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
+def exampleJointAlternative():
+
+    X = Species('X', initial_max=5)
+    Y = Species('Y', initial_value=12)
+    B = Species('B')
+
+    reaction1 = Reaction([TermChoice(0, [Term(X, 2), Term(Y, 3)])], [Term(B, 1)], RateConstant('k_1', 1, 2))
+
+    isLNA = False
+    derivatives = []
+    specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
+
+    crn = CRNSketch([reaction1], [], [])
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
+
+
+
 
 if __name__ == "__main__":
     # print exampleCRN()
     # print AMExample()
     # print exampleParametricCRN()
-    print exampleParametricCRN_complete()
-
+     print exampleParametricCRN_complete()
+    # print exampleJointAlternative()
