@@ -205,6 +205,11 @@ class TermChoice:
         self.possible_terms = choices # each choice is a term
         self.base_variable_name = "tc_%s_" % self.termChoiceNumber
 
+        for i, term in enumerate(self.possible_terms):
+            if isinstance(term, tuple):
+                self.possible_terms[i] = Term(term[0], term[1])
+
+
     def constructPropensity(self):
         terms = []
         for i, t in enumerate(self.possible_terms):
