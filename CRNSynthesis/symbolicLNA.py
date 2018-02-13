@@ -383,22 +383,23 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
 # should just be modifying propensity calculation
 def michaelisMentonFlow(species, Vmax, v, Km):
     m = Matrix(1, len(species))
-    for spec, i in zip(species, len(species)):
+    for i, spec in enumerate(species):
         m[1, i] = v[i] * (Vmax / (Km + spec))
     return m
 
 
 def hillKineticsFlow(species, Ka, k, n):
     m = Matrix(1, len(species))
-    for spec, i in zip(species, len(species)):
+    for i, spec in enumerate(species):
         m[1, i] = k[i] * (spec ^ n / (Ka ** n + spec ** n))
     return m
 
 
 def generateCovarianceMatrix(speciesVector):
     mat = eye(len(speciesVector))
-    for (m, i) in zip(speciesVector, list(range(len(speciesVector)))):
-        for (n, j) in zip(speciesVector, list(range(len(speciesVector)))):
+
+    for i, m in enumerate(speciesVector):
+        for j, n in enumerate(speciesVector):
             if m == n:
                 mat[i, j] = 'cov' + str(m)
             else:
