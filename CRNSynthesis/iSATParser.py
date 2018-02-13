@@ -32,6 +32,11 @@ class Declaration:
         for c in self.crn.choice_variables:
             s += c.iSATDefinition() + "\n"
 
+        if len(self.crn.joint_choice_variables) > 0:
+            s += "\n\t-- Joint choice Variables\n"
+        for c in self.crn.joint_choice_variables:
+            s += c.iSATDefinition() + "\n"
+
         if len(self.crn.optionalReactions) > 0:
             s += "\n\t-- Optional Reaction Variables\n"
         for optional_reaction in self.crn.optionalReactions:
@@ -146,6 +151,10 @@ class Initial:
         for optional_reaction in self.crn.optionalReactions:
             s += "\t(%s = 0) or (%s = 1);\n" % (optional_reaction.variable_name, optional_reaction.variable_name)
 
+        if len(self.crn.joint_choice_variables) > 0:
+            s += "\n\t-- Integer encoding of joint choice variables\n"
+        for joint_choice_variables in self.crn.joint_choice_variables:
+            s += joint_choice_variables.format_constraint()
 
 
         if len(self.crn.real_species) > 0:

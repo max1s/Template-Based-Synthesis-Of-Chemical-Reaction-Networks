@@ -199,6 +199,64 @@ class Choice:
         return 'c' + str(self.choiceNumber)
 
 
+class TermChoice:
+    def __init__(self, termChoiceNumber, choices):
+        self.termChoiceNumber = termChoiceNumber
+        self.possible_terms = choices # each choice is a term
+        self.base_variable_name = "tc_%s_" % self.termChoiceNumber
+
+    def constructPropensity(self):
+        terms = []
+        for i, t in enumerate(self.possible_terms):
+            terms.append("%s%s * %s" % (self.base_variable_name, i, t.constructPropensity()))
+        return " + ".join(terms)
+
+    def specRep(self):
+        substrings = []
+        for i, term in enumerate(self.possible_terms):
+            substrings.append("%s%s * %s" % (self.base_variable_name, i, term.specRep()))
+
+        return " + ".join(substrings)
+
+    def list_decision_variables(self):
+        return [self.base_variable_name + str(i) for i in list(range(0, len(self.possible_terms)))]
+
+    def get_species(self):
+        x = set()
+        for choice in self.possible_terms:
+            x = x.union(choice.get_species())
+        return list(x)
+
+    def get_real_species(self):
+        x = set()
+        for choice in self.possible_terms:
+            x = x.union(choice.get_real_species())
+        return list(x)
+
+    def iSATDefinition(self):
+        declarations = []
+        for i, term in enumerate(self.possible_terms):
+            declarations.append("\tfloat[0, 1] %s%s;" % (self.base_variable_name, i))
+        return "\n".join(declarations)
+
+    def format_constraint(self):
+        clauses = []
+        for active_value in list(range(len(self.possible_terms))):
+
+                # generate term in which only element i is on
+                subclauses = []
+                for i in list(range(len(self.possible_terms))):
+                    if i == active_value:
+                        subclauses.append("(%s%s = 1)" % (self.base_variable_name, i))
+                    else:
+                        subclauses.append("(%s%s = 0)" % (self.base_variable_name, i))
+
+                clause = "(" + " and ".join(subclauses) + ")"
+                clauses.append(clause)
+
+        return "\t" + " or ".join(clauses) + ";\n"
+
+
 class CRNSketch:
     def __init__(self, reactions, optional_reactions, input_species=None):
         self.reactions = reactions
@@ -215,6 +273,7 @@ class CRNSketch:
 
         self.choice_variables = set()
         self.lambda_variables = set()
+        self.joint_choice_variables = set()
         self.record_decision_variables()
 
         self.t = symbols('t')
@@ -235,6 +294,10 @@ class CRNSketch:
             terms.extend(reaction.products)
 
             for term in terms:
+                if isinstance(term, TermChoice):
+                    self.joint_choice_variables.add(term)
+                    continue
+
                 if isinstance(term.species, LambdaChoice):
                     self.lambda_variables.add(term.species)
 
@@ -372,7 +435,9 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
     for i, sp in enumerate(species):
         if str(sp) in fragment.specRep():
             if "lam" in fragment.specRep():
-                new_term = " %s%s * %s" % (sign, fragment.coefficient, fragment.species.contains(sp))
+                new_term = str(sympify(fragment.specRep()).expand().coeff(sp))
+            elif "tc_" in fragment.specRep():
+                new_term = str(sympify(fragment.specRep()).expand().coeff(sp))
             else:
                 new_term = "%s%s" % (sign, fragment.coefficient)
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
