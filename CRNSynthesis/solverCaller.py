@@ -4,234 +4,107 @@ import io
 import os
 from os import walk
 
+class SolverCaller():
+    
+    def __init__(self, model_path="./bellshape.hys"):
+        self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
-# The output from the solver are saved in text files in the folder /bellshaperesults.
-# Using constructResultsSummary() these can be parsed and the results summarised.
-# Using getRunTimeAndResult(file, name) we can also retrieve the candidate CRN solution from a specific file
+        self.results_folder = "/bellshaperesults"
+        self.model_path = model_path
 
-# A procedure that automates calls to the solver for each bellshape model
-# where each model increases the discrete statespace as described in the paper.
-def stateSpaceExperiment():
-    files = []
-    cwd = os.getcwd()
-    for (dirpath, dirnames, filenames) in walk(cwd + "/bellshapemodels"):
-        files.extend(filenames)
-    # Each of these different models within the folder /bellshapemodels is tried at 3 precisions 10^-1 10^-3 and 10^-5
+        directory_name, file_name = os.path.split(model_path)
+        self.model_name, _ = os.path.splitext(file_name)
 
-    for f in files:
-        # the option --continue-after-not-reaching-horizon is used as an optimization for the solver.
-        callSolver(stateSpaceConstructForCommandLine(f, 0.1, "--continue-after-not-reaching-horizon"))
-        callSolver(stateSpaceConstructForCommandLine(f, 0.001, "--continue-after-not-reaching-horizon"))
-        callSolver(stateSpaceConstructForCommandLine(f, 0.00001, "--continue-after-not-reaching-horizon"))
+        self.results_dir = os.path.join(directory_name, "results")
 
+        if not os.path.exists(self.results_dir):
+            os.makedirs(self.results_dir)
 
-# A procedure that calls the solver for costs starting at a maximum cost and decreasing to a minimum cost.
-# In order to generate the results found within the paper we start at a cost of 35 down to 10.
-def optimalsynthesisExperiment(maximumcost, minimumcost):
-    cwd = os.getcwd()
-    cost = maximumcost
-    while cost > 0:
-        editCost("bellshape.hys", cost)
-        callSolver(costConstructForCommandLine("bellshape.hys", 0.1, cost, "--continue-after-not-reaching-horizon"))
-        cost -= 1
+    def single_synthesis(self, cost=20, precision=0.1):
+        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision)
+
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
+        cost = max_cost
+        result_file_names = []
+        while cost >= min_cost:
+            self.editCost(cost)
+            result_file_name = self.costCallSolver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon')
+            result_file_names.append(result_file_name)
+            cost -= 1
+        return result_file_names
 
 
-# Once the solver has generated all of the relevant text files and outputed them to the folder
-# /bellshaperesultsexp1 or /bellshaperesultsexp2  we can construct a summary of the runtimes and results.
-def constructResultSummary(experiment):
-    files = []
-    results = []
-    cwd = os.getcwd()
-    for (dirpath, dirnames, filenames) in walk(cwd + "/bellshaperesults" + experiment):
-        files.extend(filenames)
+    # This function edits the cost within the " + self.model_name + " file such that we can automate the synthesis experiment
+    # If the cost is 0 we comment out references to cost in the .hys file.
+    def editCost(self, cost):
+        with open(self.model_path, 'r+') as f:
+            lines = f.read().split('\n')
 
-    for f in files:
-        fp = open("/bellshapemodelsresults/" + f).read().split('\n')
-        results.append(getRunTimeAndResult(fp, f))
-    return results
+            for line_number, line in enumerate(lines):
+                if "define MAX_COST = " in line:
+                    lines[line_number] = "define MAX_COST = %s; " % cost
 
+                if "define NO_COST_LIMIT = " in line:
+                    if cost == 0:
+                        lines[line_number] = "define NO_COST_LIMIT = 1;"
+                    else:
+                        lines[line_number] = "define NO_COST_LIMIT = 0;"
 
-# We can also generate individual runtimes and results.
-def getRunTimeAndResult(file, name):
-    vals = getCRNValues(file)
-    # We check if the bellshape has been synthesised correctly.
-    # Sometimes even if the result is UNSAT, due to the option "--continue-after-not-reaching-horizon"
-    # passed to the ODE solver, it will output a candidate solution.
-    if vals['K'] > 0.3:
-        return "  " + file[-1] + "SAT" 
-    else:
-        return file[-1] + "UNSAT"
+            f.seek(0)
+            f.write('\n'.join(lines))
 
+    def costCallSolver(self, precision, cost, otherPrams, max_depth=2):
+        out_file = os.path.join(self.results_dir, "%s_%s_%s.txt" % (self.model_name, cost, precision))
+        command = "%s --i %s --prabs=%s --msw=%s --max-depth=%s %s " % \
+                  (self.isat_path, self.model_path, precision, precision * 5, max_depth, otherPrams)
 
-# We call the solver on the command line and wait (using .communicate()) for its output.
-def callSolver(executableString):
-    p = sub.Popen(executableString.split(), stdout=sub.PIPE, stderr=sub.PIPE)
-    output, errors = p.communicate()
-    return output
+        with open(out_file, "w") as f:
+            print("Calling solver!\n " + command)
+            sub.call(command.split(), stdout=f, stderr=sub.PIPE)
+
+        return out_file
 
 
-# We construct a string which will be executed on the command line for the statespaceexperiment.
-#  We also specify where the output will be piped to.
-def stateSpaceConstructForCommandLine(model, precision, otherPrams):
-    return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i + bellshapemodels/" + model + " --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams + " > /bellshaperesultsexp1/" + model + precision + ".txt"
+    def getCRNValues(self, file_path):
+        # Return a dictionary containing the ranges for each parameter as returned from the solver
+        p = re.compile(r"(.+?) \(.+?\):")
+        p2 = re.compile(r".+?\[(.+?),(.+?)].+")
+
+        var_values = {}
+        var_name = False
+        with open(file_path, "r") as f:
+            for line in f:
+
+                if p.match(line):
+                    var_name = p.match(line).groups()[0].strip()
+
+                    if "solver" in var_name or "_trigger" in var_name:
+                        var_name = False
+
+                elif p2.match(line) and var_name:
+                    # save this row's values
+                    values = p2.match(line).groups()
+
+                    if var_name not in var_values.keys():
+                        var_values[var_name] = values
+
+                    elif var_values[var_name] != values:
+                        # if we've already recorded a different value, it's because value changes between modes
+                        # it's not a constant parameter, so don't record it
+                        var_values.pop(var_name, None)
+
+        return var_values
 
 
-# We construct a string which will be executed on the command line for the optimal synthesis experiment.
-# We also specify where the output will be piped to.
-def costConstructForCommandLine(model, precision, cost, otherPrams):
-    return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i + bellshape.hys --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams + " > /bellshaperesultsexp2/" + model + cost + precision + ".txt"
+    def get_parametrised_flow(self, flow,  var_values):
+        # Substitutes values from getCRNValues into original dict of flows
+        mean_var_values = {}
+        for var_name in var_values:
+            r = var_values[var_name]
+            mean_var_values[var_name] = (float(r[0]) + float(r[1])) / 2
 
+        parametrised_flow = {}
+        for state_var in flow:
+            parametrised_flow[state_var] = flow[state_var].subs(mean_var_values).simplify()
 
-def constructforCommandLine(model, precision, otherPrams):
-    if model != "":
-        if precision != "":
-            return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape" + model + ".hys + --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams
-        else:
-            return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape" + model + ".hys + --prabs=0.01 --msw=0.1 " + otherPrams
-    else:
-        if precision != "":
-            return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape.hys + --prabs=" + precision + " --msw=" + precision * 5 + " " + otherPrams
-        else:
-            return "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt --i bellshape.hys + --prabs=0.01 --msw=0.1 " + otherPrams
-
-
-# This function edits the cost within the bellshape.hys file such that we can automate the synthesis experiment
-# If the cost is 0 we comment out references to cost in the .hys file.
-def editCost(filename, i):
-    f = open("bellshape.hys")
-    file = f.read().split('\n')
-    for linenumber, line in enumerate(s, 1):
-        if "--cost" in line:
-            if cost == 0:
-                file[linenumber] = '--6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= 0; --cost'
-            else:
-                file[linenumber] = '6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= ' + cost + '; --cost'
-            if "--costfinal" in line:
-                if cost == 0:
-                    file[linenumber] = 'mode_2 and (time <= MAX_TIME) and (K >= 0) and (K < 0.1); --and (6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= 0); --costfinal'
-                else:
-                    file[linenumber] = 'mode_2 and (time <= MAX_TIME) and (K >= 0) and (K < 0.1) and (6*(c1c + c5c + c3c + 2*(1-c3c)) + 5*(c2 + c6 + c4 ) <= ' + cost + '); --costfinal'
-
-    f.write('\n'.join(file)).close()  # This function is used to construct CRN from the output of an individual file.
-
-
-def constructResults(file):
-    x = constructCRN(getCRNValues(file))
-    for y in x:
-        print(y)
-    print(getRunTimeAndResult(file))
-
-
-# This function builds a dictionary (vals) of synthesized parameters which are outputed by the solver.
-# It scrapes the output file for the relevant parameters.
-def getCRNValues(s):
-    vals = {}
-
-    storedLineNo = 0
-    flag = 0
-
-    for linenumber, line in enumerate(s, 1):
-
-        if flag > 0:
-            lower_limit = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[0].strip('[')
-            upper_limit = re.search('\[.*\]', s[storedLineNo + 1]).group(0).split(',')[1].strip(']')
-            
-            if flag == 1:
-                vals['lambda1'] = 'A' if (lower_limit == '0') else 'B'
-            if flag == 2:
-                vals['lambda2'] = 'A' if (lower_limit == '0') else 'B'
-            if flag == 3:
-                vals['c1'] = '1' if (lower_limit == '0') else '0'
-            if flag == 4:
-                vals['c2'] = lower_limit
-            if flag == 5:
-                vals['c3'] = '2' if (lower_limit == '0') else '1'
-            if flag == 6:
-                vals['c4'] = lower_limit
-            if flag == 7:
-                vals['c5'] = '1' if (lower_limit == '0') else '0'
-            if flag == 8:
-                vals['c6'] = lower_limit
-            if flag == 9:
-                vals['c7'] = lower_limit
-            if flag == 10:
-                vals['choice1'] = lower_limit
-            # We take the average of the parameter interval given for the rates.
-            if flag == 11:
-                rate1 = float(lower_limit)
-                rate2 = float(upper_limit)
-                vals['k1'] = str((rate1 + rate2) / 2)
-            if flag == 12:
-                rate1 = float(lower_limit)
-                rate2 = float(upper_limit)
-                vals['k2'] = str((rate1 + rate2) / 2)
-            if flag == 13:
-                rate1 = float(lower_limit)
-                rate2 = float(upper_limit)
-                vals['k3'] = str((rate1 + rate2) / 2)
-            flag = 0
-
-        if 'lam1 (float):' in line:
-            storedLineNo = linenumber
-            flag = 1
-        if 'lam2 (float):' in line:
-            storedLineNo = linenumber
-            flag = 2
-        if 'c1c (float):' in line:
-            storedLineNo = linenumber
-            flag = 3
-        if 'c2 (float):' in line:
-            storedLineNo = linenumber
-            flag = 4
-        if 'c3c (float):' in line:
-            storedLineNo = linenumber
-            flag = 5
-        if 'c4 (float):' in line:
-            storedLineNo = linenumber
-            flag = 6
-        if 'c5c (float):' in line:
-            storedLineNo = linenumber
-            flag = 7
-        if 'c6 (float):' in line:
-            storedLineNo = linenumber
-            flag = 8
-        if 'c7 (float):' in line:
-            storedLineNo = linenumber
-            flag = 9
-        if 'choice1 (float):' in line:
-            storedLineNo = linenumber
-            flag = 10
-        if 'k1 (float):' in line:
-            storedLineNo = linenumber
-            flag = 11
-        if 'k2 (float):' in line:
-            storedLineNo = linenumber
-            flag = 12
-        if 'k3 (float):' in line:
-            storedLineNo = linenumber
-            flag = 13
-    return vals
-
-
-# We can construct the CRN based on the parameter values derived from the previous function.
-def constructCRN(x):
-    reaction1 = x['lambda1']
-    reaction1 += x['c1'] + "*K" if x['c1'] is not '0' else ""
-    reaction1 += " ->{" + x['k1'] + "} "
-    reaction1 += x['c2'] + "*K" if x['c2'] is not '0' else ""
-
-    reaction2 = x['c5'] + "*" + x['lambda1'] if x['c5'] is not '0' else ""
-    reaction2 += " + " + x['c3'] + "*K" if x['c3'] is not '0' else ""
-    reaction2 += "->{" + x['k2'] + "} "
-    reaction2 += x['c6'] + "*" + x['lambda2'] if x['c6'] is not '0' else ""
-    reaction2 += " + " + x['c4'] + "*K" if x['c4'] is not '0' else ""
-
-    reaction3 = "->{" + x['k3'] + "} "
-    reaction3 += x['c7'] + "*K" if x['choice1'] is '0' and x['c7'] is not '0'  else ""
-    reaction3 += x['lambda2'] if x['choice1'] is '1' else ""
-    reaction3 = "" if len(reaction3) < 20 else ""
-
-    return [reaction1, reaction2, reaction3]
-
-
-stateSpaceExperiment()
+        return parametrised_flow

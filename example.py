@@ -1,5 +1,6 @@
 from CRNSynthesis.symbolicLNA import *
 from CRNSynthesis import iSATParser
+from CRNSynthesis.solverCaller import SolverCaller
 from sympy import init_printing, Matrix, transpose, pprint
 
 def exampleCRN():
@@ -100,7 +101,7 @@ def exampleJointAlternative():
     Y = Species('Y', initial_value=12)
     B = Species('B')
 
-    reaction1 = Reaction([TermChoice(0, [Term(X, 2), Term(Y, 3)])], [Term(B, 1)], RateConstant('k_1', 1, 2))
+    reaction1 = Reaction([TermChoice(0, [(X, 2), (Y, 3)])], [(B, 1)], RateConstant('k_1', 1, 2))
 
     isLNA = False
     derivatives = []
@@ -108,14 +109,34 @@ def exampleJointAlternative():
 
     crn = CRNSketch([reaction1], [], [])
     flow = crn.flow(isLNA, derivatives)
-    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
+    return flow, iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
+def bellshape_example():
+    sc = SolverCaller("./bellshape.hys")
+    result_files = sc.single_synthesis(cost=60)
 
+    print("\n\n\n\n")
+    for file_name in result_files:
+        print("\n\n" +  sc.getCRNValues(file_name))
+
+
+def complete_process():
+
+    flow, problem_string = exampleJointAlternative()
+    with open("./test.hys", "w") as f:
+        f.write(problem_string)
+
+    sc = SolverCaller("./test.hys")
+    result_file = sc.single_synthesis(cost=60, precision=0.1)
+    param_values = sc.getCRNValues(result_file)
+
+    print("\n\nSpecific CRN identified is:\n")
+    print(sc.get_parametrised_flow(flow, param_values))
 
 if __name__ == "__main__":
-    # print exampleCRN()
-    # print AMExample()
-    # print exampleParametricCRN()
-     print exampleParametricCRN_complete()
-    # print exampleJointAlternative()
+    # print(exampleCRN())
+    # print(AMExample())
+    # print(exampleParametricCRN())
+     print(exampleParametricCRN_complete())
+    # print(exampleJointAlternative())
