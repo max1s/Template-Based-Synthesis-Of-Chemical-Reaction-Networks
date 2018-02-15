@@ -62,11 +62,11 @@ class Declaration:
 
 
 class Transition:
-    def __init__(self, crn, flows, numModes):
+    def __init__(self, crn, flows, modes):
         self.crn = crn
 
         self.flow = flows
-        self.numModes = numModes
+        self.modes = modes
 
     def constructiSAT(self):
         s = "\n\nTRANS \n\n"
@@ -74,8 +74,22 @@ class Transition:
         s += "\t-- time constraint\n"
         s += "\ttime' = time + delta_time;\n\n"
 
+        s += "\t-- must progress through modes in order\n"
+        s += "\t mode_1' -> mode_1;\n"
+        for i in list(range(2, len(self.modes)+1)):
+            s += "\tmode_%s' -> (mode_%s or mode_%s)" % (i, i, i-1)
 
-        s += "\t-- No state change without time consumption.\n"
+        s += "\n\n\t-- invariant conditions during modes\n"
+        for mode_index, mode in enumerate(self.modes):
+            s += "\tmode_%s  -> (%s);\n" % (mode_index+1, mode[1])
+            s += "\tmode_%s'  -> (%s);\n" % (mode_index+1, mode[1])
+
+        s += "\n\t-- jump conditions between modes\n"
+        for mode_index, mode in enumerate(self.modes[:-1]):
+            if mode[2]: # post-condition on mode
+                s += "\t(mode_%s and mode_%s') -> (%s);\n" % (mode_index+1, mode_index+2, mode[2])
+
+        s += "\n\t-- No state change without time consumption.\n"
 
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
@@ -115,7 +129,8 @@ class Transition:
         for c in self.crn.optionalReactions:
             s += "\t(d.%s/d.time = 0);\n" % c.variable_name
 
-        mode_list = ["mode_" + str(x) for x in range(1, self.numModes + 1)]
+        numModes = max(1, len(self.modes))
+        mode_list = ["mode_" + str(x) for x in range(1, numModes + 1)]
         modes_string = " or ".join(mode_list)
 
         s += "\n\n\t-- Flows\n"
@@ -223,70 +238,34 @@ class Mode:
 
 
 class Post:
-    def __init__(self, t, specs, mod):
+    def __init__(self, t, modes):
         self.time = t
-        self.specification = specs
-        self.mode = mod
+        self.modes = modes
 
     def constructiSAT(self):
-        s = ""
-        s += "\nTARGET \n"
-        s += "\tmode_" + str(self.mode) + ' ' + "and (time <" + str(self.time) + ") "
-        s.join('and (' + str(x) + ')' for x in self.specification)
-        s += ";"
+
+        if len(self.modes) > 0 and self.modes[-1][2]:
+            post_condition = "and (" + self.modes[-1][2] + ")"
+        else:
+            post_condition = ""
+
+        s = "\nTARGET \n"
+        s += "\tmode_%s and (time < %s) %s;\n" % (len(self.modes)+1, self.time, post_condition)
         return s
 
     def constructdReal(self):
         raise NotImplementedError
 
-
-class Specification:
-    def __init__(self, d, i, m, p, add):
-        self.declaration = d
-        self.initial = i
-        self.modes = m
-        self.post = p
-        self.additionalFlowConstraints = add
-
-
-class SpecificationPart:
-    def __init__(self, t, l):
-        self.time = t
-        self.logic = l
-
-
-def MTLConverter(specification, flow, maxtime=1):
-    post = Post(maxtime, [], 1)
-    modes = []
-    timeList = [maxtime]
-    noOfModes = 1
-    for specificationPart in specification:
-        if specificationPart[0] is maxtime:
-            post.specification += specificationPart
-        else:
-            if specificationPart[0] not in timeList:
-                modes.append(Mode(noOfModes, [specificationPart]))
-                noOfModes = noOfModes + 1
-                timeList.append(specificationPart[0])
-            else:
-                modes[noOfModes].invariants += specificationPart
-    return modes, post
-
-
-def constructISAT(crn, specification, flow, costFunction=''):
+def constructISAT(crn, modes, flow, costFunction=''):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
-    m_specification = [SpecificationPart(x, y) for x, y in specification]
-    numModes = max(1, len(specification))
+    numModes = max(1, len(modes))
 
     d = Declaration(crn, numModes).constructiSAT()
     i = Initial(crn, numModes).constructiSAT()
-    t = Transition(crn, m_flow, numModes).constructiSAT()
+    t = Transition(crn, m_flow, modes).constructiSAT()
+    p = Post(1, modes).constructiSAT()  # TODO: set maxtime
 
-    flow, post = MTLConverter(specification, m_flow, 1)
-    f = [x.constructiSAT() for x in flow]
-    p = post.constructiSAT()
-
-    return d + i + t + ''.join(f) + p
+    return d + i + t + p
 
 
 def constructdReal(crn, specification, flow, costFunction=''):
