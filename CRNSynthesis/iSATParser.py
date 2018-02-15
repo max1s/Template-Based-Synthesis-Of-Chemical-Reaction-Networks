@@ -140,9 +140,10 @@ class Transition:
 
 
 class Initial:
-    def __init__(self, crn, numModes):
+    def __init__(self, crn, numModes, other_constraints):
         self.crn = crn
         self.numModes = numModes
+        self.other_constraints = other_constraints
 
     def constructiSAT(self):
         s = "\nINIT\n"
@@ -188,6 +189,10 @@ class Initial:
             s += "\n\t-- Initial conditions of inputs\n"
         for sp in self.crn.input_species:
             s += sp.iSATInitialization()
+
+        if self.other_constraints:
+            s += "\n\t-- Manually specified constraints\n"
+            s += "\t%s\n" % self.other_constraints
 
 
         return s
@@ -256,12 +261,12 @@ class Post:
     def constructdReal(self):
         raise NotImplementedError
 
-def constructISAT(crn, modes, flow):
+def constructISAT(crn, modes, flow, other_constraints):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
     d = Declaration(crn, numModes).constructiSAT()
-    i = Initial(crn, numModes).constructiSAT()
+    i = Initial(crn, numModes, other_constraints).constructiSAT()
     t = Transition(crn, m_flow, modes).constructiSAT()
     p = Post(1, modes).constructiSAT()  # TODO: set maxtime
 
