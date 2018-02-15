@@ -2,6 +2,7 @@ from sympy import *
 import itertools
 from six import string_types
 from functools import reduce
+from operator import mul
 
 
 class InputSpecies:
@@ -408,6 +409,61 @@ class CRNSketch:
 
         return a
 
+    def get_cost(self):
+
+        # Weighted sum of stoichiometric coefficients for each reaction
+        change = []
+        for reaction in self.all_reactions:
+            netChange = ['0'] * len(self.real_species)
+            for reactant in reaction.reactants:
+                add_stoichiometry_change(self.real_species, netChange, reactant, '6*')
+
+            for product in reaction.products:
+                add_stoichiometry_change(self.real_species, netChange, product, '5*')
+
+            change.append(sympify(netChange))
+
+        # if a species is optional (i.e. only occurs in lamdaChoice), find all the lamda variables dning to its selections
+
+        cost = sum([sum(x) for x in change])
+
+        cost += 3 * len(self.real_species) # initially include all species, even optional ones that are not used
+
+        # get list of all decision-variable constants
+        constants = set()
+        for cv in self.lambda_variables:
+            for lam in cv.lambdas:
+                constants.add(lam)
+        for jcv in self.joint_choice_variables:
+            for i in list(range(len(jsc.possible_terms))):
+                constants.add("%s%s" % jcv.base_variable_name, i)
+
+        for species in self.real_species:
+            species_index = self.real_species.index(species)
+            stoich_sum = sum(Matrix(change)[species_index, :])
+
+            # replace all constants in sum by zero: if result is non-zero the species is not optional
+            for constant in constants:
+                stoich_sum = stoich_sum.subs(constant, 0)
+            if stoich_sum != 0:
+                break
+
+            # replace all non-constants by one and subtract constant to get condition under which species is absent
+            stoich_prod = reduce(mul, Matrix(change)[species_index,:], 1)
+            symbols = stoich_prod.free_symbols - constants
+            for s in symbols:
+                stoich_prod = stoich_prod.subs(s, 1)
+
+            for integer in stoich_prod.atoms(S(2),0):
+                stoich_prod = stoich_prod.subs(integer, 1)  # replace coefficients with 1
+            stoich_prod = stoich_prod.expand()
+            for integer in stoich_prod.atoms(S(2),0):
+                stoich_prod = stoich_prod.subs(integer, 0)  # remove constant term
+
+            cost -= 3*(1-stoich_prod)
+
+        return cost.simplify()
+
     def parametricPropensity(self):
         # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
         propensities = []
@@ -436,15 +492,16 @@ class CRNSketch:
         return change
 
 
+
 def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
     for i, sp in enumerate(species):
         if str(sp) in fragment.specRep():
             if "lam" in fragment.specRep():
-                new_term = str(sympify(fragment.specRep()).expand().coeff(sp))
+                new_term = "%s(%s)" % (sign, str(sympify(fragment.specRep()).expand().coeff(sp)))
             elif "tc_" in fragment.specRep():
-                new_term = str(sympify(fragment.specRep()).expand().coeff(sp))
+                new_term = "%s(%s)" % (sign, str(sympify(fragment.specRep()).expand().coeff(sp)))
             else:
-                new_term = "%s%s" % (sign, fragment.coefficient)
+                new_term = "%s(%s)" % (sign, fragment.coefficient)
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
 

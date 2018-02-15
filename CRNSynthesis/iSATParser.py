@@ -12,6 +12,10 @@ class Declaration:
         s += "\tfloat [0, MAX_TIME] time;\n"
         s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
 
+        s += "\t-- declare cost variables\n"
+        s += "\tdefine MAX_COST = 100;\n"
+        s += "\tdefine NO_COST_LIMIT = 0;\n"
+
         if len(self.crn.real_species) > 0:
             s += "\n\t-- Define State Variables\n"
         for d in self.crn.real_species:
@@ -129,6 +133,9 @@ class Initial:
         s = "\nINIT\n"
 
         s += "\ttime = 0;\n\n"
+
+        s += "\t-- cost condition\n"
+        s += "\t((%s) <= MAX_COST) or (NO_COST_LIMIT = 1));\n\n" % self.crn.get_cost()
 
         # mode exclusion
         mode_list = ["mode_%s" % x for x in range(1, self.numModes + 1)]
