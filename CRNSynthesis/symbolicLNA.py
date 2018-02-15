@@ -255,7 +255,7 @@ class Choice:
         return "\tfloat[%s, %s] %s;\n" % (self.minValue, self.maxValue, self.name)
 
     def __str__(self):
-        return 'c' + str(self.choiceNumber)
+        return self.name
 
 
 class TermChoice:
