@@ -435,7 +435,7 @@ class CRNSketch:
             for lam in cv.lambdas:
                 constants.add(lam)
         for jcv in self.joint_choice_variables:
-            for i in list(range(len(jsc.possible_terms))):
+            for i in list(range(len(jcv.possible_terms))):
                 constants.add("%s%s" % jcv.base_variable_name, i)
 
         for species in self.real_species:
