@@ -256,7 +256,7 @@ class Post:
     def constructdReal(self):
         raise NotImplementedError
 
-def constructISAT(crn, modes, flow, costFunction=''):
+def constructISAT(crn, modes, flow):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
@@ -268,5 +268,5 @@ def constructISAT(crn, modes, flow, costFunction=''):
     return d + i + t + p
 
 
-def constructdReal(crn, specification, flow, costFunction=''):
+def constructdReal(crn, specification, flow):
     pass
