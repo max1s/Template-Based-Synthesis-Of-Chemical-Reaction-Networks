@@ -356,9 +356,15 @@ class CRNSketch:
             terms = reaction.reactants[:]
             terms.extend(reaction.products)
 
+            choice_terms = []
             for term in terms:
                 if isinstance(term, TermChoice):
                     self.joint_choice_variables.add(term)
+                    choice_terms.extend(term.possible_terms)
+
+            terms.extend(choice_terms)
+            for term in terms:
+                if isinstance(term, TermChoice):
                     continue
 
                 if isinstance(term.species, LambdaChoice):
