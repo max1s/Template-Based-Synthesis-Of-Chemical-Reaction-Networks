@@ -122,7 +122,7 @@ class Reaction:
 
         self.products = p
         for i, p in enumerate(self.products):
-            if isinstance(r, tuple):
+            if isinstance(p, tuple):
                 self.products[i] = Term(p[0], p[1])
 
         self.reactionrate = ra
