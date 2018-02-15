@@ -104,6 +104,7 @@ class RateConstant:
         self.name = name
         self.min = minimum
         self.max = maximum
+        self.symbol = symbols(name)
 
     def __repr__(self):
         return self.name
@@ -112,7 +113,7 @@ class RateConstant:
         return "Rate constant %s <= %s <= %s" % (self.min, self.name, self.max)
 
 
-class Reaction:
+class Reaction(object):
     def __init__(self, r, p, ra):
         self.reactants = r
 
@@ -136,6 +137,63 @@ class Reaction:
     def __str__(self):
         return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
             self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+
+    def get_rate_constants(self):
+        return [self.reactionrate]
+
+    def get_propensity(self):
+        propensity = symbols(str(self.reactionrate.name))
+        for reactant in self.reactants:
+            propensity *= sympify(reactant.constructPropensity())
+        if self.is_optional:
+            propensity *= sympify(self.variable_name)
+        return propensity
+
+
+class HillReaction(Reaction):
+    def __init__(self, r, p, Kmax, Ka, n):
+        super(HillReaction, self).__init__(r, p, Kmax)
+        self.Ka = Ka
+        self.n = n
+
+    def get_rate_constants(self):
+        return [self.reactionrate, self.Ka, self.n]
+
+    def get_propensity(self):
+        species = getSpeciesFromTerm(self.reactants[0])
+        return self.reactionrate.symbol * (species ** self.n.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol))
+
+class MichaelisMentenReaction(Reaction):
+    def __init__(self, r, p, Kmax, Km):
+        super(MichaelisMentenReaction, self).__init__(r, p, Kmax)
+        self.Km = Km
+
+    def get_rate_constants(self):
+        return [self.reactionrate, self.Km]
+
+    def get_propensity(self):
+        species = getSpeciesFromTerm(self.reactants[0])
+        return species * (self.reactionrate.symbol / (self.Km.symbol + species))
+
+
+def getSpeciesFromTerm(initial_term):
+    # This returns something like specRep without the stoichiometric coefficients
+
+    terms = []
+
+    if isinstance(initial_term, TermChoice):
+        for i, term in enumerate(initial_term.possible_terms):
+            if isinstance(term.species, LambdaChoice):
+                terms.append(sympify("%s%s * (%s)" % (initial_term.base_variable_name, i, term.species.constructChoice())))
+            else:
+                terms.append(sympify("%s%s * (%s)" % (initial_term.base_variable_name, i, term.species.name)))
+
+        return sum(terms)
+
+    elif isinstance(initial_term.species, LambdaChoice):
+        return sympify(initial_term.species.constructChoice())
+    else:
+        return sympify(initial_term.species.name)
 
 
 class LambdaChoice:
@@ -209,7 +267,6 @@ class TermChoice:
         for i, term in enumerate(self.possible_terms):
             if isinstance(term, tuple):
                 self.possible_terms[i] = Term(term[0], term[1])
-
 
     def constructPropensity(self):
         terms = []
@@ -352,13 +409,13 @@ class CRNSketch:
     def getRateConstants(self):
         rate_constants = {}
         for reaction in self.all_reactions:
-            rate = reaction.reactionrate
-            if str(rate) not in list(rate_constants.keys()):
-                rate_constants[str(rate)] = rate
+            for rate in reaction.get_rate_constants():
+                if str(rate) not in list(rate_constants.keys()):
+                    rate_constants[str(rate)] = rate
         rate_constants = list(rate_constants.values())
         return rate_constants
 
-    def flow(self, isLNA, derivatives, kinetics='massaction', firstConstant='2', secondConstant='2'):
+    def flow(self, isLNA, derivatives):
         if not derivatives:
             derivatives = set()
 
@@ -367,16 +424,10 @@ class CRNSketch:
         else:
             a = dict.fromkeys(self.generateAllTokens())
 
-        if kinetics == 'massaction':
-            propensities = self.parametricPropensity()
-            stoichiometry_change = self.parametricNetReactionChange()
-            dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities)
-        elif kinetics == 'hill':
-            dSpeciesdt = hillKineticsFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.all_reactions],
-                                          secondConstant)
-        elif kinetics == 'michaelis-menton':
-            dSpeciesdt = michaelisMentonFlow(self.species, firstConstant, [y.reactionrate for y in x for x in self.all_reactions],
-                                             secondConstant)
+        propensities = self.parametricPropensity()
+        stoichiometry_change = self.parametricNetReactionChange()
+        dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities)
+
         for i, sp in enumerate(self.real_species):
             if isinstance(sp, str):
                 a[symbols(sp)] = dSpeciesdt[i]
@@ -436,7 +487,7 @@ class CRNSketch:
                 constants.add(lam)
         for jcv in self.joint_choice_variables:
             for i in list(range(len(jcv.possible_terms))):
-                constants.add("%s%s" % jcv.base_variable_name, i)
+                constants.add("%s%s" % (jcv.base_variable_name, i))
 
         for species in self.real_species:
             species_index = self.real_species.index(species)
@@ -468,13 +519,7 @@ class CRNSketch:
         # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
         propensities = []
         for reaction in self.all_reactions:
-            propensity = symbols(str(reaction.reactionrate.name))
-            for reactant in reaction.reactants:
-                propensity *= sympify(reactant.constructPropensity())
-            if reaction.is_optional:
-                propensity *= sympify(reaction.variable_name)
-
-            propensities.append(propensity)
+            propensities.append(reaction.get_propensity())
         return propensities
 
     def parametricNetReactionChange(self):
@@ -504,22 +549,6 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
                 new_term = "%s(%s)" % (sign, fragment.coefficient)
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
-
-
-# TODO: these have same bug as parametric flow
-# should just be modifying propensity calculation
-def michaelisMentonFlow(species, Vmax, v, Km):
-    m = Matrix(1, len(species))
-    for i, spec in enumerate(species):
-        m[1, i] = v[i] * (Vmax / (Km + spec))
-    return m
-
-
-def hillKineticsFlow(species, Ka, k, n):
-    m = Matrix(1, len(species))
-    for i, spec in enumerate(species):
-        m[1, i] = k[i] * (spec ^ n / (Ka ** n + spec ** n))
-    return m
 
 
 def generateCovarianceMatrix(speciesVector):

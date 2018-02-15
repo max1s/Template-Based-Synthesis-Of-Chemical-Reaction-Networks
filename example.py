@@ -92,6 +92,8 @@ def exampleParametricCRN_complete():
 
     crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
     flow = crn.flow(isLNA, derivatives)
+    crn.get_cost()
+
     return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
@@ -121,6 +123,46 @@ def bellshape_example():
         print("\n\n" +  sc.getCRNValues(file_name))
 
 
+def hill_function_example():
+    X = Species('X')
+    Y = Species('Y')
+
+    vmax = RateConstant('V_max', 0.1, 10)
+    km = RateConstant('Km', 0.1, 10)
+    n = RateConstant('n', 0.1, 10)
+
+    #reaction = HillReaction([(X, 2)], [(Y,3)], vmax, km, n)
+    #reaction = HillReaction([ TermChoice(0, [(X, 2), (Y, 2)])], [(Y,4)], vmax, km, n)
+
+    reaction = HillReaction([ TermChoice(0, [(LambdaChoice([X, Y], 1), 2), (Y, 4)])], [(Y,5)], vmax, km, n)
+    reaction = HillReaction([ (LambdaChoice([X, Y], 1), 2), (Y, 4)], [(Y,5)], vmax, km, n)
+
+    derivatives = []
+
+    crn = CRNSketch([reaction], [], [])
+    flow = crn.flow(False, derivatives)
+    crn.get_cost()
+
+    return iSATParser.constructISAT(crn, [], flow, costFunction='')
+
+def michaelis_menten_example():
+    X = Species('X')
+    Y = Species('Y')
+
+    vmax = RateConstant('V_max', 0.1, 10)
+    km = RateConstant('K_m', 0.1, 10)
+
+    reaction = MichaelisMentenReaction([(X, 2)], [(Y,3)], vmax, km)
+
+    derivatives = []
+
+    crn = CRNSketch([reaction], [], [])
+    flow = crn.flow(False, derivatives)
+    crn.get_cost()
+
+    return iSATParser.constructISAT(crn, [], flow, costFunction='')
+
+
 def complete_process():
 
     flow, problem_string = exampleJointAlternative()
@@ -138,5 +180,10 @@ if __name__ == "__main__":
     # print(exampleCRN())
     # print(AMExample())
     # print(exampleParametricCRN())
-     print(exampleParametricCRN_complete())
+    # print(exampleParametricCRN_complete())
     # print(exampleJointAlternative())
+
+    # print(complete_process())
+
+    # print(hill_function_example())
+    print(michaelis_menten_example())
