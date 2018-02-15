@@ -250,7 +250,7 @@ class Post:
             post_condition = ""
 
         s = "\nTARGET \n"
-        s += "\tmode_%s and (time < %s) %s;\n" % (len(self.modes)+1, self.time, post_condition)
+        s += "\tmode_%s and (time < %s) %s;\n" % (len(self.modes), self.time, post_condition)
         return s
 
     def constructdReal(self):
