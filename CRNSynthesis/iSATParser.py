@@ -77,7 +77,7 @@ class Transition:
         s += "\t-- must progress through modes in order\n"
         s += "\t mode_1' -> mode_1;\n"
         for i in list(range(2, len(self.modes)+1)):
-            s += "\tmode_%s' -> (mode_%s or mode_%s)" % (i, i, i-1)
+            s += "\tmode_%s' -> (mode_%s or mode_%s);\n" % (i, i, i-1)
 
         s += "\n\n\t-- invariant conditions during modes\n"
         for mode_index, mode in enumerate(self.modes):
@@ -151,7 +151,7 @@ class Initial:
         s += "\ttime = 0;\n\n"
 
         s += "\t-- cost condition\n"
-        s += "\t((%s) <= MAX_COST) or (NO_COST_LIMIT = 1));\n\n" % self.crn.get_cost()
+        s += "\t(((%s) <= MAX_COST) or (NO_COST_LIMIT = 1));\n\n" % self.crn.get_cost()
 
         # mode exclusion
         mode_list = ["mode_%s" % x for x in range(1, self.numModes + 1)]
