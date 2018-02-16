@@ -462,7 +462,8 @@ class CRNSketch:
 
         # remove constant keys from flowDict, as they are handled separately when output generated
         for key in constants_to_remove:
-            a.pop(key, None)
+            if str(key) not in [x["name"] for x in derivatives]:
+                a.pop(key, None)
 
         return a
 

@@ -26,6 +26,11 @@ class Declaration:
         for d in self.crn.input_species:
             s += d.iSATDefinition()
 
+        if len(self.crn.derivatives) > 0:
+            s += "\n\t-- Define Derivative Variables\n"
+        for d in self.crn.derivatives:
+            s += "\tfloat [0, 10] %s;\n" % d["name"]
+
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t-- Lambda Variables\n"
         for lam in self.crn.lambda_variables:
@@ -122,7 +127,15 @@ class Transition:
         if len(self.crn.choice_variables) > 0:
             s += "\n\t-- Choice variables are fixed\n"
         for c in self.crn.choice_variables:
-            s += "\t(d.%s/d.time = 0);\n" % c.name
+            for i in list(range(c.minValue, c.maxValue + 1)):
+                s += "\t(d.%s_%s/d.time = 0);\n" % (c.name, i)
+
+        if len(self.crn.joint_choice_variables) > 0:
+            s += "\n\t-- Joint choice variables are fixed\n"
+        for c in self.crn.joint_choice_variables:
+            for v in c.list_decision_variables():
+                s += "\t(d.%s/d.time = 0);\n" % v
+
 
         if len(self.crn.optionalReactions) > 0:
             s += "\n\t-- Optional reaction variables are fixed\n"
