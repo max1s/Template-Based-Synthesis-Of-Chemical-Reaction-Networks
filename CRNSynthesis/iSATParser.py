@@ -99,7 +99,10 @@ class Transition:
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
-        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.choice_variables]
+        for c in self.crn.choice_variables:
+            terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in list(range(c.minValue, c.maxValue + 1))]
+            s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+
         s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
@@ -274,7 +277,7 @@ class Post:
     def constructdReal(self):
         raise NotImplementedError
 
-def constructISAT(crn, modes, flow, other_constraints):
+def constructISAT(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
