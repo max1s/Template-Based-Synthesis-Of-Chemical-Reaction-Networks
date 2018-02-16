@@ -72,7 +72,10 @@ class Term:
     def specRep(self):
         coefficient = self.coefficient
         if isinstance(coefficient, Choice):
-            coefficient = coefficient.symbol
+            coefficient_expression = 0
+            for value in list(range(coefficient.minValue, coefficient.maxValue+1)):
+                coefficient_expression += value * symbols(coefficient.name + "_" + str(value))
+            coefficient = coefficient_expression
 
         if isinstance(self.species, LambdaChoice):
             return str(coefficient) + "*" + self.species.constructChoice()
@@ -83,14 +86,22 @@ class Term:
         if not isinstance(self.coefficient, int) and not isinstance(self.coefficient, Choice):
             raise NotImplementedError
 
-        coefficient = self.coefficient
-        if isinstance(coefficient, Choice):
-            coefficient = coefficient.symbol
-
         if isinstance(self.species, LambdaChoice):
-            return self.species.constructChoice() + "**" + str(coefficient)
+            term_to_exponentiate = self.species.constructChoice()
         else:
-            return str(self.species.name) + "**" + str(coefficient)
+            term_to_exponentiate = str(self.species.name)
+
+        coefficient = self.coefficient
+
+        if isinstance(coefficient, Choice):
+            terms =[]
+            for value in list(range(coefficient.minValue, coefficient.maxValue+1)):
+                terms.append("(%s ** %s)*%s_%s" % (term_to_exponentiate, value, coefficient.name, value))
+            return " + ".join(terms)
+
+        else:
+            return term_to_exponentiate + "**" + str(coefficient)
+
 
     def get_species(self):
         return self.species.get_species()
@@ -248,11 +259,22 @@ class Choice:
         self.maxValue = maxValue
 
     def format_constraint(self):
-        clauses = ["(%s = %s)" % (self.name, x) for x in range(self.minValue, self.maxValue+1)]
-        return "\t" + " or ".join(clauses) + ";\n"
+        clauses = []
+
+        for i in list(range(self.minValue, self.maxValue + 1)):
+            terms = []
+            for j in list(range(self.minValue, self.maxValue + 1)):
+                terms.append("(%s_%s = %s)" % (self.name, j, int(i==j)))
+            clauses.append(" and ".join(terms))
+
+        return "\t" + " or ".join([" (%s) " % clause for clause in clauses]) + ";\n"
+
 
     def iSATDefinition(self):
-        return "\tfloat[%s, %s] %s;\n" % (self.minValue, self.maxValue, self.name)
+        s = ""
+        for value in list(range(self.minValue, self.maxValue + 1)):
+            s += "\tfloat[0, 1] %s_%s;\n" % (self.name, value)
+        return s
 
     def __str__(self):
         return self.name
@@ -333,6 +355,7 @@ class CRNSketch:
         self.species = self.getSpecies()
         self.real_species = self.getSpecies(include_inputs=False)
         self.input_species = list(set(self.species)-set(self.real_species))
+        self.derivatives = set()
 
         self.choice_variables = set()
         self.lambda_variables = set()
@@ -424,6 +447,7 @@ class CRNSketch:
     def flow(self, isLNA, derivatives):
         if not derivatives:
             derivatives = set()
+        self.derivatives = derivatives
 
         if isLNA:
             a = dict.fromkeys(self.generateAllTokens(generateCovarianceMatrix(self.real_species)))
@@ -553,7 +577,7 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
             elif "tc_" in fragment.specRep():
                 new_term = "%s(%s)" % (sign, str(sympify(fragment.specRep()).expand().coeff(sp)))
             else:
-                new_term = "%s(%s)" % (sign, fragment.coefficient)
+                new_term = "%s(%s)" % (sign, fragment.specRep())
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
 
