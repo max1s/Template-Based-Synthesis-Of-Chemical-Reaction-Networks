@@ -472,7 +472,10 @@ class CRNSketch:
             for i in range(C.cols * C.rows):
                 a[C[i]] = dCovdt[i]
 
-        a.update(derivative(derivatives, a))
+        derivative_expressions = derivative(derivatives, a)
+        #for x in derivative_expressions:
+        #    derivative_expressions[x] = self.simplify_expression(derivative_expressions[x])
+        a.update(derivative_expressions)
 
         for sp in self.input_species:
             a[sp.symbol] = sp.ode
@@ -567,6 +570,31 @@ class CRNSketch:
             change.append(sympify(netChange))
         return change
 
+    def simplify_expression(self, full_expression):
+        f = full_expression.expand()
+
+        for cv in self.choice_variables:
+            for i in list(range(cv.minValue, cv.maxValue + 1)):
+                for j in list(range(cv.minValue, cv.maxValue + 1)):
+                    if i != j:
+                        expression = "%s_%s * %s_%s" % (cv.name, i, cv.name, j)
+                        f = f.subs(sympify(expression), 0)
+
+        for lc in self.lambda_variables:
+            for active_value in lc.lambdas:
+                for lam in lc.lambdas:
+                    if lam != active_value:
+                        expression = "%s * %s" % (active_value, lam)
+                        f = f.subs(sympify(expression), 0)
+
+        for jc in self.joint_choice_variables:
+            for active_value in list(range(len(jc.possible_terms))):
+                for i in list(range(len(jc.possible_terms))):
+                    if i != active_value:
+                        expression = "%s%s * %s%s" % (jc.base_variable_name, i, jc.base_variable_name, active_value)
+                        f = f.subs(sympify(expression), 0)
+
+        return f
 
 
 def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
