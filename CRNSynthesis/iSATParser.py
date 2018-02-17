@@ -121,29 +121,34 @@ class Transition:
             s += "\n\t-- Rate constants are fixed\n"
         for rate in self.crn.getRateConstants():
             s += "\t(d.%s/d.time = 0);\n" % rate.name
+            s += "\t(%s = %s');\n" % (rate.name, rate.name)
 
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t-- Lambda variables are fixed\n"
         for lam in self.crn.lambda_variables:
             s += "".join(["\t(d.%s/d.time = 0);\n" % x.name for x in lam.lambdas])
+            s += "\t" + " and ".join(["(%s = %s')" % (x.name, x.name) for x in lam.lambdas]) + ";\n"
 
         if len(self.crn.choice_variables) > 0:
             s += "\n\t-- Choice variables are fixed\n"
         for c in self.crn.choice_variables:
-            for i in list(range(c.minValue, c.maxValue + 1)):
+            values = list(range(c.minValue, c.maxValue + 1))
+            for i in values:
                 s += "\t(d.%s_%s/d.time = 0);\n" % (c.name, i)
+            s += "\t" + " and ".join(["(%s_%s = %s_%s')" % (c.name, i, c.name, i) for i in values]) + ";\n"
 
         if len(self.crn.joint_choice_variables) > 0:
             s += "\n\t-- Joint choice variables are fixed\n"
         for c in self.crn.joint_choice_variables:
             for v in c.list_decision_variables():
                 s += "\t(d.%s/d.time = 0);\n" % v
-
+            s += "\t" + " and ".join(["(%s = %s')" % (v, v) for v in c.list_decision_variables()]) + ";\n"
 
         if len(self.crn.optionalReactions) > 0:
             s += "\n\t-- Optional reaction variables are fixed\n"
         for c in self.crn.optionalReactions:
             s += "\t(d.%s/d.time = 0);\n" % c.variable_name
+            s += "\t(%s = %s');\n" % (c.variable_name, c.variable_name)
 
         numModes = max(1, len(self.modes))
         mode_list = ["mode_" + str(x) for x in range(1, numModes + 1)]
