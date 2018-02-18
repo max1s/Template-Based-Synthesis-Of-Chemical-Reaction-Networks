@@ -293,13 +293,13 @@ class TermChoice:
     def constructPropensity(self):
         terms = []
         for i, t in enumerate(self.possible_terms):
-            terms.append("%s%s * %s" % (self.base_variable_name, i, t.constructPropensity()))
+            terms.append("%s%s * (%s)" % (self.base_variable_name, i, t.constructPropensity()))
         return " + ".join(terms)
 
     def specRep(self):
         substrings = []
         for i, term in enumerate(self.possible_terms):
-            substrings.append("%s%s * %s" % (self.base_variable_name, i, term.specRep()))
+            substrings.append("%s%s * (%s)" % (self.base_variable_name, i, term.specRep()))
 
         return " + ".join(substrings)
 
