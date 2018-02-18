@@ -605,7 +605,7 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
             elif "tc_" in fragment.specRep():
                 new_term = "%s(%s)" % (sign, str(sympify(fragment.specRep()).expand().coeff(sp)))
             else:
-                new_term = "%s(%s)" % (sign, fragment.specRep())
+                new_term = "%s(%s)" % (sign, str(sympify(fragment.specRep()).expand().coeff(sp)))
             stoichiometry_change[i] = " + ".join([stoichiometry_change[i], new_term])
     return stoichiometry_change
 
