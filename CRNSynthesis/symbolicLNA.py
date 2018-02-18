@@ -78,9 +78,9 @@ class Term:
             coefficient = coefficient_expression
 
         if isinstance(self.species, LambdaChoice):
-            return str(coefficient) + "*" + self.species.constructChoice()
+            return str(coefficient * sympify(self.species.constructChoice()))
         else:
-            return str(coefficient) + "*" + str(self.species.name)
+            return str(coefficient * sympify(self.species.name))
 
     def constructPropensity(self):
         if not isinstance(self.coefficient, int) and not isinstance(self.coefficient, Choice):
