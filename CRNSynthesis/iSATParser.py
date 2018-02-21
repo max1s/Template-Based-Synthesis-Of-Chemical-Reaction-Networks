@@ -91,7 +91,7 @@ class Transition:
 
         s += "\n\t-- jump conditions between modes\n"
         for mode_index, mode in enumerate(self.modes[:-1]):
-            if mode[2]: # post-condition on mode
+            if len(mode) > 2 and mode[2]: # post-condition on mode
                 s += "\t(mode_%s and mode_%s') -> (%s);\n" % (mode_index+1, mode_index+2, mode[2])
 
         s += "\n\t-- No state change without time consumption.\n"
@@ -270,7 +270,7 @@ class Post:
 
     def constructiSAT(self):
 
-        if len(self.modes) > 0 and self.modes[-1][2]:
+        if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
             post_condition = "and (" + self.modes[-1][2] + ")"
         else:
             post_condition = ""
