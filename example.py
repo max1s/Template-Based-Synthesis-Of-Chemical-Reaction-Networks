@@ -181,6 +181,7 @@ def mixedMMExample():
     derivatives = [{"variable": 'O', "order": 1, "is_variance": False, "name": "dO"},
                    {"variable": 'O', "order": 2, "is_variance": False, "name": "ddO"}]
 
+    #Here specification should be when second derivative is 0 we want variance of O < certain threshold
     specification = [(0, 'O = 0'), (0.5, 'O < 0.5'), (1, 'O > 1')]
 
     crn = CRNSketch([reaction1,reaction2,reaction3,reaction4],[],[])
@@ -203,11 +204,11 @@ def complete_process():
 if __name__ == "__main__":
     # print(exampleCRN())
     # print(AMExample())
-     print(exampleParametricCRN())
+     #print(exampleParametricCRN())
      #print(exampleParametricCRN_complete())
     # print(exampleJointAlternative())
 
     # print(complete_process())
 
     # print(hill_function_example())
-    #print(mixedMMExample())
+    print(mixedMMExample())
