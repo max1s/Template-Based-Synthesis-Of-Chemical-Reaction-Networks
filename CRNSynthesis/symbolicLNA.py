@@ -484,7 +484,7 @@ class CRNSketch:
         for key in a:
             if a[key] is None and not isinstance(a[key], str):
                 a[key] = 0
-            if str(key) not in [str(sp) for sp in self.species]:
+            if str(key) not in [str(sp) for sp in self.species] and not str(key).startswith("cov"):
                 constants_to_remove.append(key)
 
         # remove constant keys from flowDict, as they are handled separately when output generated
