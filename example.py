@@ -177,7 +177,7 @@ def mixedMMExample():
     reaction3 = Reaction([Term(Ag,1)], [Term(O,1)] , RateConstant('k1', 0.1, 5))
     reaction4 = Reaction([Term(O,1)], [], RateConstant('k2', 0.1, 5))
 
-    isLNA = False
+    isLNA = True
     derivatives = [{"variable": 'O', "order": 1, "is_variance": False, "name": "dO"},
                    {"variable": 'O', "order": 2, "is_variance": False, "name": "ddO"}]
 
