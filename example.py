@@ -65,7 +65,7 @@ def exampleParametricCRN():
     specification = []
 
     flow = crn.flow(isLNA, derivatives)
-    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
+    return iSATParser.constructISAT(crn, specification, flow)
 
 
 def exampleParametricCRN_complete():
@@ -87,7 +87,7 @@ def exampleParametricCRN_complete():
     derivatives = [{"variable": 'X', "order": 1, "is_variance": False, "name": "X_dot"},
                    {"variable": 'X', "order": 2, "is_variance": False, "name": "X_dot_dot"},
                    {"variable": 'X', "order": 2, "is_variance": True, "name": "covX_dot_dot"}]
-    derivatives = []
+    #derivatives = []
     specification = [(0, 'X = 0'), (0.5, 'X = 0.5'), (1, 'X = 0')]
 
     crn = CRNSketch([reaction1, reaction2, reaction3, reaction5], [reaction4], [input1])
@@ -163,6 +163,30 @@ def michaelis_menten_example():
     return iSATParser.constructISAT(crn, [], flow, costFunction='')
 
 
+def mixedMMExample():
+    A = Species('A')
+    g = Species('g')
+    Ag = Species('Ag')
+    O = Species('O')
+
+    vmax = RateConstant('V_max', 0.1, 10)
+    vm = RateConstant('V_m', 0.1, 10)
+
+    reaction1 = MichaelisMentenReaction([(A, 1), (g, 1)], [(Ag, 1), (A, 1)], vmax, vm)
+    reaction2 = MichaelisMentenReaction([(Ag, 1)], [(A, 1), (g,1)], vmax, vm)
+    reaction3 = Reaction([Term(Ag,1)], [Term(O,1)] , RateConstant('k1', 0.1, 5))
+    reaction4 = Reaction([Term(O,1)], [], RateConstant('k2', 0.1, 5))
+
+    isLNA = False
+    derivatives = [{"variable": 'O', "order": 1, "is_variance": False, "name": "dO"},
+                   {"variable": 'O', "order": 2, "is_variance": False, "name": "ddO"}]
+
+    specification = [(0, 'O = 0'), (0.5, 'O < 0.5'), (1, 'O > 1')]
+
+    crn = CRNSketch([reaction1,reaction2,reaction3,reaction4],[],[])
+    flow = crn.flow(isLNA, derivatives)
+    return flow, iSATParser.constructISAT(crn, specification, flow)
+
 def complete_process():
 
     flow, problem_string = exampleJointAlternative()
@@ -179,11 +203,11 @@ def complete_process():
 if __name__ == "__main__":
     # print(exampleCRN())
     # print(AMExample())
-    # print(exampleParametricCRN())
-    # print(exampleParametricCRN_complete())
+     print(exampleParametricCRN())
+     #print(exampleParametricCRN_complete())
     # print(exampleJointAlternative())
 
     # print(complete_process())
 
     # print(hill_function_example())
-    print(michaelis_menten_example())
+    #print(mixedMMExample())
