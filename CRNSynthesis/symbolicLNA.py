@@ -174,6 +174,20 @@ class HillReaction(Reaction):
         species = getSpeciesFromTerm(self.reactants[0])
         return self.reactionrate.symbol * (species ** self.n.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol))
 
+class HillRepression(Reaction):
+    def __init__(self, r, p, Kmax, Ka, n):
+        super(HillReaction, self).__init__(r, p, Kmax)
+        self.Ka = Ka
+        self.n = n
+
+    def get_rate_constants(self):
+        return [self.reactionrate, self.Ka, self.n]
+
+    def get_propensity(self):
+        species = getSpeciesFromTerm(self.reactants[0])
+        return self.reactionrate.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol)
+
+
 class MichaelisMentenReaction(Reaction):
     def __init__(self, r, p, Kmax, Km):
         super(MichaelisMentenReaction, self).__init__(r, p, Kmax)
