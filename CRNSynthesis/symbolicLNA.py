@@ -69,6 +69,9 @@ class Term:
         self.species = species
         self.coefficient = coefficient
 
+    def __str__(self):
+        return "%s%s" % (self.coefficient, self.species)
+
     def specRep(self):
         coefficient = self.coefficient
         if isinstance(coefficient, Choice):
@@ -142,12 +145,10 @@ class Reaction(object):
         self.variable_name = "" # Boolean variable indicating whether optional reaction occurs
 
     def __repr__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+        return "" + ' + '.join([repr(x) for x in self.reactants]) + " ->{" + repr(self.reactionrate) + "} " + ' + '.join([repr(y) for y in self.products])
 
     def __str__(self):
-        return "" + ' + '.join(["".join(x) for x in self.reactants]) + " ->{" + str(
-            self.reactionrate) + "} " + ' + '.join(["".join(y) for y in self.products])
+        return "" + ' + '.join([str(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join([str(y) for y in self.products])
 
     def get_rate_constants(self):
         return [self.reactionrate]
@@ -227,6 +228,9 @@ class LambdaChoice:
         self.species = species
         self.lambdas = [symbols("lam" + str(sp) + str(choiceNumber)) for sp in species]
 
+    def __str__(self):
+        return "(" + " or ".join([str(x) for x in self.species]) + ")"
+
     def constructChoice(self):
         return "(" + '+'.join([str(sp) + '*' + str(l) for sp, l in zip(self.species, self.lambdas)]) + ")"
 
@@ -303,6 +307,9 @@ class TermChoice:
         for i, term in enumerate(self.possible_terms):
             if isinstance(term, tuple):
                 self.possible_terms[i] = Term(term[0], term[1])
+
+    def __str__(self):
+        return "(" + " or ".join([str(x) for x in self.possible_terms]) + ")"
 
     def constructPropensity(self):
         terms = []
