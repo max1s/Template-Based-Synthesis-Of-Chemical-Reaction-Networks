@@ -486,9 +486,9 @@ class CRNSketch:
                 a[sp.symbol] = dSpeciesdt[i]
 
         if isLNA:
-            jmat = [sp.symbol for sp in self.species]
+            jmat = [sp.symbol for sp in self.real_species]
             J = Matrix(dSpeciesdt).jacobian(jmat)
-            C = generateCovarianceMatrix(self.species)
+            C = generateCovarianceMatrix(self.real_species)
             dCovdt = J * C + C * transpose(J)
             for i in range(C.cols * C.rows):
                 a[C[i]] = dCovdt[i]
