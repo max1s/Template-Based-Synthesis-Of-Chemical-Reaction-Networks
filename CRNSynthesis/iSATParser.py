@@ -223,18 +223,22 @@ class Initial:
 
 
 class Flow:
-    def __init__(self, var, t, fl):
+    def __init__(self, var, t, fl, crn):
         self.variable = var
         self.time = t
         self.flow = fl
+        self.crn = crn
 
     def constructiSAT(self):
         # Python represents powers as a**b, whereas iSAT uses a^b
         flow = str(self.flow).replace('**', '^')
 
-        s = ""
-        s += ("\t(d." + str(self.variable) + "/d." + str(self.time) + " = " + flow + ")")
-        return s
+        derivative_names = [x["name"] for x in self.crn.derivatives]
+
+        if str(self.variable) in derivative_names:
+            return "\t(%s = %s)" % (self.variable, flow)
+        else:
+            return "\t(d.%s/d.%s  = %s)" % (self.variable, self.time, flow)
 
     def constructdReal(self):
         raise NotImplementedError
@@ -283,7 +287,7 @@ class Post:
         raise NotImplementedError
 
 def constructISAT(crn, modes, flow, other_constraints=False):
-    m_flow = [Flow(x, 'time', y) for x, y in flow.items()]
+    m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
     d = Declaration(crn, numModes).constructiSAT()

@@ -671,7 +671,7 @@ def derivative(derivatives, flowdict):
         x1 = function_flowdict[funcs[species]]  # first derivative of species
 
         xn = x1
-        for i in range(order):
+        for i in range(order - 1):
             xn = Derivative(xn, Symbol('t')).doit()
 
             # substitute in to replace first derivatives
