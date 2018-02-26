@@ -162,9 +162,9 @@ class Reaction(object):
         return propensity
 
 
-class HillReaction(Reaction):
+class HillActivationReaction(Reaction):
     def __init__(self, r, p, Kmax, Ka, n):
-        super(HillReaction, self).__init__(r, p, Kmax)
+        super(HillActivationReaction, self).__init__(r, p, Kmax)
         self.Ka = Ka
         self.n = n
 
@@ -175,9 +175,9 @@ class HillReaction(Reaction):
         species = getSpeciesFromTerm(self.reactants[0])
         return self.reactionrate.symbol * (species ** self.n.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol))
 
-class HillRepression(Reaction):
+class HillRepressionReaction(Reaction):
     def __init__(self, r, p, Kmax, Ka, n):
-        super(HillReaction, self).__init__(r, p, Kmax)
+        super(HillRepressionReaction, self).__init__(r, p, Kmax)
         self.Ka = Ka
         self.n = n
 
