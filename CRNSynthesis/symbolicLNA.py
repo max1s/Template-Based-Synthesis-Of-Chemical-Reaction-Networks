@@ -21,6 +21,12 @@ class InputSpecies:
     def iSATInitialization(self):
         return "\t%s = %s;\n" % (self.name, self.initial_value)
 
+    def dRealDefinition(self):
+        return "\t[%s, %s] %s;\n" % (0, 10, self.name) # TODO: set min/max better
+
+    def dRealInitialization(self):
+        return "\t(%s = %s)\n" % (self.name, self.initial_value)
+
     def get_species(self):
         return [self]
 
@@ -56,6 +62,25 @@ class Species:
         if len(terms) > 0:
             return "\t" + " and ".join(terms) + ";\n"
         return ""
+
+    def dRealDefinition(self):
+        return "\t[0, %s] %s;\n" % (10, self.name)
+
+    def dRealInitialization(self):
+        if self.initial_value:
+            return "\t(%s = %s)\n" % (self.name, self.initial_value)
+
+        terms = []
+        if self.initial_min:
+            terms.append(" (%s >= %s)" % (self.name, self.initial_min))
+
+        if self.initial_max:
+            terms.append(" (%s <= %s)" % (self.name, self.initial_max))
+
+        if len(terms) > 0:
+            return "\t ( and" + " ".join(terms) + ")\n"
+        return ""
+
 
     def get_species(self):
         return [self]
@@ -247,7 +272,7 @@ class LambdaChoice:
                 x += str(lam)
         return x
 
-    def format_constraint(self):
+    def iSATformat_constraint(self):
         clauses = []
         for active_value in self.lambdas:
             # generate term in which only element i is on
@@ -263,8 +288,28 @@ class LambdaChoice:
 
         return "\t" + " or ".join(clauses) + ";\n"
 
+    def dRealformat_constraint(self):
+        clauses = []
+        for active_value in self.lambdas:
+            # generate term in which only element i is on
+            subclauses = []
+            for lam in self.lambdas:
+                if lam == active_value:
+                    subclauses.append("(%s = 1)" % lam)
+                else:
+                    subclauses.append("(%s = 0)" % lam)
+
+            clause = "( and " + "".join(subclauses) + ")"
+            clauses.append(clause)
+
+        return "\t" + " ( or " + "".join(clauses) + ")\n"
+
     def iSATDefinition(self):
-        declarations = ["\tfloat[0, 1] %s;" % str(lam) for lam in self.lambdas]
+        declarations = ["\tfloat [0, 1] %s;" % str(lam) for lam in self.lambdas]
+        return "\n".join(declarations)
+
+    def dRealDefinition(self):
+        declarations = ["\t[0, 1] %s;" % str(lam) for lam in self.lambdas]
         return "\n".join(declarations)
 
 
@@ -276,7 +321,7 @@ class Choice:
         self.minValue = minValue
         self.maxValue = maxValue
 
-    def format_constraint(self):
+    def iSATformat_constraint(self):
         clauses = []
 
         for i in list(range(self.minValue, self.maxValue + 1)):
@@ -287,11 +332,27 @@ class Choice:
 
         return "\t" + " or ".join([" (%s) " % clause for clause in clauses]) + ";\n"
 
+    def dRealformat_constraint(self):
+        clauses = []
+
+        for i in list(range(self.minValue, self.maxValue + 1)):
+            terms = []
+            for j in list(range(self.minValue, self.maxValue + 1)):
+                terms.append("(%s_%s = %s)" % (self.name, j, int(i==j)))
+            clauses.append(" ( and " + "".join(terms) + ")")
+
+        return "\t ( or " + " ".join([" (%s) " % clause for clause in clauses])
 
     def iSATDefinition(self):
         s = ""
         for value in list(range(self.minValue, self.maxValue + 1)):
-            s += "\tfloat[0, 1] %s_%s;\n" % (self.name, value)
+            s += "\tfloat [0, 1] %s_%s;\n" % (self.name, value)
+        return s
+
+    def dRealDefinition(self):
+        s = ""
+        for value in list(range(self.minValue, self.maxValue + 1)):
+            s += "\t[0, 1] %s_%s;\n" % (self.name, value)
         return s
 
     def __str__(self):
@@ -345,7 +406,13 @@ class TermChoice:
             declarations.append("\tfloat[0, 1] %s%s;" % (self.base_variable_name, i))
         return "\n".join(declarations)
 
-    def format_constraint(self):
+    def dRealDefinition(self):
+        declarations = []
+        for i, term in enumerate(self.possible_terms):
+            declarations.append("\t [0, 1] %s%s;" % (self.base_variable_name, i))
+        return "\n".join(declarations)
+
+    def iSATformat_constraint(self):
         clauses = []
         for active_value in list(range(len(self.possible_terms))):
 
@@ -361,6 +428,24 @@ class TermChoice:
                 clauses.append(clause)
 
         return "\t" + " or ".join(clauses) + ";\n"
+
+    def dRealformat_constraint(self):
+        clauses = []
+        for active_value in list(range(len(self.possible_terms))):
+
+                # generate term in which only element i is on
+                subclauses = []
+                for i in list(range(len(self.possible_terms))):
+                    if i == active_value:
+                        subclauses.append("(%s%s = 1)" % (self.base_variable_name, i))
+                    else:
+                        subclauses.append("(%s%s = 0)" % (self.base_variable_name, i))
+
+                clause = "( and " + "".join(subclauses) + ")"
+                clauses.append(clause)
+
+        return "\t" + "( or " "".join(clauses) + ") \n"
+
 
 
 class CRNSketch:

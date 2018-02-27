@@ -65,7 +65,7 @@ def exampleParametricCRN():
     specification = []
 
     flow = crn.flow(isLNA, derivatives)
-    return iSATParser.constructISAT(crn, specification, flow)
+    return iSATParser.constructdReal(crn, specification, flow)
 
 
 def exampleParametricCRN_complete():
@@ -94,7 +94,7 @@ def exampleParametricCRN_complete():
     flow = crn.flow(isLNA, derivatives)
     crn.get_cost()
 
-    return iSATParser.constructISAT(crn, specification, flow, costFunction='')
+    return iSATParser.constructdReal(crn, specification, flow, costFunction='')
 
 
 def exampleJointAlternative():
@@ -167,23 +167,25 @@ def mixedMMExample():
     A = Species('A')
     g = Species('g')
     Ag = Species('Ag')
-    O = Species('O')
+    Out = Species('Out')
 
-    vmax = RateConstant('V_max', 0.1, 10)
-    vm = RateConstant('V_m', 0.1, 10)
+    vAmax = RateConstant('VA_max', 0.5, 5)
+    vBmax = RateConstant('VB_max', 0.5, 5)
+    vConstant = RateConstant('vConstant', 0.5, 0.5)
 
-    reaction1 = MichaelisMentenReaction([(A, 1), (g, 1)], [(Ag, 1), (A, 1)], vmax, vm)
-    reaction2 = MichaelisMentenReaction([(Ag, 1)], [(A, 1), (g,1)], vmax, vm)
-    reaction3 = Reaction([Term(Ag,1)], [Term(O,1)] , RateConstant('k1', 0.1, 5))
-    reaction4 = Reaction([Term(O,1)], [], RateConstant('k2', 0.1, 5))
+
+    reaction1 = MichaelisMentenReaction([(A, 1), (g, 1)], [(Ag, 1), (A, 1)], vAmax, vConstant)
+    reaction2 = MichaelisMentenReaction([(Ag, 1)], [(A, 1), (g,1)], vBmax, vConstant)
+    reaction3 = Reaction([Term(Ag,1)], [Term(Out,1)] , RateConstant('k1', 0.1, 5))
+    reaction4 = Reaction([Term(Out,1)], [], RateConstant('k2', 0.1, 5))
 
     isLNA = True
-    derivatives = [{"variable": 'O', "order": 1, "is_variance": False, "name": "dO"},
-                   {"variable": 'O', "order": 2, "is_variance": False, "name": "ddO"}]
+    derivatives = [{"variable": 'Out', "order": 1, "is_variance": False, "name": "dOut"},
+                   {"variable": 'Out', "order": 2, "is_variance": False, "name": "ddOut"}]
 
     #Here specification should be when second derivative is 0 we want variance of O < certain threshold
-    specification = [(0, 'O = 0'), (0.5, 'O < 0.5'), (1, 'O > 1')]
-
+    #specification = [(0, 'O = 0'), (0.5, 'O < 0.5'), (1, 'O > 1')]
+    specification = [('', '', 'ddOut = 0'), ('', 'covAg > 10'), ('', 'Out > 1')]
     crn = CRNSketch([reaction1,reaction2,reaction3,reaction4],[],[])
     flow = crn.flow(isLNA, derivatives)
     return flow, iSATParser.constructISAT(crn, specification, flow)
@@ -201,14 +203,31 @@ def complete_process():
     print("\n\nSpecific CRN identified is:\n")
     print(sc.get_parametrised_flow(flow, param_values))
 
+def complete_MM():
+
+    flow, problem_string = mixedMMExample()
+    print problem_string
+    with open("./testMM.hys", "w") as f:
+        f.write(problem_string)
+
+    #sc = SolverCaller("./testMM.hys")
+    #result_file = sc.single_synthesis(cost=100, precision=0.1)
+    #param_values = sc.getCRNValues(result_file)
+
+    #print("\n\nSpecific CRN identified is:\n")
+    #print(sc.get_parametrised_flow(flow, param_values))
+
+
 if __name__ == "__main__":
     # print(exampleCRN())
     # print(AMExample())
-     #print(exampleParametricCRN())
+     print(exampleParametricCRN())
      #print(exampleParametricCRN_complete())
-    # print(exampleJointAlternative())
+     #print(exampleJointAlternative())
 
     # print(complete_process())
-
+    #complete_MM()
     # print(hill_function_example())
-    print(mixedMMExample())
+    # f,i = mixedMMExample()
+    # print i
+    # SolverCaller()
