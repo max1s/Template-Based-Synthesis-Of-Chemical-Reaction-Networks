@@ -188,7 +188,7 @@ def mixedMMExample():
     specification = [('', '', 'ddOut = 0'), ('', 'covAg > 10'), ('', 'Out > 1')]
     crn = CRNSketch([reaction1,reaction2,reaction3,reaction4],[],[])
     flow = crn.flow(isLNA, derivatives)
-    return flow, iSATParser.constructISAT(crn, specification, flow)
+    return flow, iSATParser.constructdReal(crn, specification, flow)
 
 def complete_process():
 
@@ -221,13 +221,13 @@ def complete_MM():
 if __name__ == "__main__":
     # print(exampleCRN())
     # print(AMExample())
-     print(exampleParametricCRN())
+     #print(exampleParametricCRN())
      #print(exampleParametricCRN_complete())
      #print(exampleJointAlternative())
 
     # print(complete_process())
     #complete_MM()
     # print(hill_function_example())
-    # f,i = mixedMMExample()
+     f,i = mixedMMExample()
     # print i
     # SolverCaller()

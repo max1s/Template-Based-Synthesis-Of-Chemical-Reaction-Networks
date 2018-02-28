@@ -24,8 +24,8 @@
       <file leaf-file-name="iSATParser.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/iSATParser.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-3700">
-              <caret line="212" column="22" lean-forward="false" selection-start-line="212" selection-start-column="22" selection-end-line="212" selection-end-column="22" />
+            <state relative-caret-position="555">
+              <caret line="298" column="25" lean-forward="true" selection-start-line="298" selection-start-column="25" selection-end-line="298" selection-end-column="25" />
               <folding />
             </state>
           </provider>
@@ -66,7 +66,7 @@
     <option name="height" value="800" />
   </component>
   <component name="ProjectView">
-    <navigator proportions="" version="1">
+    <navigator currentView="ProjectPane" proportions="" version="1">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -79,7 +79,21 @@
       <manualOrder />
       <foldersAlwaysOnTop value="true" />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="Scope" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="CRNSynthesis" type="b2602c69:ProjectViewProjectNode" />
+              <item name="CRNSynthesis" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scratches" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -284,8 +298,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/iSATParser.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-3700">
-          <caret line="212" column="22" lean-forward="false" selection-start-line="212" selection-start-column="22" selection-end-line="212" selection-end-column="22" />
+        <state relative-caret-position="555">
+          <caret line="298" column="25" lean-forward="true" selection-start-line="298" selection-start-column="25" selection-end-line="298" selection-end-column="25" />
           <folding />
         </state>
       </provider>
