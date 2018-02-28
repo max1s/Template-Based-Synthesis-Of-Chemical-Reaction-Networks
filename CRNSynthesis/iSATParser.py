@@ -219,87 +219,112 @@ class Transition:
                 #mode invariants
                 s += "invt: "
                 s += "\n\n\t #invariant conditions during modes\n"
-                s += "\t " +  self.modes[1]  + ";"
+                s += "\t " +  ''.join(self.modes[1])  + ";"
+
+                #flow variables
+                s += 'flow: \n\n'
+                if len(self.crn.getRateConstants()) > 0:
+                    s += "\n\t #Rate constants are fixed\n"
+                for rate in self.crn.getRateConstants():
+                    s += "\td/dt[%s] = 0;\n" % rate.name
+
+                if len(self.crn.lambda_variables) > 0:
+                    s += "\n\t #Lambda variables are fixed\n"
+                for lam in self.crn.lambda_variables:
+                    s += "".join(["\td/dt[%s] = 0;\n" % x.name for x in lam.lambdas])
+
+                if len(self.crn.choice_variables) > 0:
+                    s += "\n\t #Choice variables are fixed\n"
+                for c in self.crn.choice_variables:
+                    values = list(range(c.minValue, c.maxValue + 1))
+                    for i in values:
+                        s += "\td/dt[%s_%s] = 0;\n" % (c.name, i)
+
+                if len(self.crn.joint_choice_variables) > 0:
+                    s += "\n\t #Joint choice variables are fixed\n"
+                for c in self.crn.joint_choice_variables:
+                    for v in c.list_decision_variables():
+                        s += "\td/dt[%s] = 0;\n" % v
+
+
+                if len(self.crn.optionalReactions) > 0:
+                    s += "\n\t #Optional reaction variables are fixed\n"
+                for c in self.crn.optionalReactions:
+                    s += "\t(d/dt[%s] = 0);\n" % c.variable_name
+
+
+                s += "\n\n\t-- Flows\n"
+                s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
 
                 #mode jump
-                s += "jump: "
+                s += "\n\njump: "
                 s += "\n\n\t #jump conditions during modes\n"
-                s += "\t " +  self.modes[2]  + ";"
-
-                s += "\n\t-- No state change without time consumption.\n"
+                s += "\t " +  ''.join(self.modes[2])  + ";\n"
 
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
-                s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+                s += "\t ( and " + "".join(terms) + ");"
 
-                print s
-                quit
-                # for c in self.crn.choice_variables:
-                #     terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in
-                #              list(range(c.minValue, c.maxValue + 1))]
-                #     s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
-                #
-                # s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
-                #
-                # terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
-                # s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
-                #
-                # terms = ["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions]
-                # s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
-                #
+                for c in self.crn.choice_variables:
+                    terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in
+                             list(range(c.minValue, c.maxValue + 1))]
+                    s += "\t ( and " + "".join(terms) + ");"
+
+                    s += "\t ( and " + "".join(terms) + ");"
+
+                    terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
+                    s += "\t ( and " + "".join(terms)  + ");"
+
+                    terms = ["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions]
+                    s += "\t ( and " + "".join(terms)  + ");"
+
 
                 terms = []
                 for lambda_choice in self.crn.lambda_variables:
                     terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
-                s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+                s += "\t ( and " + "".join(terms)  + ");"
                 s += "\n"
 
-                if len(self.crn.getRateConstants()) > 0:
-                    s += "\n\t-- Rate constants are fixed\n"
-                for rate in self.crn.getRateConstants():
-                    s += "\t(d.%s/d.time = 0);\n" % rate.name
-                    s += "\t(%s = %s');\n" % (rate.name, rate.name)
-
-                if len(self.crn.lambda_variables) > 0:
-                    s += "\n\t-- Lambda variables are fixed\n"
-                for lam in self.crn.lambda_variables:
-                    s += "".join(["\t(d.%s/d.time = 0);\n" % x.name for x in lam.lambdas])
-                    s += "\t" + " and ".join(["(%s = %s')" % (x.name, x.name) for x in lam.lambdas]) + ";\n"
-
-                if len(self.crn.choice_variables) > 0:
-                    s += "\n\t-- Choice variables are fixed\n"
-                for c in self.crn.choice_variables:
-                    values = list(range(c.minValue, c.maxValue + 1))
-                    for i in values:
-                        s += "\t(d.%s_%s/d.time = 0);\n" % (c.name, i)
-                    s += "\t" + " and ".join(["(%s_%s = %s_%s')" % (c.name, i, c.name, i) for i in values]) + ";\n"
-
-                if len(self.crn.joint_choice_variables) > 0:
-                    s += "\n\t-- Joint choice variables are fixed\n"
-                for c in self.crn.joint_choice_variables:
-                    for v in c.list_decision_variables():
-                        s += "\t(d.%s/d.time = 0);\n" % v
-                    s += "\t" + " and ".join(["(%s = %s')" % (v, v) for v in c.list_decision_variables()]) + ";\n"
-
-                if len(self.crn.optionalReactions) > 0:
-                    s += "\n\t-- Optional reaction variables are fixed\n"
-                for c in self.crn.optionalReactions:
-                    s += "\t(d.%s/d.time = 0);\n" % c.variable_name
-                    s += "\t(%s = %s');\n" % (c.variable_name, c.variable_name)
-
-                numModes = max(1, len(self.modes))
-                mode_list = ["mode_" + str(x) for x in range(1, numModes + 1)]
-                modes_string = " or ".join(mode_list)
-
-                s += "\n\n\t-- Flows\n"
-                s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
+                s += "\n\n }"
 
         else:
-                s += "{mode 1;"
-                s += "invt: "
-                s += "\t"
+            s += "{mode 1;"
+            s += "invt: "
+            s += "\t"
+
+            if len(self.crn.getRateConstants()) > 0:
+                s += "\n\t #Rate constants are fixed\n"
+            for rate in self.crn.getRateConstants():
+                s += "\td/dt[%s] = 0;\n" % rate.name
+
+            if len(self.crn.lambda_variables) > 0:
+                s += "\n\t #Lambda variables are fixed\n"
+            for lam in self.crn.lambda_variables:
+                s += "".join(["\td/dt[%s] = 0;\n" % x.name for x in lam.lambdas])
+
+            if len(self.crn.choice_variables) > 0:
+                s += "\n\t #Choice variables are fixed\n"
+            for c in self.crn.choice_variables:
+                values = list(range(c.minValue, c.maxValue + 1))
+                for i in values:
+                    s += "\td/dt[%s_%s] = 0;\n" % (c.name, i)
+
+            if len(self.crn.joint_choice_variables) > 0:
+                s += "\n\t #Joint choice variables are fixed\n"
+            for c in self.crn.joint_choice_variables:
+                for v in c.list_decision_variables():
+                    s += "\td/dt[%s] = 0;\n" % v
+
+            if len(self.crn.optionalReactions) > 0:
+                s += "\n\t #Optional reaction variables are fixed\n"
+            for c in self.crn.optionalReactions:
+                s += "\t(d/dt[%s] = 0);\n" % c.variable_name
+
+            s += "\n\n\t-- Flows\n"
+            s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
 
 
-
+                # mode jump
+            s += "\n\njump: \n\n }"
 
 
         return s
@@ -485,7 +510,14 @@ class Post:
         return s
 
     def constructdReal(self):
-        raise NotImplementedError
+        if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
+            post_condition = "and (" + self.modes[-1][2] + ")"
+        else:
+            post_condition = ""
+
+        s = "\nTARGET \n"
+        s += "\t@%s and (time < %s) %s;\n" % (len(self.modes), self.time, post_condition)
+        return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
@@ -502,12 +534,8 @@ def constructISAT(crn, modes, flow, other_constraints=False):
 def constructdReal(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
-    print modes
-    quit
     d = Declaration(crn, numModes).constructdReal()
     i = Initial(crn, numModes, other_constraints).constructdReal()
     t = Transition(crn, m_flow, modes).constructdReal()
     p = Post(1, modes).constructdReal()
-    print d + i + t + p
-    quit()
-    return d + i + t + p
+    return d + t + i + p
