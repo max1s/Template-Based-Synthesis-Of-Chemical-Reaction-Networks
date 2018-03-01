@@ -223,7 +223,7 @@ class Transition:
                 s += "\t " +  ''.join(mode[1])  + ";"
 
                 #flow variables
-                s += '\nflow: \n\n'
+                s += '\n\nflow: \n'
                 if len(self.crn.getRateConstants()) > 0:
                     s += "\n\t // Rate constants are fixed\n"
                 for rate in self.crn.getRateConstants():
