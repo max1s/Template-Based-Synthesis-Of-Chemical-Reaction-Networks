@@ -516,7 +516,7 @@ class Post:
         else:
             post_condition = ""
 
-        s = "\nTARGET \n"
+        s = "\n\ngoal: \n"
         s += "\t@%s and (time < %s) %s;\n" % (len(self.modes), self.time, post_condition)
         return s
 
