@@ -460,7 +460,7 @@ class Flow:
         if str(self.variable) in derivative_names:
             return "\t(%s = %s)" % (self.variable, flow)
         else:
-            return "\t(d.%s/d.%s  = %s)" % (self.variable, self.time, flow)
+            return "\td/dt[%s]  = %s" % (self.variable, flow)
 
 
 class Mode:
