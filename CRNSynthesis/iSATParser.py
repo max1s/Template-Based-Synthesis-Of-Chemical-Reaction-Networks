@@ -318,7 +318,7 @@ class Transition:
             if len(self.crn.optionalReactions) > 0:
                 s += "\n\t // Optional reaction variables are fixed\n"
             for c in self.crn.optionalReactions:
-                s += "\t(d/dt[%s] = 0);\n" % c.variable_name
+                s += "\td/dt[%s] = 0;\n" % c.variable_name
 
             s += "\n\n\t-- Flows\n"
             s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
