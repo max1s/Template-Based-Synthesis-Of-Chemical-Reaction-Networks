@@ -219,37 +219,37 @@ class Transition:
 
                 #mode invariants
                 s += "invt: "
-                s += "\n\n\t #invariant conditions during modes\n"
+                s += "\n\n\t // invariant conditions during modes\n"
                 s += "\t " +  ''.join(mode[1])  + ";"
 
                 #flow variables
                 s += 'flow: \n\n'
                 if len(self.crn.getRateConstants()) > 0:
-                    s += "\n\t #Rate constants are fixed\n"
+                    s += "\n\t // Rate constants are fixed\n"
                 for rate in self.crn.getRateConstants():
                     s += "\td/dt[%s] = 0;\n" % rate.name
 
                 if len(self.crn.lambda_variables) > 0:
-                    s += "\n\t #Lambda variables are fixed\n"
+                    s += "\n\t // Lambda variables are fixed\n"
                 for lam in self.crn.lambda_variables:
                     s += "".join(["\td/dt[%s] = 0;\n" % x.name for x in lam.lambdas])
 
                 if len(self.crn.choice_variables) > 0:
-                    s += "\n\t #Choice variables are fixed\n"
+                    s += "\n\t // Choice variables are fixed\n"
                 for c in self.crn.choice_variables:
                     values = list(range(c.minValue, c.maxValue + 1))
                     for i in values:
                         s += "\td/dt[%s_%s] = 0;\n" % (c.name, i)
 
                 if len(self.crn.joint_choice_variables) > 0:
-                    s += "\n\t #Joint choice variables are fixed\n"
+                    s += "\n\t // Joint choice variables are fixed\n"
                 for c in self.crn.joint_choice_variables:
                     for v in c.list_decision_variables():
                         s += "\td/dt[%s] = 0;\n" % v
 
 
                 if len(self.crn.optionalReactions) > 0:
-                    s += "\n\t #Optional reaction variables are fixed\n"
+                    s += "\n\t // Optional reaction variables are fixed\n"
                 for c in self.crn.optionalReactions:
                     s += "\t(d/dt[%s] = 0);\n" % c.variable_name
 
@@ -259,7 +259,7 @@ class Transition:
 
                 #mode jump
                 s += "\n\njump: "
-                s += "\n\n\t #jump conditions during modes\n"
+                s += "\n\n\t // jump conditions during modes\n"
                 s += "\t " +  ''.join(mode[2])  + ";\n"
 
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
@@ -293,30 +293,30 @@ class Transition:
             s += "\t"
 
             if len(self.crn.getRateConstants()) > 0:
-                s += "\n\t #Rate constants are fixed\n"
+                s += "\n\t // Rate constants are fixed\n"
             for rate in self.crn.getRateConstants():
                 s += "\td/dt[%s] = 0;\n" % rate.name
 
             if len(self.crn.lambda_variables) > 0:
-                s += "\n\t #Lambda variables are fixed\n"
+                s += "\n\t // Lambda variables are fixed\n"
             for lam in self.crn.lambda_variables:
                 s += "".join(["\td/dt[%s] = 0;\n" % x.name for x in lam.lambdas])
 
             if len(self.crn.choice_variables) > 0:
-                s += "\n\t #Choice variables are fixed\n"
+                s += "\n\t // Choice variables are fixed\n"
             for c in self.crn.choice_variables:
                 values = list(range(c.minValue, c.maxValue + 1))
                 for i in values:
                     s += "\td/dt[%s_%s] = 0;\n" % (c.name, i)
 
             if len(self.crn.joint_choice_variables) > 0:
-                s += "\n\t #Joint choice variables are fixed\n"
+                s += "\n\t // Joint choice variables are fixed\n"
             for c in self.crn.joint_choice_variables:
                 for v in c.list_decision_variables():
                     s += "\td/dt[%s] = 0;\n" % v
 
             if len(self.crn.optionalReactions) > 0:
-                s += "\n\t #Optional reaction variables are fixed\n"
+                s += "\n\t // Optional reaction variables are fixed\n"
             for c in self.crn.optionalReactions:
                 s += "\t(d/dt[%s] = 0);\n" % c.variable_name
 
@@ -392,37 +392,37 @@ class Initial:
         s = "\ninit:\n\n"
 
         s += " @1 ( and (time = 0) \n"
-        s += "\t #cost condition\n"
+        s += "\t // cost condition\n"
         s += "\t( (or ( (%s) <= MAX_COST) (NO_COST_LIMIT = 1)))\n\n" % self.crn.get_cost()
 
 
         if len(self.crn.lambda_variables) > 0:
-            s += "\n\t#Integer encoding of lambda variables\n"
+            s += "\n\t// Integer encoding of lambda variables\n"
         for lam in self.crn.lambda_variables:
             s += lam.dRealformat_constraint()
 
         if len(self.crn.choice_variables) > 0:
-            s += "\n\t #Integer encoding of choice variables\n"
+            s += "\n\t // Integer encoding of choice variables\n"
         for c in self.crn.choice_variables:
             s += c.dRealformat_constraint()
         if len(self.crn.choice_variables) > 0:
-            s += "\n\t #Integer encoding of optional reaction variables\n"
+            s += "\n\t // Integer encoding of optional reaction variables\n"
         for optional_reaction in self.crn.optionalReactions:
             s += "\t(or (%s = 0) (%s = 1))\n" % (optional_reaction.variable_name, optional_reaction.variable_name)
 
         if len(self.crn.joint_choice_variables) > 0:
-            s += "\n\t #Integer encoding of joint choice variables\n"
+            s += "\n\t // Integer encoding of joint choice variables\n"
         for joint_choice_variables in self.crn.joint_choice_variables:
             s += joint_choice_variables.dRealformat_constraint()
 
 
         if len(self.crn.real_species) > 0:
-            s += "\n\t #Limits on initial conditions\n"
+            s += "\n\t // Limits on initial conditions\n"
         for sp in self.crn.real_species:
             s += sp.dRealInitialization()
 
         if len(self.crn.input_species) > 0:
-            s += "\n\t #Initial conditions of inputs\n"
+            s += "\n\t // Initial conditions of inputs\n"
         for sp in self.crn.input_species:
             s += sp.dRealInitialization()
 
@@ -487,7 +487,7 @@ class Mode:
         s = "\n\n"
 
         for invariant in self.invariants:
-            s += "\t #transition into mode %s\n" % self.modeName
+            s += "\t // transition into mode %s\n" % self.modeName
             if invariant[0] is not None:
                 s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
             s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
