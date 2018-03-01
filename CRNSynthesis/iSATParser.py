@@ -214,12 +214,13 @@ class Transition:
         s = ''
         if len(self.modes) is not 0:
             for i in range(1, len(self.modes)):
+                mode = self.modes[i]
                 s += "{ mode %s;\n\n" % i
 
                 #mode invariants
                 s += "invt: "
                 s += "\n\n\t #invariant conditions during modes\n"
-                s += "\t " +  ''.join(self.modes[1])  + ";"
+                s += "\t " +  ''.join(mode[1])  + ";"
 
                 #flow variables
                 s += 'flow: \n\n'
@@ -259,7 +260,7 @@ class Transition:
                 #mode jump
                 s += "\n\njump: "
                 s += "\n\n\t #jump conditions during modes\n"
-                s += "\t " +  ''.join(self.modes[2])  + ";\n"
+                s += "\t " +  ''.join(mode[2])  + ";\n"
 
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
                 s += "\t ( and " + "".join(terms) + ");"
