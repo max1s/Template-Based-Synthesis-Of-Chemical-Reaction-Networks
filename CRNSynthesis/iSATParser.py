@@ -70,47 +70,47 @@ class Declaration:
         s += "\tdefine MAX_COST 100\n"
         s += "\tdefine NO_COST_LIMIT 0\n\n"
 
-        s += "\t# declare time variables\n"
+        s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
 
 
         if len(self.crn.real_species) > 0:
-            s += "\n\t #Define State Variables\n"
+            s += "\n\t//Define State Variables\n"
         for d in self.crn.real_species:
             s += d.dRealDefinition()
 
         if len(self.crn.input_species) > 0:
-            s += "\n\t  #Define Input Variables\n"
+            s += "\n\t// Define Input Variables\n"
         for d in self.crn.input_species:
             s += d.dRealDefinition()
 
         if len(self.crn.derivatives) > 0:
-            s += "\n\t #Define Derivative Variables\n"
+            s += "\n\t// Define Derivative Variables\n"
         for d in self.crn.derivatives:
             s += "\t[-4, 4] %s;\n" % d["name"]
 
         if len(self.crn.lambda_variables) > 0:
-            s += "\n\t #Lambda Variables\n"
+            s += "\n\t// Lambda Variables\n"
         for lam in self.crn.lambda_variables:
             s += lam.dRealDefinition() + "\n"
 
         if len(self.crn.choice_variables) > 0:
-            s += "\n\t #Choice Variables\n"
+            s += "\n\t// Choice Variables\n"
         for c in self.crn.choice_variables:
             s += c.dRealDefinition() + "\n"
 
         if len(self.crn.joint_choice_variables) > 0:
-            s += "\n\t #Joint choice Variables\n"
+            s += "\n\t// Joint choice Variables\n"
         for c in self.crn.joint_choice_variables:
             s += c.dRealDefinition() + "\n"
 
         if len(self.crn.optionalReactions) > 0:
-            s += "\n\t #Optional Reaction Variables\n"
+            s += "\n\t// Optional Reaction Variables\n"
         for optional_reaction in self.crn.optionalReactions:
             s += "\t[0, 1] %s;\n" % optional_reaction.variable_name
 
         if len(self.crn.getRateConstants()) > 0:
-            s += "\n\t #Rate constants\n"
+            s += "\n\t// Rate constants\n"
         for rate in self.crn.getRateConstants():
             s += "\t [%s, %s] %s;\n" % (rate.min, rate.max, rate.name)
 
@@ -254,7 +254,7 @@ class Transition:
                     s += "\t(d/dt[%s] = 0);\n" % c.variable_name
 
 
-                s += "\n\n\t-- Flows\n"
+                s += "\n\n\t// Flows\n"
                 s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
 
                 #mode jump
