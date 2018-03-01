@@ -66,9 +66,9 @@ class Declaration:
 
         s = "\n #define MAX_TIME 1\n"  # TODO: set this sensibly
 
-        s += "\t# declare cost variables\n"
-        s += "\tdefine MAX_COST 100\n"
-        s += "\tdefine NO_COST_LIMIT 0\n\n"
+        s += "\t// declare cost variables\n"
+        s += "\t#define MAX_COST 100\n"
+        s += "\t#define NO_COST_LIMIT 0\n\n"
 
         s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
