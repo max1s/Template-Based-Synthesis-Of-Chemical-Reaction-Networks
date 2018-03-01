@@ -258,32 +258,23 @@ class Transition:
                 s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
 
                 #mode jump
-                s += "\n\njump: "
-                s += "\n\n\t // jump conditions during modes\n"
-                s += "\t " +  ''.join(mode[2])  + ";\n"
-
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
-                s += "\t ( and " + "".join(terms) + ");"
 
                 for c in self.crn.choice_variables:
-                    terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in
-                             list(range(c.minValue, c.maxValue + 1))]
-                    s += "\t ( and " + "".join(terms) + ");"
+                    terms.extend(["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in list(range(c.minValue, c.maxValue + 1))])
 
-                    s += "\t ( and " + "".join(terms) + ");"
+                terms.extend(["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()])
+                terms.extend(["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions])
 
-                    terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
-                    s += "\t ( and " + "".join(terms)  + ");"
-
-                    terms = ["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions]
-                    s += "\t ( and " + "".join(terms)  + ");"
-
-
-                terms = []
                 for lambda_choice in self.crn.lambda_variables:
                     terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
-                s += "\t ( and " + "".join(terms)  + ");"
-                s += "\n"
+
+                s += "\n\njump: "
+                s += "\n\n\t // jump conditions during modes\n"
+                invariants = "\t ( and " + "".join(terms) + ");"
+                s += "%s ==> @%s %s\n" % (mode[2], i+1, invariants)
+
+
 
                 s += "\n\n }"
 
