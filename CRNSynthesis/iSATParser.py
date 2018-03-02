@@ -8,6 +8,7 @@ class Declaration:
         s = "\nDECL \n"
 
         s += "define MAX_TIME = 1;\n"  # TODO: set this sensibly
+        s += "\tdefine SF = 1000;\n"
 
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
@@ -30,7 +31,7 @@ class Declaration:
         if len(self.crn.derivatives) > 0:
             s += "\n\t-- Define Derivative Variables\n"
         for d in self.crn.derivatives:
-            s += "\tfloat [0, 10] %s;\n" % d["name"]
+            s += "\tfloat [-4, 4] %s;\n" % d["name"]
 
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t-- Lambda Variables\n"
@@ -228,7 +229,7 @@ class Transition:
                 #mode invariants
                 s += "invt: "
                 s += "\n\n\t // invariant conditions during modes\n"
-                s += "\t " +  ''.join(mode[1])  + ";"
+                s += "\t " + ''.join(mode[1]) + ";"
 
                 #flow variables
                 s += '\n\nflow: \n'
@@ -284,8 +285,6 @@ class Transition:
                 s += "\n\n\t // jump conditions during modes\n"
                 invariants = "\t ( and " + "".join(terms) + ");"
                 s += "%s ==> @%s %s\n" % (mode[2], mode_index+2, invariants)
-
-
 
                 s += "\n\n }"
 
@@ -452,7 +451,7 @@ class Flow:
         if str(self.variable) in derivative_names:
             return "\t(%s = %s)" % (self.variable, flow)
         else:
-            return "\t(d.%s/d.%s  = %s)" % (self.variable, self.time, flow)
+            return "\t(d.%s/d.%s  = SF*(%s))" % (self.variable, self.time, flow)
 
     def constructdReal(self):
         flow = str(self.flow).replace('**', '^')
