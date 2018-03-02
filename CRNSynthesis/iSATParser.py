@@ -67,6 +67,7 @@ class Declaration:
     def constructdReal(self):
 
         s = "\n #define MAX_TIME 1\n"  # TODO: set this sensibly
+        s += "\t#define SF 1000\n\n"
 
         s += "\t// declare cost variables\n"
         s += "\t#define MAX_COST 100\n"
@@ -456,7 +457,7 @@ class Flow:
         derivative_names = [x["name"] for x in self.crn.derivatives]
 
         if str(self.variable) not in derivative_names:
-            return "\td/dt[%s]  = %s;" % (self.variable, flow)
+            return "\td/dt[%s]  = SF*(%s);" % (self.variable, flow)
 
     def constructdRealDerivativeDefinitions(self):
         flow = str(self.flow).replace('**', '^')
