@@ -6,8 +6,11 @@ from os import walk
 
 class SolverCaller():
     
-    def __init__(self, model_path="./bellshape.hys"):
-        self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
+    def __init__(self, model_path="./bellshape.hys", isat_path=""):
+
+        self.isat_path = isat_path
+        if not isat_path:
+            self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
         self.results_folder = "/bellshaperesults"
         self.model_path = model_path
