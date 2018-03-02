@@ -221,9 +221,9 @@ class Transition:
     def constructdReal(self):
         s = ''
         if len(self.modes) is not 0:
-            for i in range(1, len(self.modes)):
-                mode = self.modes[i]
-                s += "{ mode %s;\n\n" % i
+            for mode_index in range(0, len(self.modes)):
+                mode = self.modes[mode_index]
+                s += "{ mode %s;\n\n" % (mode_index+1)
 
                 #mode invariants
                 s += "invt: "
@@ -283,7 +283,7 @@ class Transition:
                 s += "\n\njump: "
                 s += "\n\n\t // jump conditions during modes\n"
                 invariants = "\t ( and " + "".join(terms) + ");"
-                s += "%s ==> @%s %s\n" % (mode[2], i+1, invariants)
+                s += "%s ==> @%s %s\n" % (mode[2], mode_index+2, invariants)
 
 
 
