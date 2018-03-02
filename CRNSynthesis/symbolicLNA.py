@@ -46,7 +46,7 @@ class Species:
         return self.name
 
     def iSATDefinition(self):
-        return "\tfloat[0, %s] %s;\n" % (10, self.name)
+        return "\tfloat[0, %s] %s;\n" % (1, self.name)
 
     def iSATInitialization(self):
         if self.initial_value:
