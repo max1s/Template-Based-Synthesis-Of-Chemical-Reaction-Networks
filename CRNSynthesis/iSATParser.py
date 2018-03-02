@@ -277,9 +277,11 @@ class Transition:
                     terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
 
                 s += "\n\njump: "
-                s += "\n\n\t // jump conditions during modes\n"
-                invariants = "\t ( and " + "".join(terms) + ");"
-                s += "%s ==> @%s %s\n" % (mode[2], mode_index+2, invariants)
+
+                if (mode_index + 1) < len(self.modes):
+                    s += "\n\n\t // jump conditions during modes\n"
+                    invariants = "\t ( and " + "".join(terms) + ");"
+                    s += "%s ==> @%s %s\n" % (mode[2], mode_index+2, invariants)
 
                 s += "\n\n }"
 
@@ -387,7 +389,7 @@ class Initial:
     def constructdReal(self):
         s = "\ninit:\n\n"
 
-        s += " @1 ( and (time = 0) \n"
+        s += " @1 (and\n"
         s += "\t // cost condition\n"
         s += "\t( (or ( (%s) <= MAX_COST) (NO_COST_LIMIT = 1)))\n\n" % self.crn.get_cost()
 
@@ -519,7 +521,7 @@ class Post:
             post_condition = ""
 
         s = "\n\ngoal: \n"
-        s += "\t@%s and %s;\n" % (len(self.modes), self.time, post_condition)
+        s += "\t@%s %s;\n" % (len(self.modes), post_condition)
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
