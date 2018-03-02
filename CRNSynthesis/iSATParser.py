@@ -93,11 +93,6 @@ class Declaration:
         for d in self.crn.input_species:
             s += d.dRealDefinition()
 
-        if len(self.crn.derivatives) > 0:
-            s += "\n\t// Define Derivative Variables\n"
-        for d in self.crn.derivatives:
-            s += "\t[-4, 4] %s;\n" % d["name"]
-
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t// Lambda Variables\n"
         for lam in self.crn.lambda_variables:
