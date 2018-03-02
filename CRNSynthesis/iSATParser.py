@@ -524,7 +524,7 @@ class Post:
             post_condition = ""
 
         s = "\n\ngoal: \n"
-        s += "\t@%s and (time < %s) %s;\n" % (len(self.modes), self.time, post_condition)
+        s += "\t@%s and %s;\n" % (len(self.modes), self.time, post_condition)
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
