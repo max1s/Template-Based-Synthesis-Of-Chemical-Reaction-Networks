@@ -3,6 +3,7 @@ import re
 import io
 import os
 from os import walk
+from sympy import sympify
 
 class SolverCaller():
     
@@ -74,6 +75,7 @@ class SolverCaller():
         p2 = re.compile(r".+?\[(.+?),(.+?)].+")
 
         var_values = {}
+        all_values = {} # includes state variables
         var_name = False
         with open(file_path, "r") as f:
             for line in f:
@@ -90,24 +92,33 @@ class SolverCaller():
 
                     if var_name not in var_values.keys():
                         var_values[var_name] = values
+                        all_values[var_name] = values
 
                     elif var_values[var_name] != values:
                         # if we've already recorded a different value, it's because value changes between modes
                         # it's not a constant parameter, so don't record it
                         var_values.pop(var_name, None)
 
-        return var_values
+        return var_values, all_values
 
+    def get_full_solution(self, crn, flow, vals):
+        initial_conditions = {}
 
-    def get_parametrised_flow(self, flow,  var_values):
-        # Substitutes values from getCRNValues into original dict of flows
-        mean_var_values = {}
-        for var_name in var_values:
-            r = var_values[var_name]
-            mean_var_values[var_name] = (float(r[0]) + float(r[1])) / 2
+        var_names = [str(var) for var in flow.keys()]
 
-        parametrised_flow = {}
-        for state_var in flow:
-            parametrised_flow[state_var] = flow[state_var].subs(mean_var_values).simplify()
+        for val in vals:
+            if val in var_names:
+                initial_conditions[val] = (float(vals[val][0]) + float(vals[val][1])) / 2
+            else:
+                for x in flow:
+                    mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
+                    flow[x] = flow[x].subs(val, mean_val)
 
-        return parametrised_flow
+        parametrised_flow = dict(flow)
+        for x in crn.derivatives:
+            derivative_symbol = sympify(x["name"])
+            del parametrised_flow[derivative_symbol]
+            del initial_conditions[str(derivative_symbol)]
+
+        return initial_conditions, parametrised_flow
+
