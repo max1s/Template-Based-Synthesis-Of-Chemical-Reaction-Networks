@@ -31,9 +31,14 @@ specification = [('', 'dK_dt >= 0', '((K > 0.3) and (dK_dt < 0.001))'), ('', 'dK
 crn = formCRN()
 flow = crn.flow(False, derivatives)
 hys = iSATParser.constructISAT(crn, specification, flow)
-
 with open('bellshape.hys', 'w') as file:
     file.write(hys)
+
+specification_dreal = [('', 'dK_dt >= 0', '(and (K > 0.3) (dK_dt < 0.001))'), ('', 'dK_dt <= 0', '(and (K >= 0)(K < 0.1))')]
+drh = iSATParser.constructdReal(crn, specification_dreal, flow)
+with open('bellshape.drh', 'w') as file:
+    file.write(drh)
+
 
 sc = SolverCaller("./bellshape.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
