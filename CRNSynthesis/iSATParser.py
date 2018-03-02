@@ -1,7 +1,8 @@
 class Declaration:
-    def __init__(self, crn, numModes):
+    def __init__(self, crn, numModes, flows):
         self.crn = crn
         self.numModes = numModes
+        self.flows = flows
 
     def constructiSAT(self):
         s = "\nDECL \n"
@@ -69,6 +70,13 @@ class Declaration:
         s += "\t// declare cost variables\n"
         s += "\t#define MAX_COST 100\n"
         s += "\t#define NO_COST_LIMIT 0\n\n"
+
+        s += "\t// define derivatives\n"
+        for x in self.flows:
+            f = x.constructdRealDerivativeDefinitions()
+            if f:
+                s += "\t%s\n" % f
+        s += "\n"
 
         s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
@@ -255,7 +263,10 @@ class Transition:
 
 
                 s += "\n\n\t// Flows\n"
-                s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
+                for x in self.flow:
+                    f = x.constructdReal()
+                    if f:
+                        s += '\t%s\n' % (f)
 
                 #mode jump
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
@@ -448,10 +459,16 @@ class Flow:
 
         derivative_names = [x["name"] for x in self.crn.derivatives]
 
+        if str(self.variable) not in derivative_names:
+            return "\td/dt[%s]  = %s;" % (self.variable, flow)
+
+    def constructdRealDerivativeDefinitions(self):
+        flow = str(self.flow).replace('**', '^')
+
+        derivative_names = [x["name"] for x in self.crn.derivatives]
+
         if str(self.variable) in derivative_names:
-            return "\t(%s = %s)" % (self.variable, flow)
-        else:
-            return "\td/dt[%s]  = %s" % (self.variable, flow)
+            return "\t#define %s  (%s)" % (self.variable, flow)
 
 
 class Mode:
@@ -515,7 +532,7 @@ def constructISAT(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
-    d = Declaration(crn, numModes).constructiSAT()
+    d = Declaration(crn, numModes, []).constructiSAT()
     i = Initial(crn, numModes, other_constraints).constructiSAT()
     t = Transition(crn, m_flow, modes).constructiSAT()
     p = Post(1, modes).constructiSAT()  # TODO: set maxtime
@@ -526,7 +543,7 @@ def constructISAT(crn, modes, flow, other_constraints=False):
 def constructdReal(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
-    d = Declaration(crn, numModes).constructdReal()
+    d = Declaration(crn, numModes, m_flow).constructdReal()
     i = Initial(crn, numModes, other_constraints).constructdReal()
     t = Transition(crn, m_flow, modes).constructdReal()
     p = Post(1, modes).constructdReal()
