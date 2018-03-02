@@ -341,7 +341,8 @@ class Choice:
                 terms.append("(%s_%s = %s)" % (self.name, j, int(i==j)))
             clauses.append(" ( and " + "".join(terms) + ")")
 
-        return "\t ( or " + " ".join([" (%s) " % clause for clause in clauses])
+        alternatives = " ".join([" (%s) " % clause for clause in clauses])
+        return "\t ( or %s) " % alternatives
 
     def iSATDefinition(self):
         s = ""
