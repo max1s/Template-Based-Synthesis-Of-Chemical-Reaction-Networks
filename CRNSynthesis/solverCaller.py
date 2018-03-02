@@ -37,7 +37,7 @@ class SolverCaller():
     # This function edits the cost within the " + self.model_name + " file such that we can automate the synthesis experiment
     # If the cost is 0 we comment out references to cost in the .hys file.
     def editCost(self, cost):
-        with open(self.model_path, 'r+') as f:
+        with open(self.model_path, 'r') as f:
             lines = f.read().split('\n')
 
             for line_number, line in enumerate(lines):
@@ -50,7 +50,7 @@ class SolverCaller():
                     else:
                         lines[line_number] = "define NO_COST_LIMIT = 0;"
 
-            f.seek(0)
+        with open(self.model_path, 'w') as f:
             f.write('\n'.join(lines))
 
     def costCallSolver(self, precision, cost, otherPrams, max_depth=2):
