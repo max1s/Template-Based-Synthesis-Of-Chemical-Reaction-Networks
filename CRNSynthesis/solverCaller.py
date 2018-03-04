@@ -72,7 +72,7 @@ class SolverCaller():
     def getCRNValues(self, file_path):
         # Return a dictionary containing the ranges for each parameter as returned from the solver
         p = re.compile(r"(.+?) \(.+?\):")
-        p2 = re.compile(r".+?\[(.+?),(.+?)].+")
+        p2 = re.compile(r".+?[\[\(](.+?),(.+?)[\]\)].+")
 
         var_values = {}
         all_values = {} # includes state variables
