@@ -2,7 +2,7 @@ from CRNSynthesis.symbolicLNA import *
 from CRNSynthesis import iSATParser
 from CRNSynthesis.solverCaller import SolverCaller
 from sympy import init_printing, Matrix, transpose, pprint
-
+from numpy import savetxt
 
 def formCRN():
     K = Species('K')
@@ -53,4 +53,10 @@ for file_name in result_files:
 
     print("Initial Conditions", initial_conditions)
     print("Flow:", parametrised_flow)
+
+    t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
+    print("\n\n")
+    print(variable_names)
+    print(sol)
+    savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 

@@ -4,6 +4,8 @@ import io
 import os
 from os import walk
 from sympy import sympify
+from scipy.integrate import odeint
+import numpy as np
 
 class SolverCaller():
     
@@ -118,7 +120,33 @@ class SolverCaller():
         for x in crn.derivatives:
             derivative_symbol = sympify(x["name"])
             del parametrised_flow[derivative_symbol]
-            del initial_conditions[str(derivative_symbol)]
+            # del initial_conditions[str(derivative_symbol)]
 
         return initial_conditions, parametrised_flow
 
+
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False):
+        if not t:
+            t = np.linspace(0, 1, 100)
+
+        ic = []
+        species_list = parametrised_flow.keys()
+        for i, species in enumerate(species_list):
+            ic.append(initial_conditions[str(species)])
+
+        sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
+        variable_names = [str(x) for x in parametrised_flow]
+        return t, sol, variable_names
+
+    def gradient_function(self, X, t, flow, species_list):
+        vals = {"t": t}
+
+        for i, species in enumerate(species_list):
+            vals[species] = X[i]
+
+        result = []
+
+        for species in flow:
+            result.append(flow[species].evalf(subs=vals))
+
+        return result
