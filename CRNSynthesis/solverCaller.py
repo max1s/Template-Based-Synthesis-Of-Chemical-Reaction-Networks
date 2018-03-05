@@ -7,16 +7,11 @@ from sympy import sympify
 from scipy.integrate import odeint
 import numpy as np
 
-class SolverCaller():
-    
-    def __init__(self, model_path="./bellshape.hys", isat_path=""):
-
-        self.isat_path = isat_path
-        if not isat_path:
-            self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
+class SolverCaller(object):
+    def __init__(self, model_path="./bellshape.hys"):
+        self.model_path = model_path
 
         self.results_folder = "/bellshaperesults"
-        self.model_path = model_path
 
         directory_name, file_name = os.path.split(model_path)
         self.model_name, _ = os.path.splitext(file_name)
@@ -30,19 +25,55 @@ class SolverCaller():
         return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
+        pass
+
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False):
+        if not t:
+            t = np.linspace(0, 1, 100)
+
+        ic = []
+        species_list = parametrised_flow.keys()
+        for i, species in enumerate(species_list):
+            ic.append(initial_conditions[str(species)])
+
+        sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
+        variable_names = [str(x) for x in parametrised_flow]
+        return t, sol, variable_names
+
+    @staticmethod
+    def gradient_function(X, t, flow, species_list):
+        vals = {"t": t}
+
+        for i, species in enumerate(species_list):
+            vals[species] = X[i]
+
+        result = []
+
+        for species in flow:
+            result.append(flow[species].evalf(subs=vals))
+
+        return result
+
+
+class SolverCallerISAT(SolverCaller):
+    def __init__(self, model_path="./bellshape.hys", isat_path=""):
+        super(SolverCallerISAT, self).__init__(model_path)
+
+        self.isat_path = isat_path
+        if not isat_path:
+            self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
+
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
-            self.editCost(cost)
-            result_file_name = self.costCallSolver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon')
+            self.edit_cost(cost)
+            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon')
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
 
-
-    # This function edits the cost within the " + self.model_name + " file such that we can automate the synthesis experiment
-    # If the cost is 0 we comment out references to cost in the .hys file.
-    def editCost(self, cost):
+    def edit_cost(self, cost):
         with open(self.model_path, 'r') as f:
             lines = f.read().split('\n')
 
@@ -59,7 +90,7 @@ class SolverCaller():
         with open(self.model_path, 'w') as f:
             f.write('\n'.join(lines))
 
-    def costCallSolver(self, precision, cost, otherPrams, max_depth=2):
+    def call_solver(self, precision, cost, otherPrams, max_depth=2):
         out_file = os.path.join(self.results_dir, "%s_%s_%s.txt" % (self.model_name, cost, precision))
         command = "%s --i %s --prabs=%s --msw=%s --max-depth=%s %s " % \
                   (self.isat_path, self.model_path, precision, precision * 5, max_depth, otherPrams)
@@ -125,28 +156,51 @@ class SolverCaller():
         return initial_conditions, parametrised_flow
 
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False):
-        if not t:
-            t = np.linspace(0, 1, 100)
+class SolverCallerDReal(SolverCaller):
 
-        ic = []
-        species_list = parametrised_flow.keys()
-        for i, species in enumerate(species_list):
-            ic.append(initial_conditions[str(species)])
+    def __init__(self, model_path="./bellshape.hys", dreal_path=""):
+        super(SolverCallerDReal, self).__init__(model_path)
+        self.dreal_path = dreal_path
 
-        sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
-        variable_names = [str(x) for x in parametrised_flow]
-        return t, sol, variable_names
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
+        cost = max_cost
+        result_file_names = []
+        while cost >= min_cost:
+            self.edit_cost(cost)
+            result_file_name = self.call_solver(precision, cost, '')
+            result_file_names.append(result_file_name)
+            cost -= 1
+        return result_file_names
 
-    def gradient_function(self, X, t, flow, species_list):
-        vals = {"t": t}
 
-        for i, species in enumerate(species_list):
-            vals[species] = X[i]
+    def edit_cost(self, cost):
+        with open(self.model_path, 'r') as f:
+            lines = f.read().split('\n')
 
-        result = []
+            for line_number, line in enumerate(lines):
+                if "define MAX_COST = " in line:
+                    lines[line_number] = "#define MAX_COST %s" % cost
 
-        for species in flow:
-            result.append(flow[species].evalf(subs=vals))
+                if "define NO_COST_LIMIT = " in line:
+                    if cost == 0:
+                        lines[line_number] = "#define NO_COST_LIMIT 1"
+                    else:
+                        lines[line_number] = "#define NO_COST_LIMIT 0;"
 
-        return result
+        with open(self.model_path, 'w') as f:
+            f.write('\n'.join(lines))
+
+    def call_solver(self, precision, cost, otherPrams, max_depth=2):
+        out_file = os.path.join(self.results_dir, "%s_%s_%s.txt" % (self.model_name, cost, precision))
+        command = "%s -k %s %s --precision %s %s" % \
+                  (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
+
+        with open(out_file, "w") as f:
+            print("Calling solver!\n " + command)
+            sub.call(command.split(), stdout=f, stderr=sub.PIPE)
+
+        return out_file
+
+    def getCRNValues(self, file_path):
+        raise NotImplementedError
+

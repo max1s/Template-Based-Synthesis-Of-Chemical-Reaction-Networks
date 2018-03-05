@@ -1,6 +1,6 @@
 from CRNSynthesis.symbolicLNA import *
 from CRNSynthesis import iSATParser
-from CRNSynthesis.solverCaller import SolverCaller
+from CRNSynthesis.solverCaller import SolverCallerISAT, SolverCallerDReal
 from sympy import init_printing, Matrix, transpose, pprint
 from numpy import savetxt
 
@@ -40,7 +40,8 @@ with open('bellshape.drh', 'w') as file:
     file.write(drh)
 
 
-sc = SolverCaller("./bellshape.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+# Try to solve using iSAT
+sc = SolverCallerISAT("./bellshape.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
 result_files = sc.single_synthesis(cost=0)
 
@@ -60,3 +61,7 @@ for file_name in result_files:
     print(sol)
     savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 
+
+# Try to solve using dReal
+sc = SolverCallerDReal("./bellshape.hys", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+result_files = sc.single_synthesis(cost=0)
