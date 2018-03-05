@@ -6,6 +6,7 @@ from os import walk
 from sympy import sympify
 from scipy.integrate import odeint
 import numpy as np
+import json
 
 class SolverCaller(object):
     def __init__(self, model_path="./bellshape.hys"):
@@ -107,7 +108,7 @@ class SolverCallerISAT(SolverCaller):
         p = re.compile(r"(.+?) \(.+?\):")
         p2 = re.compile(r".+?[\[\(](.+?),(.+?)[\]\)].+")
 
-        var_values = {}
+        constant_values = {}
         all_values = {} # includes state variables
         var_name = False
         with open(file_path, "r") as f:
@@ -123,16 +124,16 @@ class SolverCallerISAT(SolverCaller):
                     # save this row's values
                     values = p2.match(line).groups()
 
-                    if var_name not in var_values.keys():
-                        var_values[var_name] = values
+                    if var_name not in constant_values.keys():
+                        constant_values[var_name] = values
                         all_values[var_name] = values
 
-                    elif var_values[var_name] != values:
+                    elif constant_values[var_name] != values:
                         # if we've already recorded a different value, it's because value changes between modes
                         # it's not a constant parameter, so don't record it
-                        var_values.pop(var_name, None)
+                        constant_values.pop(var_name, None)
 
-        return var_values, all_values
+        return constant_values, all_values
 
     def get_full_solution(self, crn, flow, vals):
         initial_conditions = {}
@@ -202,5 +203,27 @@ class SolverCallerDReal(SolverCaller):
         return out_file
 
     def getCRNValues(self, file_path):
-        raise NotImplementedError
+        with open(file_path) as f:
+            result = json.load(f)
 
+        constant_values = {}
+        all_values = {}  # includes state variables
+
+        for t in result["traces"][0]:
+            var_name = t["key"].replace("_0_0", "")
+
+            interval = t["values"][0]["enclosure"]
+
+            single_value = True
+
+            for v in t["values"]:
+                # if i[0] != interval[0] or i[1] != interval[1] :
+                if v["enclosure"] != interval:
+                    single_value = False
+                    break
+
+            if single_value:
+                constant_values[var_name] = interval
+            all_values[var_name] = interval
+
+        return constant_values, all_values
