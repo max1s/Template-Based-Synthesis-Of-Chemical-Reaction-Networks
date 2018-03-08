@@ -186,6 +186,18 @@ class Reaction(object):
             propensity *= sympify(self.variable_name)
         return propensity
 
+class ArbitraryRateReaction(Reaction):
+        def __init__(self, r, p, ra, constants):
+            super(ArbitraryRateReaction, self).__init__(r, p, ra)
+            self.reactionrate = sympify(ra) # rate is a sympy formula, rather than constant
+            self.constants = constants
+
+        def get_rate_constants(self):
+            return self.constants
+
+        def get_propensity(self):
+            return self.reactionrate
+
 
 class HillActivationReaction(Reaction):
     def __init__(self, r, p, Kmax, Ka, n):
