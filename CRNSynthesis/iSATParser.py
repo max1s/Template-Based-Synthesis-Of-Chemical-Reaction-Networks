@@ -142,8 +142,9 @@ class Transition:
 
         s += "\n\n\t-- invariant conditions during modes\n"
         for mode_index, mode in enumerate(self.modes):
-            s += "\tmode_%s  -> (%s);\n" % (mode_index+1, mode[1])
-            s += "\tmode_%s'  -> (%s);\n" % (mode_index+1, mode[1])
+            if mode[1]:
+                s += "\tmode_%s  -> (%s);\n" % (mode_index+1, mode[1])
+                s += "\tmode_%s'  -> (%s);\n" % (mode_index+1, mode[1])
 
         s += "\n\t-- jump conditions between modes\n"
         for mode_index, mode in enumerate(self.modes[:-1]):
