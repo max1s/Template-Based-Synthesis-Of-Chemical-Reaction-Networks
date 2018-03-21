@@ -43,6 +43,33 @@ def AMExample():
     return iSATParser.constructISAT(crn, specification, flow, costFunction='')
 
 
+def exampleLotkaOscillator(solver='iSAT'):
+    A = Species('A')
+    B = Species('B')
+
+    k1 = RateConstant('k_1', 0.01, 2)
+    k2 = RateConstant('k_2', 0.01, 2)
+    k3 = RateConstant('k_3', 0.01, 2)
+
+    reaction1 = Reaction([Term(A, 1)],[Term(A, 2)], k1)
+    reaction2 = Reaction([Term(A,1),Term(B,1)], [Term(B, 2)], k2)
+    reaction3 = Reaction([Term(B,1)],[], k3)
+
+    crn = CRNSketch([reaction1, reaction2, reaction3], [], [])
+
+    isLNA = False
+    derivatives = [{"variable": 'A', "order": 1, "is_variance": False, "name": "A_dot"},
+                   {"variable": 'B', "order": 1, "is_variance": False, "name": "B_dot"}]
+
+    specification = [(0.2, 'A_dot = 0'), (0.2, 'A_dot < 0 or A_dot > 0')]
+
+    flow = crn.flow(isLNA, derivatives)
+    if solver is 'iSAT':
+        return iSATParser.constructISAT(crn, specification, flow)
+    elif solver is 'dReal':
+        return iSATParser.constructdReal(crn, specification, flow)
+
+
 def exampleParametricCRN():
 
     X = Species('X')
