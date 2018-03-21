@@ -288,7 +288,7 @@ class Transition:
                 s += "\n\n }"
 
         else:
-            s += "{mode 1;"
+            s += "{mode 1; \n"
             s += "invt: "
             s += "\t"
 
@@ -321,7 +321,7 @@ class Transition:
                 s += "\td/dt[%s] = 0;\n" % c.variable_name
 
             s += "\n\n\t-- Flows\n"
-            s += ''.join(['\t%s;\n' % (x.constructdReal()) for x in self.flow])
+            s += ''.join(['\t%s\n\n' % (x.constructdReal()) for x in self.flow])
 
 
                 # mode jump

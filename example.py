@@ -206,6 +206,7 @@ def complete_process():
 
 def dReal_process(filename):
     problem_string = exampleParametricCRN()
+    print problem_string
     with open("./" + filename, "w") as f:
         f.write(problem_string)
 
