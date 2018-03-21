@@ -159,7 +159,7 @@ class SolverCallerISAT(SolverCaller):
 
 class SolverCallerDReal(SolverCaller):
 
-    def __init__(self, model_path="./bellshape.hys", dreal_path=""):
+    def __init__(self, model_path="./bellshape.hys", dreal_path="/Users/maxtby/local/bin/dreach"):
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
 
@@ -203,27 +203,30 @@ class SolverCallerDReal(SolverCaller):
         return out_file
 
     def getCRNValues(self, file_path):
+        results = ''
         with open(file_path) as f:
-            result = json.load(f)
+            results = f.read()
 
-        constant_values = {}
-        all_values = {}  # includes state variables
+        return results
 
-        for t in result["traces"][0]:
-            var_name = t["key"].replace("_0_0", "")
-
-            interval = t["values"][0]["enclosure"]
-
-            single_value = True
-
-            for v in t["values"]:
-                # if i[0] != interval[0] or i[1] != interval[1] :
-                if v["enclosure"] != interval:
-                    single_value = False
-                    break
-
-            if single_value:
-                constant_values[var_name] = interval
-            all_values[var_name] = interval
-
-        return constant_values, all_values
+        # constant_values = {}
+        # all_values = {}  # includes state variables
+        #
+        # for t in results["traces"][0]:
+        #     var_name = t["key"].replace("_0_0", "")
+        #
+        #     interval = t["values"][0]["enclosure"]
+        #
+        #     single_value = True
+        #
+        #     for v in t["values"]:
+        #         # if i[0] != interval[0] or i[1] != interval[1] :
+        #         if v["enclosure"] != interval:
+        #             single_value = False
+        #             break
+        #
+        #     if single_value:
+        #         constant_values[var_name] = interval
+        #     all_values[var_name] = interval
+        #
+        # return constant_values, all_values

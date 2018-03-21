@@ -1,6 +1,7 @@
 from CRNSynthesis.symbolicLNA import *
 from CRNSynthesis import iSATParser
 from CRNSynthesis.solverCaller import SolverCaller
+from CRNSynthesis.solverCaller import SolverCallerDReal
 from sympy import init_printing, Matrix, transpose, pprint
 
 def exampleCRN():
@@ -203,6 +204,20 @@ def complete_process():
     print("\n\nSpecific CRN identified is:\n")
     print(sc.get_parametrised_flow(flow, param_values))
 
+def dReal_process(filename):
+    problem_string = exampleParametricCRN()
+    with open("./" + filename, "w") as f:
+        f.write(problem_string)
+
+    sc = SolverCallerDReal(model_path="./" + filename)
+    result_file = sc.single_synthesis(precision=0.1)
+    param_values = sc.getCRNValues(result_file[0])
+    print param_values
+    quit()
+    #print("\n\nSpecific CRN identified is:\n")
+    #print(sc.get_parametrised_flow(flow, param_values))
+
+
 def complete_MM():
 
     flow, problem_string = mixedMMExample()
@@ -224,10 +239,10 @@ if __name__ == "__main__":
      #print(exampleParametricCRN())
      #print(exampleParametricCRN_complete())
      #print(exampleJointAlternative())
-
+    dReal_process('test.drh', )
     # print(complete_process())
     #complete_MM()
     # print(hill_function_example())
-     f,i = mixedMMExample()
+    #f,i = mixedMMExample()
     # print i
     # SolverCaller()
