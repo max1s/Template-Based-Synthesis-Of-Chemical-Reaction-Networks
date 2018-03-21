@@ -36,7 +36,8 @@
 	 [0.1, 10] k_3;
 	 [0.1, 10] k_1;
 {mode 1; 
-invt: 	
+invt: true; 
+flow: 	
 	 
 	d/dt[k_2] = 0;
 	d/dt[k_3] = 0;
@@ -57,7 +58,7 @@ invt:
 	d/dt[o0] = 0;
 
 
-	-- Flows
+	 
 		d/dt[X]  = SF*(B*X*k_3*o0 + B*X*k_3 + Y*k_1*(-lamX1 + 1)*(X*lamX1 + Y*lamY1) + k_2*(X*lamX2 + Y*lamY2)*(-c0_1 - 2*c0_2 - lamX2)*(X^2*c0_2 + X*c0_1 + c0_0));
 
 		d/dt[B]  = SF*(-B*X*k_3*o0 - B*X*k_3 + Y*k_1*(X*lamX1 + Y*lamY1) + k_2*(X*lamX2 + Y*lamY2)*(X^2*c0_2 + X*c0_1 + c0_0));
@@ -89,5 +90,5 @@ init:
 );
 
 goal: 
-	@0 ;
+	@1 true;
 

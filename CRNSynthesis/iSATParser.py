@@ -289,7 +289,8 @@ class Transition:
 
         else:
             s += "{mode 1; \n"
-            s += "invt: "
+            s += "invt: true; \n"
+            s += "flow: "
             s += "\t"
 
             if len(self.crn.getRateConstants()) > 0:
@@ -320,7 +321,7 @@ class Transition:
             for c in self.crn.optionalReactions:
                 s += "\td/dt[%s] = 0;\n" % c.variable_name
 
-            s += "\n\n\t-- Flows\n"
+            s += "\n\n\t //Flows\n"
             s += ''.join(['\t%s\n\n' % (x.constructdReal()) for x in self.flow])
 
 
@@ -520,10 +521,10 @@ class Post:
         if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
             post_condition = "and (" + self.modes[-1][2] + ")"
         else:
-            post_condition = ""
+            post_condition = "true;"
 
         s = "\n\ngoal: \n"
-        s += "\t@%s %s;\n" % (len(self.modes), post_condition)
+        s += "\t@%s %s;\n" % (len(self.modes) + 1, post_condition)
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):

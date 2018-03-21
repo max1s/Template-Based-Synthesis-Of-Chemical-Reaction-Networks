@@ -1,4 +1,6 @@
 dReal Options: --precision 0.1
-For k = 0, there is no feasible path to check.
-For k = 1, there is no feasible path to check.
-For k = 2, there is no feasible path to check.
+SMT: ./test_0_0.smt2, PATH : [1]
+# Error: undeclared identifier  time_0_t (triggered at /Users/maxtby/src/dreal3/src/opensmt/egraph/EgraphStore.C, 598)
+For k = 0, dReach tried 1 feasible paths, all of them are unsat.
+For k = 1, dReach tried 0 feasible paths, all of them are unsat.
+For k = 2, dReach tried 0 feasible paths, all of them are unsat.
