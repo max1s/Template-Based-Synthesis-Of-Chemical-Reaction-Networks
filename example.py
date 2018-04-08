@@ -61,13 +61,45 @@ def exampleLotkaOscillator(solver='iSAT'):
     derivatives = [{"variable": 'A', "order": 1, "is_variance": False, "name": "A_dot"},
                    {"variable": 'B', "order": 1, "is_variance": False, "name": "B_dot"}]
 
-    specification = [(0.2, 'A_dot = 0'), (0.2, 'A_dot < 0 or A_dot > 0')]
+    specification = [(0.1, 'A_dot = 0'), (0.2, 'A_dot < 0 or A_dot > 0'), (0.3, 'A_dot = 0')]
 
     flow = crn.flow(isLNA, derivatives)
     if solver is 'iSAT':
         return iSATParser.constructISAT(crn, specification, flow)
     elif solver is 'dReal':
         return iSATParser.constructdReal(crn, specification, flow)
+
+
+def exampleToggleSwitch():
+    lacl = Species('lacl')
+    clts = Species('clts')
+
+    a_2 = RateConstant('a_2', 0.1, 2)
+    a_4 = RateConstant('a_4', 0.1, 2)
+
+    alpha_1 = RateConstant('alpha_1', 0.1, 5)
+    alpha_2 = RateConstant('alpha_2', 0.1, 5)
+
+    beta = RateConstant('beta', 0.1, 5)
+    gamma = RateConstant('gamma', 0.1, 5)
+
+    a_1 = alpha_1.symbol / 1 + (clts ** beta)
+    a_3 = alpha_2.symbol / 1 + (lacl ** gamma)
+
+
+    reaction = Reaction([], [lacl], a_1)
+    reaction = Reaction([lacl], [], a_2)
+    reaction = Reaction([],[clts], a_3)
+    reaction = Reaction([clts], [], a_4)
+
+    crn = CRNSketch([reaction1, reaction2, reaction3, reaction4], [], [])
+
+    isLNA = False
+    derivatives = []
+    specification = []
+
+    flow = crn.flow(isLNA, derivatives)
+    return iSATParser.constructdReal(crn, specification, flow)
 
 
 def exampleParametricCRN():
