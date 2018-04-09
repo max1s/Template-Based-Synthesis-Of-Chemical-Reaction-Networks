@@ -508,7 +508,6 @@ class CRNSketch:
             for term in terms:
                 if isinstance(term, TermChoice):
                     continue
-
                 if isinstance(term.species, LambdaChoice):
                     self.lambda_variables.add(term.species)
 
@@ -582,6 +581,7 @@ class CRNSketch:
                 a[symbols(sp)] = dSpeciesdt[i]
             else:
                 a[sp.symbol] = dSpeciesdt[i]
+
 
         if isLNA:
             jmat = [sp.symbol for sp in self.real_species]

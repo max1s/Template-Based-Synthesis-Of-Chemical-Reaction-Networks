@@ -12,15 +12,15 @@
 	[0, MAX_TIME] time;
 
 	//Define State Variables
-	[0, 10] Y;
 	[0, 10] X;
 	[0, 10] B;
+	[0, 10] Y;
 
 	// Lambda Variables
-	[0, 1] lamX2;
-	[0, 1] lamY2;
 	[0, 1] lamX1;
 	[0, 1] lamY1;
+	[0, 1] lamX2;
+	[0, 1] lamY2;
 
 	// Choice Variables
 	[0, 1] c0_0;
@@ -44,10 +44,10 @@ flow:
 	d/dt[k_1] = 0;
 
 	 // Lambda variables are fixed
-	d/dt[lamX2] = 0;
-	d/dt[lamY2] = 0;
 	d/dt[lamX1] = 0;
 	d/dt[lamY1] = 0;
+	d/dt[lamX2] = 0;
+	d/dt[lamY2] = 0;
 
 	 // Choice variables are fixed
 	d/dt[c0_0] = 0;
@@ -78,8 +78,8 @@ init:
 
 
 	// Integer encoding of lambda variables
-	 ( or ( and (lamX2 = 1)(lamY2 = 0))( and (lamX2 = 0)(lamY2 = 1)))
 	 ( or ( and (lamX1 = 1)(lamY1 = 0))( and (lamX1 = 0)(lamY1 = 1)))
+	 ( or ( and (lamX2 = 1)(lamY2 = 0))( and (lamX2 = 0)(lamY2 = 1)))
 
 	 // Integer encoding of choice variables
 	 ( or  ( ( and (c0_0 = 1)(c0_1 = 0)(c0_2 = 0)))   ( ( and (c0_0 = 0)(c0_1 = 1)(c0_2 = 0)))   ( ( and (c0_0 = 0)(c0_1 = 0)(c0_2 = 1))) ) 
@@ -90,4 +90,4 @@ init:
 );
 
 goal: 
-	@1 true;
+	@1 true;;
