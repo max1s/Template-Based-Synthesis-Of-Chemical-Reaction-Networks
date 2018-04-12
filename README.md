@@ -15,3 +15,6 @@ After downloading the code (either as a ZIP file or at the command-line using ``
 This will automatically install required dependencies ([listed here](https://github.com/max1s/CRNSynthesis/blob/master/setup.py#L12)).
 
 
+## Usage
+
+Examples of usage are contained in the [``examples/``](https://github.com/max1s/CRNSynthesis) directory. 
