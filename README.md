@@ -17,4 +17,4 @@ This will automatically install required dependencies ([listed here](https://git
 
 ## Usage
 
-Examples of usage are contained in the [``examples/``](https://github.com/max1s/CRNSynthesis) directory. 
+Examples of usage are contained in the [``examples/``](https://github.com/max1s/CRNSynthesis/tree/master/examples) directory. 
