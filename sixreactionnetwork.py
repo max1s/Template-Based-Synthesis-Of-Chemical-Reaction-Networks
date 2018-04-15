@@ -42,7 +42,7 @@ def sixReactionNetwork():
     flow = crn.flow(isLNA, derivatives)
     crn.get_cost()
 
-    return flow, iSATParser.constructISAT(crn, specification, flow)
+    return flow, iSATParser.constructdReal(crn, specification, flow)
 
 
 def complete_process():
