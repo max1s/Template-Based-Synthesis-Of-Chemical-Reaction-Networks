@@ -112,7 +112,7 @@ def exampleToggleSwitch():
 
     flow = crn.flow(isLNA, derivatives)
 
-    return iSATParser.constructISAT(crn, specification, flow)
+    return iSATParser.constructdReal(crn, specification, flow)
 
 
 def exampleParametricCRN():
