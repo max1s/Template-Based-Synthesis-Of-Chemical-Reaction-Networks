@@ -528,7 +528,7 @@ class Post:
             post_condition = "true;"
 
         s = "\n\ngoal: \n"
-        s += "\t@%s %s;\n" % (len(self.modes) + 1, post_condition)
+        s += "\t@%s %s;\n" % (len(self.modes), post_condition)
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
