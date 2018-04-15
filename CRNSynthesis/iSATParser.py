@@ -160,19 +160,23 @@ class Transition:
             terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in list(range(c.minValue, c.maxValue + 1))]
             s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
-        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+        if (len(terms) > 0):
+            s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()]
-        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+        if (len(terms) > 0):
+            s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = ["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions]
-        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+        if (len(terms) > 0):
+            s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
 
         terms = []
         for lambda_choice in self.crn.lambda_variables:
             terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
-        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
-        s += "\n"
+        if(len(terms) > 0):
+            s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+            s += "\n"
 
         if len(self.crn.getRateConstants()) > 0:
             s += "\n\t-- Rate constants are fixed\n"

@@ -15,12 +15,12 @@ def sixReactionNetwork():
     PTwo = Species('PTwo', initial_max=5)
     PThree = Species('PThree', initial_max=5)
 
-    k1 = RateConstant('k_1', 0.1, 5)
-    k2 = RateConstant('k_2', 0.1, 5)
-    k3 = RateConstant('k_3', 0.1, 5)
-    k4 = RateConstant('k_4', 0.1, 5)
-    k5 = RateConstant('k_5', 0.1, 5)
-    k6 = RateConstant('k_6', 0.1, 5)
+    k1 = RateConstant('k_1', 0, 5)
+    k2 = RateConstant('k_2', 0, 5)
+    k3 = RateConstant('k_3', 0, 5)
+    k4 = RateConstant('k_4', 0, 5)
+    k5 = RateConstant('k_5', 0, 5)
+    k6 = RateConstant('k_6', 0, 5)
 
     reaction1 = Reaction([Term(POne, 1)], [Term(PTwo, 1)], k1)
     reaction2 = Reaction([Term(PTwo, 1)], [Term(PThree, 1)], k2)
@@ -42,7 +42,7 @@ def sixReactionNetwork():
     flow = crn.flow(isLNA, derivatives)
     crn.get_cost()
 
-    return iSATParser.constructdReal(crn, specification, flow, costFunction='')
+    return flow, iSATParser.constructISAT(crn, specification, flow)
 
 
 def complete_process():
@@ -53,10 +53,11 @@ def complete_process():
 
     sc = SolverCaller("./sixreactionnetwork.hys")
     result_file = sc.single_synthesis(cost=60, precision=0.1)
-    param_values = sc.getCRNValues(result_file)
+    print result_file
+    #param_values = sc.getCRNValues(result_file)
 
-    print("\n\nSpecific CRN identified is:\n")
-    print(sc.get_parametrised_flow(flow, param_values))
+    #print("\n\nSpecific CRN identified is:\n")
+    #print(sc.get_parametrised_flow(flow, param_values))
 
 def dReal_process(filename):
     problem_string = sixReactionNetwork()
@@ -71,7 +72,8 @@ def dReal_process(filename):
     quit()
 
 if __name__ == "__main__":
-    print sixReactionNetwork()
-    # print(complete_process())
+    a,b = sixReactionNetwork()
+    print b
+   #print(complete_process())
     #complete_MM()
     # SolverCaller()

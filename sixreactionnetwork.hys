@@ -1,0 +1,104 @@
+
+DECL 
+define MAX_TIME = 1;
+	define SF = 1000;
+	-- declare time variables
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+	-- declare cost variables
+	define MAX_COST = 100;
+	define NO_COST_LIMIT = 0;
+
+	-- Define State Variables
+	float[0, 1] PTwo;
+	float[0, 1] PThree;
+	float[0, 1] POne;
+
+	-- Define Derivative Variables
+	float [-4, 4] PThree_dot;
+	float [-4, 4] PThree_dot_dot;
+
+	-- Rate constants
+	float [0.1, 5] k_2;
+	float [0.1, 5] k_1;
+	float [0.1, 5] k_4;
+	float [0.1, 5] k_5;
+	float [0.1, 5] k_3;
+	float [0.1, 5] k_6;
+
+	--Define modes
+	boole mode_1;
+	boole mode_2;
+	boole mode_3;
+
+INIT
+	time = 0;
+
+	-- cost condition
+	(((75) <= MAX_COST) or (NO_COST_LIMIT = 1));
+
+	-- cannot be in two modes at the same time. We start in mode_1.
+	mode_1 = 1;
+	mode_1 + mode_2 + mode_3 = 1;
+
+
+	-- Limits on initial conditions
+	(PTwo <= 5);
+	(PThree <= 5);
+	(POne <= 5);
+
+
+TRANS 
+
+	-- time constraint
+	time' = time + delta_time;
+
+	-- must progress through modes in order
+	 mode_1' -> mode_1;
+	mode_2' -> (mode_2 or mode_1);
+	mode_3' -> (mode_3 or mode_2);
+
+
+	-- invariant conditions during modes
+	mode_1  -> (PThree_dot = 0);
+	mode_1'  -> (PThree_dot = 0);
+	mode_2  -> (PThree_dot = 0.5);
+	mode_2'  -> (PThree_dot = 0.5);
+	mode_3  -> (PThree_dot = 0);
+	mode_3'  -> (PThree_dot = 0);
+
+	-- jump conditions between modes
+
+	-- No state change without time consumption.
+	(delta_time = 0) -> ((PTwo' = PTwo) and (PThree' = PThree) and (POne' = POne));
+	(delta_time = 0) -> ((PTwo' = PTwo) and (PThree' = PThree) and (POne' = POne));
+	(delta_time = 0) -> ((k_2' = k_2) and (k_1' = k_1) and (k_4' = k_4) and (k_5' = k_5) and (k_3' = k_3) and (k_6' = k_6));
+	(delta_time = 0) -> ();
+	(delta_time = 0) -> ();
+
+
+	-- Rate constants are fixed
+	(d.k_2/d.time = 0);
+	(k_2 = k_2');
+	(d.k_1/d.time = 0);
+	(k_1 = k_1');
+	(d.k_4/d.time = 0);
+	(k_4 = k_4');
+	(d.k_5/d.time = 0);
+	(k_5 = k_5');
+	(d.k_3/d.time = 0);
+	(k_3 = k_3');
+	(d.k_6/d.time = 0);
+	(k_6 = k_6');
+
+
+	-- Flows
+	(mode_1 or mode_2 or mode_3) -> 	(d.PTwo/d.time  = SF*(POne*k_1 + PThree*k_4 - PTwo*k_2 - PTwo*k_6));
+	(mode_1 or mode_2 or mode_3) -> 	(PThree_dot = POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2);
+	(mode_1 or mode_2 or mode_3) -> 	(PThree_dot_dot = k_2*(POne*k_1 + PThree*k_4 - PTwo*k_2 - PTwo*k_6) - k_3*(POne*k_1 + POne*k_3 - PThree*k_5 - PTwo*k_6) - k_4*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2) - k_5*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2));
+	(mode_1 or mode_2 or mode_3) -> 	(d.PThree/d.time  = SF*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2));
+	(mode_1 or mode_2 or mode_3) -> 	(d.POne/d.time  = SF*(-POne*k_1 - POne*k_3 + PThree*k_5 + PTwo*k_6));
+
+TARGET 
+	mode_3 and (time < 1) ;
