@@ -63,5 +63,5 @@ for file_name in result_files:
 
 
 # Try to solve using dReal
-sc = SolverCallerDReal("./sigmoid.hys", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+sc = SolverCallerDReal("./sigmoid.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
 result_files = sc.single_synthesis(cost=0)
