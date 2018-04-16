@@ -8,6 +8,10 @@ from scipy.integrate import odeint
 import numpy as np
 import json
 
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+
 class SolverCaller(object):
     def __init__(self, model_path="./bellshape.hys"):
         self.model_path = model_path
@@ -28,7 +32,7 @@ class SolverCaller(object):
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False):
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name=""):
         if not t:
             t = np.linspace(0, 1, 100)
 
@@ -39,6 +43,13 @@ class SolverCaller(object):
 
         sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
         variable_names = [str(x) for x in parametrised_flow]
+
+        if plot_name:
+            lines = plt.plot(sol)
+            plt.legend(iter(lines), variable_names)
+            plt.savefig(plot_name + "-simulation.png")
+            plt.xlabel("Time")
+
         return t, sol, variable_names
 
     @staticmethod
