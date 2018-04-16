@@ -92,7 +92,7 @@ class SolverCallerISAT(SolverCaller):
             f.write('\n'.join(lines))
 
     def call_solver(self, precision, cost, otherPrams, max_depth=2):
-        out_file = os.path.join(self.results_dir, "%s_%s_%s.txt" % (self.model_name, cost, precision))
+        out_file = os.path.join(self.results_dir, "%s_%s_%s-isat.txt" % (self.model_name, cost, precision))
         command = "%s --i %s --prabs=%s --msw=%s --max-depth=%s %s " % \
                   (self.isat_path, self.model_path, precision, precision * 5, max_depth, otherPrams)
 
@@ -192,7 +192,7 @@ class SolverCallerDReal(SolverCaller):
             f.write('\n'.join(lines))
 
     def call_solver(self, precision, cost, otherPrams, max_depth=2):
-        out_file = os.path.join(self.results_dir, "%s_%s_%s.txt" % (self.model_name, cost, precision))
+        out_file = os.path.join(self.results_dir, "%s_%s_%s-dreal.txt" % (self.model_name, cost, precision))
         command = "%s -k %s %s --precision %s %s" % \
                   (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
 
