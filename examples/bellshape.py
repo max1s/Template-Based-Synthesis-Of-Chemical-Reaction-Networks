@@ -55,8 +55,7 @@ for file_name in result_files:
     print("Initial Conditions", initial_conditions)
     print("Flow:", parametrised_flow)
 
-    t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                   plot_name=file_name + "-simulation.png")
+    t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
     print("\n\n")
     print(variable_names)
     print(sol)
