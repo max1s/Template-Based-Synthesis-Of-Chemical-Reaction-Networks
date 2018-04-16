@@ -158,6 +158,7 @@ class SolverCallerISAT(SolverCaller):
                 for x in flow:
                     mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
                     flow[x] = flow[x].subs(val, mean_val)
+                    print "Now", flow[x]
 
         parametrised_flow = dict(flow)
         for x in crn.derivatives:
