@@ -648,7 +648,7 @@ class CRNSketch:
 
             # replace all constants in sum by zero: if result is non-zero the species is not optional
             for constant in constants:
-                stoich_sum = stoich_sum.subs(constant, 0)
+                stoich_sum = stoich_sum.subs(sympify(constant), 0)
             if stoich_sum != 0:
                 break
 
@@ -782,11 +782,11 @@ def derivative(derivatives, flowdict):
             # substitute in to replace first derivatives
             for func in function_flowdict:
                 derivative_string = "Derivative(" + str(func) + ", t)"
-                xn = xn.subs(derivative_string, function_flowdict[func])
+                xn = xn.subs(sympify(derivative_string), function_flowdict[func])
 
             for constant in constants:
                 derivative_string = "Derivative(" + str(constant) + ", t)"
-                xn = xn.subs(derivative_string, 0)
+                xn = xn.subs(sympify(derivative_string), 0)
 
         # replace functions with the corresponding symbols
         xn = xn.subs(function_reverse)
