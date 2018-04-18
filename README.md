@@ -18,3 +18,5 @@ This will automatically install required dependencies ([listed here](https://git
 ## Usage
 
 Examples of usage are contained in the [``examples/``](https://github.com/max1s/CRNSynthesis/tree/master/examples) directory. 
+
+API docs (in HTML) are contained in the ``docs/`` directory. These were generated using the ``rst`` branch of [peterjc's fork of pdoc](https://github.com/peterjc/pdoc.git), using ``pdoc --html --overwrite --docformat=restructuredtext CRNSynthesis``.
