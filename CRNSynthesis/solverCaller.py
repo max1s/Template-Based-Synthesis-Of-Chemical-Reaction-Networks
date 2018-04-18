@@ -26,8 +26,8 @@ class SolverCaller(object):
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-    def single_synthesis(self, cost=20, precision=0.1):
-        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision)
+    def single_synthesis(self, cost=20, precision=0.1, msw=0):
+        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
@@ -75,12 +75,12 @@ class SolverCallerISAT(SolverCaller):
         if not isat_path:
             self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
             self.edit_cost(cost)
-            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon')
+            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon', msw=msw)
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
@@ -102,10 +102,13 @@ class SolverCallerISAT(SolverCaller):
         with open(self.model_path, 'w') as f:
             f.write('\n'.join(lines))
 
-    def call_solver(self, precision, cost, otherPrams, max_depth=2):
+    def call_solver(self, precision, cost, otherPrams, max_depth=2, msw=0):
+        if msw == 0:
+            msw = precision * 5
+
         out_file = os.path.join(self.results_dir, "%s_%s_%s-isat.txt" % (self.model_name, cost, precision))
         command = "%s --i %s --prabs=%s --msw=%s --max-depth=%s %s " % \
-                  (self.isat_path, self.model_path, precision, precision * 5, max_depth, otherPrams)
+                  (self.isat_path, self.model_path, precision, msw, max_depth, otherPrams)
 
         with open(out_file, "w") as f:
             print("Calling solver!\n " + command)
@@ -174,7 +177,7 @@ class SolverCallerDReal(SolverCaller):
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
