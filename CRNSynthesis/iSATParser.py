@@ -1,10 +1,35 @@
+"""
+
+This sub-module is responsible for actually generating a iSAT (.hys) or dReach (.drh) file
+that encodes the CRN Synthesis problem as an SMT-ODE problem.
+
+The public interfaces are the ``constructISAT`` or ``constructdReal`` functions.
+These will construct various objects to represent part of the problem
+(``Declaration``, ``Initial``, ``Transition``, ``Post``),
+call the ``constructISAT`` or ``constructdReal`` methods on them, assemble the results, and return a string.
+
+"""
+
 class Declaration:
+    """
+    This class contains all of the variable declarations necessary to construct a iSAT (.hys) or dReach (.drh) file
+    encoding the CRN Synthesis problem as an SMT-ODE problem.
+    """
     def __init__(self, crn, numModes, flows):
+        """
+
+        :param crn: a CRNSketch object
+        :param numModes: the number of modes in the specification (int)
+        :param flows: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+        """
         self.crn = crn
         self.numModes = numModes
         self.flows = flows
 
     def constructiSAT(self):
+        """
+        Returns a string containing variable definitions in iSat (.hys) format.
+        """
         s = "\nDECL \n"
 
         s += "define MAX_TIME = 1;\n"  # TODO: set this sensibly
@@ -67,6 +92,9 @@ class Declaration:
         return s
 
     def constructdReal(self):
+        """
+        Returns a string containing variable definitions in dReach (.drh) format.
+        """
 
         s = "\n #define MAX_TIME 1\n"  # TODO: set this sensibly
         s += "\t#define SF 1000\n\n"
@@ -125,13 +153,27 @@ class Declaration:
 
 
 class Transition:
-    def __init__(self, crn, flows, modes):
-        self.crn = crn
+    """
+    This class contains all of the conditions describing mode transitions necessary to construct a iSAT (.hys)
+     or dReach (.drh) file encoding the CRN Synthesis problem as an SMT-ODE problem.
+    """
 
-        self.flow = flows
+    def __init__(self, crn, flows, modes):
+        """
+
+        :param crn: a CRNSketch object
+        :param flows: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+        :param modes: list of tuples describing each mode. The first element is each tuple is ignored; the second encodes a condition that must hold at all times during that mode; the third encodes a condition that must hold at the time that the system transitions out of that mode.
+        """
+
+        self.crn = crn
         self.modes = modes
+        self.flow = flows
 
     def constructiSAT(self):
+        """
+        Returns a string describing mode transitions in iSat (.hys) format.
+        """
         s = "\n\nTRANS \n\n"
 
         s += "\t-- time constraint\n"
@@ -225,6 +267,9 @@ class Transition:
         return s
 
     def constructdReal(self):
+        """
+        Returns a string describing mode transitions in dReach (.drh) format.
+        """
         s = ''
         if len(self.modes) is not 0:
             for mode_index in range(0, len(self.modes)):
@@ -340,12 +385,25 @@ class Transition:
         return s
 
 class Initial:
+    """
+    This class represents the initial condition for the SMT-ODE problem.
+    """
+
     def __init__(self, crn, numModes, other_constraints):
+        """
+
+        :param crn: a CRNSketch object
+        :param numModes: the number of modes in the specification (int)
+        :param other_constraints: other user-constraints (string)
+        """
         self.crn = crn
         self.numModes = numModes
         self.other_constraints = other_constraints
 
     def constructiSAT(self):
+        """
+        Returns a string describing initial conditions in iSAT (.hys) format.
+        """
         s = "\nINIT\n"
 
         s += "\ttime = 0;\n\n"
@@ -398,6 +456,9 @@ class Initial:
         return s
 
     def constructdReal(self):
+        """
+        Returns a string describing initial conditions in dReach (.drh) format.
+        """
         s = "\ninit:\n\n"
 
         s += " @1 (and\n"
@@ -444,13 +505,28 @@ class Initial:
 
 
 class Flow:
-    def __init__(self, var, t, fl, crn):
+    """
+    This class represents the dynamics of a single species.
+    """
+
+    def __init__(self, var, t, flow, crn):
+        """
+
+        :param var: variable representing the species (SymPy object?)
+        :param t: string representing time
+        :param flow: SymPy expression represnting time-derivative of variable
+        :param crn: a CRNSketch object
+        """
         self.variable = var
         self.time = t
-        self.flow = fl
+        self.flow = flow
         self.crn = crn
 
     def constructiSAT(self):
+        """
+        Returns a string representing the dynamics of a single species in iSAT (.hys) format.
+        """
+
         # Python represents powers as a**b, whereas iSAT uses a^b
         flow = str(self.flow).replace('**', '^')
 
@@ -462,6 +538,9 @@ class Flow:
             return "\t(d.%s/d.%s  = SF*(%s))" % (self.variable, self.time, flow)
 
     def constructdReal(self):
+        """
+        Returns a string representing the dynamics of a single species in dReach (.drh) format.
+        """
         flow = str(self.flow).replace('**', '^')
 
         derivative_names = [x["name"] for x in self.crn.derivatives]
@@ -478,44 +557,24 @@ class Flow:
             return "\t#define %s  (%s)" % (self.variable, flow)
 
 
-class Mode:
-    def __init__(self, m, inv):
-        self.modeName = m
-        self.invariants = inv
-
-    def constructiSAT(self):
-
-        s = "\n\n"
-
-        for invariant in self.invariants:
-            s += "\t-- transition into mode %s\n" % self.modeName
-            if invariant[0] is not None:
-                # constraint on mode start time
-                s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
-            # constraint imposed by mode on state
-            s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
-
-        return s
-
-    def constructdReal(self):
-
-        s = "\n\n"
-
-        for invariant in self.invariants:
-            s += "\t // transition into mode %s\n" % self.modeName
-            if invariant[0] is not None:
-                s += "\t mode_%s -> (time >= %s);\n" % (self.modeName, invariant[0])
-            s += "\t mode_%s -> (%s);\n" % (self.modeName, invariant[1])
-
-        return s
-
-
 class Post:
+    """
+    This class represents the final target/goal condition that applies at the end-time of the SMT-ODE problem.
+    """
+
     def __init__(self, t, modes):
+        """
+
+        :param t: string representing time
+        :param modes: list of tuples describing each mode. The first element is each tuple is ignored; the second encodes a condition that must hold at all times during that mode; the third encodes a condition that must hold at the time that the system transitions out of that mode.
+        """
         self.time = t
         self.modes = modes
 
     def constructiSAT(self):
+        """
+        Returns a string representing the final target/goal condition in iSAT (.hys) format.
+        """
         if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
             post_condition = "and (" + self.modes[-1][2] + ")"
         else:
@@ -526,6 +585,10 @@ class Post:
         return s
 
     def constructdReal(self):
+        """
+        Returns a string representing the final target/goal condition in dReach (.drh) format.
+        """
+
         if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
             post_condition = "and (" + self.modes[-1][2] + ")"
         else:
@@ -536,6 +599,14 @@ class Post:
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
+    """
+    Returns a string in iSAT (.hys) format encoding the CRN Synthesis problem as an SMT-ODE problem.
+
+    :param crn: a CRNSketch object
+    :param modes: list of tuples describing each mode. The first element is each tuple is ignored; the second encodes a condition that must hold at all times during that mode; the third encodes a condition that must hold at the time that the system transitions out of that mode.
+    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+    :param other_constraints: other user-constraints (string)
+    """
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
@@ -548,6 +619,15 @@ def constructISAT(crn, modes, flow, other_constraints=False):
 
 
 def constructdReal(crn, modes, flow, other_constraints=False):
+    """
+
+    Returns a string in dReach (.drh) format encoding the CRN Synthesis problem as an SMT-ODE problem.
+
+    :param crn: a CRNSketch object
+    :param modes: list of tuples describing each mode. The first element is each tuple is ignored; the second encodes a condition that must hold at all times during that mode; the third encodes a condition that must hold at the time that the system transitions out of that mode.
+    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+    :param other_constraints: other user-constraints (string)
+    """
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
     d = Declaration(crn, numModes, m_flow).constructdReal()
