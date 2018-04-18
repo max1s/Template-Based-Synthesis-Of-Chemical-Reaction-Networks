@@ -1170,7 +1170,7 @@ after each iteration.</p>
 
     <span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">        Requires a specific initial_condition and flow dictionary in which parameters have been</span>
 <span class="sd">        replaced by specific numerical values.</span>
 
@@ -1202,7 +1202,7 @@ after each iteration.</p>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">        Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
 <span class="sd">        ``scipy.odeint`` to obtain a simulated time-course.</span>
 
 <span class="sd">        :param X: vector of current concentrations (in order given by species_list)</span>
@@ -1283,7 +1283,7 @@ after each iteration.</p>
 
     <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call iSAT,a nd save its output to a file.</span>
+<span class="sd">        Call iSAT, and save its output to a file.</span>
 
 <span class="sd">        :param precision: value of --prabs parameter to be passed to iSAT</span>
 <span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
@@ -1520,7 +1520,7 @@ corresponding solvers.</p>
 
     <span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">        Requires a specific initial_condition and flow dictionary in which parameters have been</span>
 <span class="sd">        replaced by specific numerical values.</span>
 
@@ -1552,7 +1552,7 @@ corresponding solvers.</p>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">        Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
 <span class="sd">        ``scipy.odeint`` to obtain a simulated time-course.</span>
 
 <span class="sd">        :param X: vector of current concentrations (in order given by species_list)</span>
@@ -1595,7 +1595,7 @@ corresponding solvers.</p>
     
   
     <div class="desc"><div class="document">
-<p>This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
 <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1622,7 +1622,7 @@ corresponding solvers.</p>
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
 <span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
 <span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
@@ -1734,7 +1734,7 @@ corresponding solvers.</p>
     
   
     <div class="desc"><div class="document">
-<p>Numerically integrated the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
 Requires a specific initial_condition and flow dictionary in which parameters have been
 replaced by specific numerical values.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -1763,7 +1763,7 @@ replaced by specific numerical values.</p>
   <div id="source-CRNSynthesis.solverCaller.SolverCaller.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
 <span class="sd">    replaced by specific numerical values.</span>
 <span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
@@ -1959,7 +1959,7 @@ is used.</p>
     
   
     <div class="desc inherited"><div class="document">
-<p>This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
 <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -1986,7 +1986,7 @@ is used.</p>
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
 <span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
 <span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
@@ -2305,7 +2305,7 @@ is used.</p>
     
   
     <div class="desc inherited"><div class="document">
-<p>Numerically integrated the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
 Requires a specific initial_condition and flow dictionary in which parameters have been
 replaced by specific numerical values.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -2334,7 +2334,7 @@ replaced by specific numerical values.</p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
 <span class="sd">    replaced by specific numerical values.</span>
 <span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
@@ -2491,7 +2491,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
 
     <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Call iSAT,a nd save its output to a file.</span>
+<span class="sd">        Call iSAT, and save its output to a file.</span>
 
 <span class="sd">        :param precision: value of --prabs parameter to be passed to iSAT</span>
 <span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
@@ -2595,7 +2595,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
     
   
     <div class="desc inherited"><div class="document">
-<p>This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
 <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -2622,7 +2622,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
 <span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
 <span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
@@ -2755,7 +2755,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
     
   
     <div class="desc"><div class="document">
-<p>Call iSAT,a nd save its output to a file.</p>
+<p>Call iSAT, and save its output to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -2784,7 +2784,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.call_solver" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Call iSAT,a nd save its output to a file.</span>
+<span class="sd">    Call iSAT, and save its output to a file.</span>
 <span class="sd">    :param precision: value of --prabs parameter to be passed to iSAT</span>
 <span class="sd">    :param cost:  maximum value of cost [determines output file name]</span>
 <span class="sd">    :param otherPrams: string containing other arguments to pass to iSAT</span>
@@ -3002,7 +3002,7 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
     
   
     <div class="desc inherited"><div class="document">
-<p>Numerically integrated the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
 Requires a specific initial_condition and flow dictionary in which parameters have been
 replaced by specific numerical values.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -3031,7 +3031,7 @@ replaced by specific numerical values.</p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
 <span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
 <span class="sd">    replaced by specific numerical values.</span>
 <span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>

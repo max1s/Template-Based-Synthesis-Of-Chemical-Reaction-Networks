@@ -53,7 +53,7 @@ class SolverCaller(object):
 
     def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name=""):
         """
-        Numerically integrated the system using ``scipy.odeint`` to obtain a simulated time-course.
+        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
         Requires a specific initial_condition and flow dictionary in which parameters have been
         replaced by specific numerical values.
 
@@ -85,7 +85,7 @@ class SolverCaller(object):
     @staticmethod
     def gradient_function(X, t, flow, species_list):
         """
-        This is a function that evaluates the time-derivative of the system so that it can be numerically integrated by
+        Evaluates the time-derivative of the system so that it can be numerically integrated by
         ``scipy.odeint`` to obtain a simulated time-course.
 
         :param X: vector of current concentrations (in order given by species_list)
@@ -166,7 +166,7 @@ class SolverCallerISAT(SolverCaller):
 
     def call_solver(self, precision, cost, otherPrams, max_depth=2, msw=0):
         """
-        Call iSAT,a nd save its output to a file.
+        Call iSAT, and save its output to a file.
 
         :param precision: value of --prabs parameter to be passed to iSAT
         :param cost:  maximum value of cost [determines output file name]
