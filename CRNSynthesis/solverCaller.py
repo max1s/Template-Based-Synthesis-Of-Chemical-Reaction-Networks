@@ -105,7 +105,7 @@ class SolverCallerISAT(SolverCaller):
     def call_solver(self, precision, cost, otherPrams, max_depth=2):
         out_file = os.path.join(self.results_dir, "%s_%s_%s-isat.txt" % (self.model_name, cost, precision))
         command = "%s --i %s --prabs=%s --msw=%s --max-depth=%s %s " % \
-                  (self.isat_path, self.model_path, precision, precision * 5, max_depth, otherPrams)
+                  (self.isat_path, self.model_path, precision, precision * 2.5, max_depth, otherPrams)
 
         with open(out_file, "w") as f:
             print("Calling solver!\n " + command)

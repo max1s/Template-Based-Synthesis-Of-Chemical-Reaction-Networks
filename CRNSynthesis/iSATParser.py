@@ -137,10 +137,10 @@ class Transition:
         s += "\t-- time constraint\n"
         s += "\ttime' = time + delta_time;\n\n"
 
-        s += "\t-- must progress through modes in order\n"
-        s += "\t mode_1' -> mode_1;\n"
-        for i in list(range(2, len(self.modes)+1)):
-            s += "\tmode_%s' -> (mode_%s or mode_%s);\n" % (i, i, i-1)
+        # s += "\t-- must progress through modes in order\n"
+        # s += "\t mode_1' -> mode_1;\n"
+        # for i in list(range(2, len(self.modes)+1)):
+        #     s += "\tmode_%s' -> (mode_%s or mode_%s);\n" % (i, i, i-1)
 
         s += "\n\n\t-- invariant conditions during modes\n"
         for mode_index, mode in enumerate(self.modes):

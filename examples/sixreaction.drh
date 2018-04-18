@@ -8,15 +8,15 @@
 
 	// define derivatives
 		#define PThree_dot  (POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2)
-		#define PThree_dot_dot  (k_2*Derivative(PTwo, t) + k_3*Derivative(POne, t) - k_4*Derivative(PThree, t) - k_5*Derivative(PThree, t))
+		#define PThree_dot_dot  (k_2*(POne*k_1 + PThree*k_4 - PTwo*k_2 - PTwo*k_6) - k_3*(POne*k_1 + POne*k_3 - PThree*k_5 - PTwo*k_6) - k_4*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2) - k_5*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2))
 
 	// declare time variables
 	[0, MAX_TIME] time;
 
 	//Define State Variables
 	[0, 10] PThree;
-	[0, 10] PTwo;
 	[0, 10] POne;
+	[0, 10] PTwo;
 
 	// Rate constants
 	 [0, 5] k_4;
@@ -52,7 +52,7 @@ flow:
 jump: 
 
 	 // jump conditions during modes
-PThree_dot >= 0 ==> @1 	 ( and (PThree' = PThree)(PTwo' = PTwo)(POne' = POne)(k_4' = k_4)(k_5' = k_5)(k_6' = k_6)(k_1' = k_1)(k_3' = k_3)(k_2' = k_2));
+PThree_dot >= 0 ==> @1 	 ( and (PThree' = PThree)(POne' = POne)(PTwo' = PTwo)(k_4' = k_4)(k_5' = k_5)(k_6' = k_6)(k_1' = k_1)(k_3' = k_3)(k_2' = k_2));
 
 
  }{ mode 2;
@@ -91,8 +91,8 @@ init:
 
 	 // Limits on initial conditions
 	 ( and (PThree <= 5))
-	 ( and (PTwo <= 5))
 	 ( and (POne <= 5))
+	 ( and (PTwo <= 5))
 );
 
 goal: 

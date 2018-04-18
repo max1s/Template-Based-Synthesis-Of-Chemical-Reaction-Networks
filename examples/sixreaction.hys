@@ -12,8 +12,8 @@ define NO_COST_LIMIT = 1;
 
 	-- Define State Variables
 	float[0, 1] PThree;
-	float[0, 1] PTwo;
 	float[0, 1] POne;
+	float[0, 1] PTwo;
 
 	-- Define Derivative Variables
 	float [-4, 4] PThree_dot;
@@ -44,8 +44,8 @@ INIT
 
 	-- Limits on initial conditions
 	(PThree <= 5);
-	(PTwo <= 5);
 	(POne <= 5);
+	(PTwo <= 5);
 
 
 TRANS 
@@ -68,8 +68,8 @@ TRANS
 	(mode_1 and mode_2') -> (((PThree > 0.1) and (PThree_dot < 0.001)));
 
 	-- No state change without time consumption.
-	(delta_time = 0) -> ((PThree' = PThree) and (PTwo' = PTwo) and (POne' = POne));
-	(delta_time = 0) -> ((PThree' = PThree) and (PTwo' = PTwo) and (POne' = POne));
+	(delta_time = 0) -> ((PThree' = PThree) and (POne' = POne) and (PTwo' = PTwo));
+	(delta_time = 0) -> ((PThree' = PThree) and (POne' = POne) and (PTwo' = PTwo));
 	(delta_time = 0) -> ((k_4' = k_4) and (k_5' = k_5) and (k_6' = k_6) and (k_1' = k_1) and (k_3' = k_3) and (k_2' = k_2));
 
 	-- Rate constants are fixed
@@ -90,7 +90,7 @@ TRANS
 	-- Flows
 	(mode_1 or mode_2) -> 	(d.PTwo/d.time  = SF*(POne*k_1 + PThree*k_4 - PTwo*k_2 - PTwo*k_6));
 	(mode_1 or mode_2) -> 	(PThree_dot = POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2);
-	(mode_1 or mode_2) -> 	(PThree_dot_dot = k_2*Derivative(PTwo, t) + k_3*Derivative(POne, t) - k_4*Derivative(PThree, t) - k_5*Derivative(PThree, t));
+	(mode_1 or mode_2) -> 	(PThree_dot_dot = k_2*(POne*k_1 + PThree*k_4 - PTwo*k_2 - PTwo*k_6) - k_3*(POne*k_1 + POne*k_3 - PThree*k_5 - PTwo*k_6) - k_4*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2) - k_5*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2));
 	(mode_1 or mode_2) -> 	(d.PThree/d.time  = SF*(POne*k_3 - PThree*k_4 - PThree*k_5 + PTwo*k_2));
 	(mode_1 or mode_2) -> 	(d.POne/d.time  = SF*(-POne*k_1 - POne*k_3 + PThree*k_5 + PTwo*k_6));
 

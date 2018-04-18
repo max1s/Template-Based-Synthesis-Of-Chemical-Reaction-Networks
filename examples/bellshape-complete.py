@@ -19,14 +19,14 @@ def formCRN():
     c6 = Choice(6, 0, 1)
     c7 = Choice(7, 1, 2)
 
-    reaction1 = Reaction([(lam1, 1), (K, c1)], [(K, c2)], RateConstant('k_1', 0, 1))
-    reaction2 = Reaction([(lam2, c5), (K, c3)], [(lam2, c6), (K, c4)], RateConstant('k_2', 0, 1))
-    reaction3 = Reaction([], [TermChoice(1, [(lam2, 1), (K, c7)])], RateConstant('k_3', 1, 1))
+    reaction1 = Reaction([(lam1, 1), (K, c1)], [(K, c2)], RateConstant('k_1', 0, 4))
+    reaction2 = Reaction([(lam2, c5), (K, c3)], [(lam2, c6), (K, c4)], RateConstant('k_2', 0, 4))
+    reaction3 = Reaction([], [TermChoice(1, [(lam2, 1), (K, c7)])], RateConstant('k_3', 0, 4))
 
     return CRNSketch([reaction1, reaction2], [reaction3], [])
 
 derivatives = [{"variable": 'K', "order": 1, "is_variance": False, "name": "dK_dt"}]
-specification = [('', 'dK_dt >= 0', '((K > 0.3) and (dK_dt < 0.001))'), ('', 'dK_dt <= 0', '((K >= 0) and (K < 0.1))')]
+specification = [('', 'dK_dt >= 0', '((K > 0) and (dK_dt = 0))'), ('', 'dK_dt <= 0', '((K >= 0) and (K < 0.1))')]
 
 crn = formCRN()
 flow = crn.flow(False, derivatives)
@@ -34,7 +34,7 @@ hys = iSATParser.constructISAT(crn, specification, flow)
 with open('bellshape.hys', 'w') as file:
     file.write(hys)
 
-specification_dreal = [('', 'dK_dt >= 0', '(and (K > 0.3) (dK_dt < 0.001))'), ('', 'dK_dt <= 0', '(and (K >= 0)(K < 0.1))')]
+specification_dreal = [('', 'dK_dt >= 0', '(and (K > 0.3) (dK_dt = 0))'), ('', 'dK_dt <= 0', '(and (K >= 0)(K < 0.1))')]
 drh = iSATParser.constructdReal(crn, specification_dreal, flow)
 with open('bellshape.drh', 'w') as file:
     file.write(drh)
@@ -54,6 +54,7 @@ for file_name in result_files:
 
     print("Initial Conditions", initial_conditions)
     print("Flow:", parametrised_flow)
+
 
     t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                    plot_name=file_name + "-simulation.png")

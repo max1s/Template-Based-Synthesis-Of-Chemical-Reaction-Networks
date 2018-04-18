@@ -19,12 +19,22 @@ define NO_COST_LIMIT = 1;
 	float [-4, 4] dK_dt;
 
 	-- Lambda Variables
-	float [0, 1] lamA1;
-	float [0, 1] lamB1;
 	float [0, 1] lamA2;
 	float [0, 1] lamB2;
+	float [0, 1] lamA1;
+	float [0, 1] lamB1;
 
 	-- Choice Variables
+	float [0, 1] c5_0;
+	float [0, 1] c5_1;
+
+	float [0, 1] c6_0;
+	float [0, 1] c6_1;
+
+	float [0, 1] c2_0;
+	float [0, 1] c2_1;
+	float [0, 1] c2_2;
+
 	float [0, 1] c7_1;
 	float [0, 1] c7_2;
 
@@ -32,23 +42,13 @@ define NO_COST_LIMIT = 1;
 	float [0, 1] c1_1;
 	float [0, 1] c1_2;
 
-	float [0, 1] c4_0;
-	float [0, 1] c4_1;
-	float [0, 1] c4_2;
-
 	float [0, 1] c3_0;
 	float [0, 1] c3_1;
 	float [0, 1] c3_2;
 
-	float [0, 1] c6_0;
-	float [0, 1] c6_1;
-
-	float [0, 1] c5_0;
-	float [0, 1] c5_1;
-
-	float [0, 1] c2_0;
-	float [0, 1] c2_1;
-	float [0, 1] c2_2;
+	float [0, 1] c4_0;
+	float [0, 1] c4_1;
+	float [0, 1] c4_2;
 
 
 	-- Joint choice Variables
@@ -59,9 +59,9 @@ define NO_COST_LIMIT = 1;
 	float [0, 1] o0;
 
 	-- Rate constants
-	float [1, 1] k_3;
-	float [0, 1] k_2;
-	float [0, 1] k_1;
+	float [0, 4] k_3;
+	float [0, 4] k_1;
+	float [0, 4] k_2;
 
 	--Define modes
 	boole mode_1;
@@ -79,17 +79,17 @@ INIT
 
 
 	-- Integer encoding of lambda variables
-	((lamA1 = 1) and (lamB1 = 0)) or ((lamA1 = 0) and (lamB1 = 1));
 	((lamA2 = 1) and (lamB2 = 0)) or ((lamA2 = 0) and (lamB2 = 1));
+	((lamA1 = 1) and (lamB1 = 0)) or ((lamA1 = 0) and (lamB1 = 1));
 
 	-- Integer encoding of choice variables
+	 ((c5_0 = 1) and (c5_1 = 0))  or  ((c5_0 = 0) and (c5_1 = 1)) ;
+	 ((c6_0 = 1) and (c6_1 = 0))  or  ((c6_0 = 0) and (c6_1 = 1)) ;
+	 ((c2_0 = 1) and (c2_1 = 0) and (c2_2 = 0))  or  ((c2_0 = 0) and (c2_1 = 1) and (c2_2 = 0))  or  ((c2_0 = 0) and (c2_1 = 0) and (c2_2 = 1)) ;
 	 ((c7_1 = 1) and (c7_2 = 0))  or  ((c7_1 = 0) and (c7_2 = 1)) ;
 	 ((c1_0 = 1) and (c1_1 = 0) and (c1_2 = 0))  or  ((c1_0 = 0) and (c1_1 = 1) and (c1_2 = 0))  or  ((c1_0 = 0) and (c1_1 = 0) and (c1_2 = 1)) ;
-	 ((c4_0 = 1) and (c4_1 = 0) and (c4_2 = 0))  or  ((c4_0 = 0) and (c4_1 = 1) and (c4_2 = 0))  or  ((c4_0 = 0) and (c4_1 = 0) and (c4_2 = 1)) ;
 	 ((c3_0 = 1) and (c3_1 = 0) and (c3_2 = 0))  or  ((c3_0 = 0) and (c3_1 = 1) and (c3_2 = 0))  or  ((c3_0 = 0) and (c3_1 = 0) and (c3_2 = 1)) ;
-	 ((c6_0 = 1) and (c6_1 = 0))  or  ((c6_0 = 0) and (c6_1 = 1)) ;
-	 ((c5_0 = 1) and (c5_1 = 0))  or  ((c5_0 = 0) and (c5_1 = 1)) ;
-	 ((c2_0 = 1) and (c2_1 = 0) and (c2_2 = 0))  or  ((c2_0 = 0) and (c2_1 = 1) and (c2_2 = 0))  or  ((c2_0 = 0) and (c2_1 = 0) and (c2_2 = 1)) ;
+	 ((c4_0 = 1) and (c4_1 = 0) and (c4_2 = 0))  or  ((c4_0 = 0) and (c4_1 = 1) and (c4_2 = 0))  or  ((c4_0 = 0) and (c4_1 = 0) and (c4_2 = 1)) ;
 
 	-- Integer encoding of optional reaction variables
 	(o0 = 0) or (o0 = 1);
@@ -117,40 +117,50 @@ TRANS
 	mode_2'  -> (dK_dt <= 0);
 
 	-- jump conditions between modes
-	(mode_1 and mode_2') -> (((K > 0.3) and (dK_dt < 0.001)));
+	(mode_1 and mode_2') -> (((K > 0) and (dK_dt = 0)));
 
 	-- No state change without time consumption.
 	(delta_time = 0) -> ((K' = K) and (A' = A) and (B' = B));
+	(delta_time = 0) -> ((c5_0' = c5_0) and (c5_1' = c5_1));
+	(delta_time = 0) -> ((c6_0' = c6_0) and (c6_1' = c6_1));
+	(delta_time = 0) -> ((c2_0' = c2_0) and (c2_1' = c2_1) and (c2_2' = c2_2));
 	(delta_time = 0) -> ((c7_1' = c7_1) and (c7_2' = c7_2));
 	(delta_time = 0) -> ((c1_0' = c1_0) and (c1_1' = c1_1) and (c1_2' = c1_2));
-	(delta_time = 0) -> ((c4_0' = c4_0) and (c4_1' = c4_1) and (c4_2' = c4_2));
 	(delta_time = 0) -> ((c3_0' = c3_0) and (c3_1' = c3_1) and (c3_2' = c3_2));
-	(delta_time = 0) -> ((c6_0' = c6_0) and (c6_1' = c6_1));
-	(delta_time = 0) -> ((c5_0' = c5_0) and (c5_1' = c5_1));
-	(delta_time = 0) -> ((c2_0' = c2_0) and (c2_1' = c2_1) and (c2_2' = c2_2));
-	(delta_time = 0) -> ((c2_0' = c2_0) and (c2_1' = c2_1) and (c2_2' = c2_2));
-	(delta_time = 0) -> ((k_3' = k_3) and (k_2' = k_2) and (k_1' = k_1));
+	(delta_time = 0) -> ((c4_0' = c4_0) and (c4_1' = c4_1) and (c4_2' = c4_2));
+	(delta_time = 0) -> ((c4_0' = c4_0) and (c4_1' = c4_1) and (c4_2' = c4_2));
+	(delta_time = 0) -> ((k_3' = k_3) and (k_1' = k_1) and (k_2' = k_2));
 	(delta_time = 0) -> ((o0' = o0));
-	(delta_time = 0) -> ((lamA1' = lamA1) and (lamB1' = lamB1) and (lamA2' = lamA2) and (lamB2' = lamB2));
+	(delta_time = 0) -> ((lamA2' = lamA2) and (lamB2' = lamB2) and (lamA1' = lamA1) and (lamB1' = lamB1));
 
 
 	-- Rate constants are fixed
 	(d.k_3/d.time = 0);
 	(k_3 = k_3');
-	(d.k_2/d.time = 0);
-	(k_2 = k_2');
 	(d.k_1/d.time = 0);
 	(k_1 = k_1');
+	(d.k_2/d.time = 0);
+	(k_2 = k_2');
 
 	-- Lambda variables are fixed
-	(d.lamA1/d.time = 0);
-	(d.lamB1/d.time = 0);
-	(lamA1 = lamA1') and (lamB1 = lamB1');
 	(d.lamA2/d.time = 0);
 	(d.lamB2/d.time = 0);
 	(lamA2 = lamA2') and (lamB2 = lamB2');
+	(d.lamA1/d.time = 0);
+	(d.lamB1/d.time = 0);
+	(lamA1 = lamA1') and (lamB1 = lamB1');
 
 	-- Choice variables are fixed
+	(d.c5_0/d.time = 0);
+	(d.c5_1/d.time = 0);
+	(c5_0 = c5_0') and (c5_1 = c5_1');
+	(d.c6_0/d.time = 0);
+	(d.c6_1/d.time = 0);
+	(c6_0 = c6_0') and (c6_1 = c6_1');
+	(d.c2_0/d.time = 0);
+	(d.c2_1/d.time = 0);
+	(d.c2_2/d.time = 0);
+	(c2_0 = c2_0') and (c2_1 = c2_1') and (c2_2 = c2_2');
 	(d.c7_1/d.time = 0);
 	(d.c7_2/d.time = 0);
 	(c7_1 = c7_1') and (c7_2 = c7_2');
@@ -158,24 +168,14 @@ TRANS
 	(d.c1_1/d.time = 0);
 	(d.c1_2/d.time = 0);
 	(c1_0 = c1_0') and (c1_1 = c1_1') and (c1_2 = c1_2');
-	(d.c4_0/d.time = 0);
-	(d.c4_1/d.time = 0);
-	(d.c4_2/d.time = 0);
-	(c4_0 = c4_0') and (c4_1 = c4_1') and (c4_2 = c4_2');
 	(d.c3_0/d.time = 0);
 	(d.c3_1/d.time = 0);
 	(d.c3_2/d.time = 0);
 	(c3_0 = c3_0') and (c3_1 = c3_1') and (c3_2 = c3_2');
-	(d.c6_0/d.time = 0);
-	(d.c6_1/d.time = 0);
-	(c6_0 = c6_0') and (c6_1 = c6_1');
-	(d.c5_0/d.time = 0);
-	(d.c5_1/d.time = 0);
-	(c5_0 = c5_0') and (c5_1 = c5_1');
-	(d.c2_0/d.time = 0);
-	(d.c2_1/d.time = 0);
-	(d.c2_2/d.time = 0);
-	(c2_0 = c2_0') and (c2_1 = c2_1') and (c2_2 = c2_2');
+	(d.c4_0/d.time = 0);
+	(d.c4_1/d.time = 0);
+	(d.c4_2/d.time = 0);
+	(c4_0 = c4_0') and (c4_1 = c4_1') and (c4_2 = c4_2');
 
 	-- Joint choice variables are fixed
 	(d.tc_1_0/d.time = 0);
