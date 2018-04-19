@@ -63,7 +63,7 @@ class SolverCaller(object):
         :param plot_name: name of file in which plot of results should be saved
         :return:
         """
-        if not t:
+        if t is not False:
             t = np.linspace(0, 1, 100)
 
         ic = []
