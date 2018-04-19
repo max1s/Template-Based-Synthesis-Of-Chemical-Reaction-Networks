@@ -191,7 +191,15 @@ class SolverCallerISAT(SolverCaller):
 
 
     def getCRNValues(self, file_path):
-        # Return a dictionary containing the ranges for each parameter as returned from the solver
+        """
+        Parse the output of iSAT, and extract parameter values and initial conditions.
+
+        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,
+        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.
+
+        :param file_path: path to the file containing iSAT output
+        """
+
         p = re.compile(r"(.+?) \(.+?\):")
         p2 = re.compile(r".+?[\[\(](.+?),(.+?)[\]\)].+")
 
@@ -223,6 +231,15 @@ class SolverCallerISAT(SolverCaller):
         return constant_values, all_values
 
     def get_full_solution(self, crn, flow, vals):
+        """
+        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
+        dictionary with their numerical values.
+
+        :param crn:
+        :param flow:
+        :param vals:
+        :return:
+        """
         initial_conditions = {}
 
         var_names = [str(var) for var in flow.keys()]
@@ -318,6 +335,15 @@ class SolverCallerDReal(SolverCaller):
         return out_file
 
     def getCRNValues(self, file_path):
+        """
+        Parse the output of dReach, and extract parameter values and initial conditions.
+
+        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``
+        dictionary that contains the initial value of variables that change over time.
+
+        :param file_path: path to the file containing dReach output
+        """
+
         results = ''
         with open(file_path) as f:
             results = f.read()

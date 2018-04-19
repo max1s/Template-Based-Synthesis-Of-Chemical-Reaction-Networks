@@ -1308,7 +1308,15 @@ after each iteration.</p>
 
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-        <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing iSAT output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
 
@@ -1340,6 +1348,15 @@ after each iteration.</p>
         <span class="k">return</span> <span class="n">constant_values</span><span class="p">,</span> <span class="n">all_values</span>
 
     <span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">        dictionary with their numerical values.</span>
+
+<span class="sd">        :param crn:</span>
+<span class="sd">        :param flow:</span>
+<span class="sd">        :param vals:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -1435,6 +1452,15 @@ after each iteration.</p>
         <span class="k">return</span> <span class="n">out_file</span>
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of dReach, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">        dictionary that contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing dReach output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1926,6 +1952,15 @@ is used.</p>
         <span class="k">return</span> <span class="n">out_file</span>
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of dReach, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">        dictionary that contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing dReach output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -2215,10 +2250,31 @@ is used.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Parse the output of dReach, and extract parameter values and initial conditions.</p>
+<p>Returns a <tt class="docutils literal">constant_values</tt> dictionary, containing values of that do not change over time, and a <tt class="docutils literal">all_values</tt>
+dictionary that contains the initial value of variables that change over time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param file_path:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">path to the file containing dReach output</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.getCRNValues', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.getCRNValues" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the output of dReach, and extract parameter values and initial conditions.</span>
+<span class="sd">    Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">    dictionary that contains the initial value of variables that change over time.</span>
+<span class="sd">    :param file_path: path to the file containing dReach output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -2516,7 +2572,15 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
 
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-        <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing iSAT output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
 
@@ -2548,6 +2612,15 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
         <span class="k">return</span> <span class="n">constant_values</span><span class="p">,</span> <span class="n">all_values</span>
 
     <span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">        dictionary with their numerical values.</span>
+
+<span class="sd">        :param crn:</span>
+<span class="sd">        :param flow:</span>
+<span class="sd">        :param vals:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -2858,11 +2931,31 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
 
     
   
+    <div class="desc"><div class="document">
+<p>Parse the output of iSAT, and extract parameter values and initial conditions.</p>
+<p>Returns a <tt class="docutils literal">constant_values</tt> dictionary, containing only values of that do not change over time,
+and a <tt class="docutils literal">all_values</tt> dictionary that also contains the initial value of variables that change over time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param file_path:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">path to the file containing iSAT output</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.getCRNValues', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.getCRNValues" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-    <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+<span class="sd">    Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">    and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+<span class="sd">    :param file_path: path to the file containing iSAT output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
     <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
     <span class="n">constant_values</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2901,10 +2994,37 @@ extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> 
 
     
   
+    <div class="desc"><div class="document">
+<p>Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
+dictionary with their numerical values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param crn:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param vals:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.get_full_solution', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.get_full_solution" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">    dictionary with their numerical values.</span>
+<span class="sd">    :param crn:</span>
+<span class="sd">    :param flow:</span>
+<span class="sd">    :param vals:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
