@@ -328,7 +328,7 @@ class SolverCallerDReal(SolverCaller):
         :return: name of output file
         """
         out_file = os.path.join(self.results_dir, "%s_%s_%s-dreal.txt" % (self.model_name, cost, precision))
-        command = "%s -k %s %s --precision %s --visualize %s" % \
+        command = "%s -k %s %s --precision %s --proof %s" % \
                   (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
 
         with open(out_file, "w") as f:
@@ -336,11 +336,50 @@ class SolverCallerDReal(SolverCaller):
             sub.call(command.split(), stdout=f, stderr=sub.PIPE)
 
         # dREach
-        return os.path.join(os.getcwd(), "%s_0_0.smt2.json" % self.model_name)
+        return os.path.join(os.getcwd(), "%s_0_0.smt2.proof" % self.model_name)
 
     def getCRNValues(self, file_path):
         """
-        Parse the output of dReach, and extract parameter values and initial conditions.
+        Parse a ``.smt2.proof`` file written by dReach, and extract parameter values and initial conditions.
+
+        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``
+        dictionary that contains the initial value of variables that change over time.
+
+        :param file_path: path to the file containing dReach output
+        """
+
+        p = re.compile(r"\t([A-Za-z_0-9]+) : [\[\(]([\d.]+?), ([\d.]+?)[\]\)]")
+
+        constant_values = {}
+        all_values = {} # includes state variables
+        with open(file_path, "r") as f:
+            for line in f:
+
+                if p.match(line):
+                    var_name = p.match(line).groups()[0].strip()
+                    var_name = var_name.split("_")[0]
+
+                    values = p.match(line).groups()[1:]
+
+                    if "mode_" in var_name:
+                        continue
+
+                    if var_name not in constant_values.keys():
+                        constant_values[var_name] = values
+                        all_values[var_name] = values
+
+                    elif constant_values[var_name] != values:
+                        # if we've already recorded a different value, it's because value changes between modes
+                        # it's not a constant parameter, so don't record it
+                        constant_values.pop(var_name, None)
+
+        return constant_values, all_values
+
+
+
+    def getCRNValuesFromJSON(self, file_path):
+        """
+        Parse a ``.smt2.json`` file written by dReach, and extract parameter values and initial conditions.
 
         Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``
         dictionary that contains the initial value of variables that change over time.
