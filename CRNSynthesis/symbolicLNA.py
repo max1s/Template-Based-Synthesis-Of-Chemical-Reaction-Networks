@@ -6,7 +6,19 @@ from operator import mul
 
 
 class InputSpecies:
+    """
+    This class represents an Input Species - that is, a species whose concentration follows a fixed trajectory,
+    rather than being determined by the kinetics of reactions in which it is a reactant or product.
+    """
+
     def __init__(self, name, ode, initial_value=None):
+        """
+        :param name: name of the species (string)
+        :param ode: time-derivative of the cocnentration, expressed in terms of 't' (SymPy expression)
+        :param initial_value: initial value of the concentration (float)
+
+        """
+
         self.name = name  # a string, to be printed
         self.symbol = Symbol(name)  # a sympy symbol, to be used when constructing formulae
         self.initial_value = initial_value
@@ -34,7 +46,22 @@ class InputSpecies:
         return []
 
 class Species:
+    """
+    This class represents an Species - that is, a species whose concentration is determined by the kinetics of reactions
+     in which it is a reactant or product.
+    """
+
     def __init__(self, name, initial_value=None, initial_min=None, initial_max=None):
+        """
+        This constructor requires the speification of either the initial value of the concentration,
+         or upper and lower limits on the initial cocentration.
+
+        :param name:  name of the species (string)
+        :param initial_value:  initial value of concentration for this species (float)
+        :param initial_min:  lower limit of possible initial values of concentration for this species (float)
+        :param initial_max:  upper limit of possible initial value of concentration for this species (float)
+        """
+
         self.name = name
         self.symbol = Symbol(name)
         self.initial_value = initial_value
@@ -89,8 +116,19 @@ class Species:
         return [self]
 
 class Term:
-    # Represents conjunction of a species (or InputSpecies) with a stoichiometric coefficient
+    """
+    This class represents the pairing of a species (or InputSpecies) with a stoichiometric coefficient.
+    The species may be either a specific species, or a LambdaChoice object representing a choice of species.
+    The stoichiometric coefficient may be either an integer or a Choice object representing a choice of values.
+    """
+
     def __init__(self, species, coefficient):
+        """
+
+        :param species: a Species, InputSpecies, or LambdaChoice object
+        :param coefficient: an Integer or Choice object representing the stoichiometric coefficient
+        """
+
         self.species = species
         self.coefficient = coefficient
 
