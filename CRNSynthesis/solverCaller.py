@@ -1,18 +1,28 @@
+"""
+This sub-module is responsible for calling iSAT or dReal, parsing their output, and substituting the extracted
+parameter values into the ``CRNSketch`` to obtain a model that can be simulated.
+
+It is also able to perform optimization by iteratively solving the SAT-ODE problem, decreasing the permitted cost
+after each iteration.
+
+"""
+
 import subprocess as sub
 import re
-import io
 import os
-from os import walk
 from sympy import sympify
 from scipy.integrate import odeint
 import numpy as np
-import json
 
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 class SolverCaller(object):
+    """
+    This abstract class is extended by ``SolverCallerISAT`` and ``SolverCallerDReal``, which are specialized to call the
+    corresponding solvers.
+    """
     def __init__(self, model_path="./bellshape.hys"):
         self.model_path = model_path
 
@@ -27,13 +37,33 @@ class SolverCaller(object):
             os.makedirs(self.results_dir)
 
     def single_synthesis(self, cost=20, precision=0.1, msw=0):
+        """
+        Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
+        is used.
+
+        :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)
+        :param precision:
+        :param msw:
+        :return:
+        """
         return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
     def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name=""):
-        if not t:
+        """
+        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
+        Requires a specific initial_condition and flow dictionary in which parameters have been
+        replaced by specific numerical values.
+
+        :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)
+        :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives
+        :param t: vector of times at which the system state will be calculated
+        :param plot_name: name of file in which plot of results should be saved
+        :return:
+        """
+        if t is not False:
             t = np.linspace(0, 1, 100)
 
         ic = []
@@ -45,7 +75,7 @@ class SolverCaller(object):
         variable_names = [str(x) for x in parametrised_flow]
 
         if plot_name:
-            lines = plt.plot(sol)
+            lines = plt.plot(t, sol)
             plt.legend(iter(lines), variable_names)
             plt.savefig(plot_name + "-simulation.png")
             plt.xlabel("Time")
@@ -54,6 +84,16 @@ class SolverCaller(object):
 
     @staticmethod
     def gradient_function(X, t, flow, species_list):
+        """
+        Evaluates the time-derivative of the system so that it can be numerically integrated by
+        ``scipy.odeint`` to obtain a simulated time-course.
+
+        :param X: vector of current concentrations (in order given by species_list)
+        :param t: current time (ignored, as not needed to evaluate derivatives)
+        :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+        :param species_list: list of species names (SymPy objects)
+        :return:
+        """
         vals = {"t": t}
 
         for i, species in enumerate(species_list):
@@ -68,7 +108,16 @@ class SolverCaller(object):
 
 
 class SolverCallerISAT(SolverCaller):
+    """
+    This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the
+    extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated
+    """
     def __init__(self, model_path="./bellshape.hys", isat_path=""):
+        """
+
+        :param model_path: path to the .hys file containing the SAT-ODE problem to be solved
+        :param isat_path: path to the iSAT binary
+        """
         super(SolverCallerISAT, self).__init__(model_path)
 
         self.isat_path = isat_path
@@ -76,6 +125,15 @@ class SolverCallerISAT(SolverCaller):
             self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+        """
+        Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.
+
+        :param max_cost: the maximum cost permitted on the first iteration
+        :param min_cost: the maximum cost permitted on the final iteration
+        :param precision: value of --prabs parameter to eb passed to iSAT
+        :param msw: value of --msw parameter to eb passed to iSAT
+        :return: list of file names, each containing the output from iSAT from one iteration
+        """
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
@@ -86,6 +144,10 @@ class SolverCallerISAT(SolverCaller):
         return result_file_names
 
     def edit_cost(self, cost):
+        """
+        Edit the model file to update the MAX_COST limit.
+        :param cost: maximum permitted cost - 0 means no limit applied (float)
+        """
         with open(self.model_path, 'r') as f:
             lines = f.read().split('\n')
 
@@ -103,6 +165,17 @@ class SolverCallerISAT(SolverCaller):
             f.write('\n'.join(lines))
 
     def call_solver(self, precision, cost, otherPrams, max_depth=2, msw=0):
+        """
+        Call iSAT, and save its output to a file.
+
+        :param precision: value of --prabs parameter to be passed to iSAT
+        :param cost:  maximum value of cost [determines output file name]
+        :param otherPrams: string containing other arguments to pass to iSAT
+        :param max_depth: maximum unrolling depth for BMC
+        :param msw: value of --msw (minimum splitting width) parameter to pass to iSAT
+        :return: name of output file
+        """
+
         if msw == 0:
             msw = precision * 5
 
@@ -122,7 +195,15 @@ class SolverCallerISAT(SolverCaller):
 
 
     def getCRNValues(self, file_path):
-        # Return a dictionary containing the ranges for each parameter as returned from the solver
+        """
+        Parse the output of iSAT, and extract parameter values and initial conditions.
+
+        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,
+        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.
+
+        :param file_path: path to the file containing iSAT output
+        """
+
         p = re.compile(r"(.+?) \(.+?\):")
         p2 = re.compile(r".+?[\[\(](.+?),(.+?)[\]\)].+")
 
@@ -154,6 +235,15 @@ class SolverCallerISAT(SolverCaller):
         return constant_values, all_values
 
     def get_full_solution(self, crn, flow, vals):
+        """
+        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
+        dictionary with their numerical values.
+
+        :param crn:
+        :param flow:
+        :param vals:
+        :return:
+        """
         initial_conditions = {}
 
         var_names = [str(var) for var in flow.keys()]
@@ -177,11 +267,26 @@ class SolverCallerISAT(SolverCaller):
 
 class SolverCallerDReal(SolverCaller):
 
-    def __init__(self, model_path="./bellshape.hys", dreal_path="/Users/maxtby/local/bin/dreach"):
+    def __init__(self, model_path="./bellshape.drh", dreal_path="/Users/maxtby/local/bin/dreach"):
+        """
+
+        :param model_path: path to the .drh file containing the SAT-ODE problem to be solved
+        :param dreal_path:
+        """
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+        """
+        Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.
+
+        :param max_cost: the maximum cost permitted on the first iteration
+        :param min_cost: the maximum cost permitted on the final iteration
+        :param precision: value of --precision parameter to be passed to dReach
+        :param msw: ignored
+        :return: list of file names, each containing the output from dReach from one iteration
+        """
+
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
@@ -191,8 +296,12 @@ class SolverCallerDReal(SolverCaller):
             cost -= 1
         return result_file_names
 
-
     def edit_cost(self, cost):
+        """
+        Edit the model file to update the MAX_COST limit.
+        :param cost: maximum permitted cost - 0 means no limit applied (float)
+        """
+
         with open(self.model_path, 'r') as f:
             lines = f.read().split('\n')
 
@@ -210,6 +319,15 @@ class SolverCallerDReal(SolverCaller):
             f.write('\n'.join(lines))
 
     def call_solver(self, precision, cost, otherPrams, max_depth=2):
+        """
+        Call dReach, and save its output to a file.
+
+        :param precision: value of --precision parameter to be passed to dReach
+        :param cost:  maximum value of cost [determines output file name]
+        :param otherPrams: string containing other arguments to pass to dReach
+        :param max_depth: maximum unrolling depth for BMC
+        :return: name of output file
+        """
         out_file = os.path.join(self.results_dir, "%s_%s_%s-dreal.txt" % (self.model_name, cost, precision))
         command = "%s -k %s %s --precision %s %s" % \
                   (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
@@ -221,6 +339,15 @@ class SolverCallerDReal(SolverCaller):
         return out_file
 
     def getCRNValues(self, file_path):
+        """
+        Parse the output of dReach, and extract parameter values and initial conditions.
+
+        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``
+        dictionary that contains the initial value of variables that change over time.
+
+        :param file_path: path to the file containing dReach output
+        """
+
         results = ''
         with open(file_path) as f:
             results = f.read()

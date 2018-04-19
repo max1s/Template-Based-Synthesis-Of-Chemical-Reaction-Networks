@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>CRNSynthesis.solverCaller API documentation</title>
-    <meta name="description" content="" />
+    <meta name="description" content="This sub-module is responsible for calling iSAT or dReal, parsing their output, and substituting the..." />
 
   <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1106,26 +1106,40 @@ table {
   <header id="section-intro">
   <h1 class="title"><span class="name">CRNSynthesis.solverCaller</span> module</h1>
   <div class="document">
+<p>This sub-module is responsible for calling iSAT or dReal, parsing their output, and substituting the extracted
+parameter values into the <tt class="docutils literal">CRNSketch</tt> to obtain a model that can be simulated.</p>
+<p>It is also able to perform optimization by iteratively solving the SAT-ODE problem, decreasing the permitted cost
+after each iteration.</p>
 </div>
 
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller" class="source">
-    <div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">subprocess</span> <span class="kn">as</span> <span class="nn">sub</span>
+    <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This sub-module is responsible for calling iSAT or dReal, parsing their output, and substituting the extracted</span>
+<span class="sd">parameter values into the ``CRNSketch`` to obtain a model that can be simulated.</span>
+
+<span class="sd">It is also able to perform optimization by iteratively solving the SAT-ODE problem, decreasing the permitted cost</span>
+<span class="sd">after each iteration.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">subprocess</span> <span class="kn">as</span> <span class="nn">sub</span>
 <span class="kn">import</span> <span class="nn">re</span>
-<span class="kn">import</span> <span class="nn">io</span>
 <span class="kn">import</span> <span class="nn">os</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="kn">import</span> <span class="n">walk</span>
 <span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="n">sympify</span>
 <span class="kn">from</span> <span class="nn">scipy.integrate</span> <span class="kn">import</span> <span class="n">odeint</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">json</span>
 
 <span class="kn">import</span> <span class="nn">matplotlib</span> <span class="kn">as</span> <span class="nn">mpl</span>
 <span class="n">mpl</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;Agg&#39;</span><span class="p">)</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
 <span class="k">class</span> <span class="nc">SolverCaller</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This abstract class is extended by ``SolverCallerISAT`` and ``SolverCallerDReal``, which are specialized to call the</span>
+<span class="sd">    corresponding solvers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">model_path</span>
 
@@ -1139,13 +1153,33 @@ table {
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver</span>
+<span class="sd">        is used.</span>
+
+<span class="sd">        :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)</span>
+<span class="sd">        :param precision:</span>
+<span class="sd">        :param msw:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">        Requires a specific initial_condition and flow dictionary in which parameters have been</span>
+<span class="sd">        replaced by specific numerical values.</span>
+
+<span class="sd">        :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
+<span class="sd">        :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param t: vector of times at which the system state will be calculated</span>
+<span class="sd">        :param plot_name: name of file in which plot of results should be saved</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
@@ -1167,6 +1201,16 @@ table {
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">        ``scipy.odeint`` to obtain a simulated time-course.</span>
+
+<span class="sd">        :param X: vector of current concentrations (in order given by species_list)</span>
+<span class="sd">        :param t: current time (ignored, as not needed to evaluate derivatives)</span>
+<span class="sd">        :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param species_list: list of species names (SymPy objects)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_list</span><span class="p">):</span>
@@ -1181,24 +1225,46 @@ table {
 
 
 <span class="k">class</span> <span class="nc">SolverCallerISAT</span><span class="p">(</span><span class="n">SolverCaller</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the</span>
+<span class="sd">    extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">isat_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param model_path: path to the .hys file containing the SAT-ODE problem to be solved</span>
+<span class="sd">        :param isat_path: path to the iSAT binary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerISAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span> <span class="o">=</span> <span class="n">isat_path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isat_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span> <span class="o">=</span> <span class="s2">&quot;./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt&quot;</span>
 
-    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+
+<span class="sd">        :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">        :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">        :param precision: value of --prabs parameter to eb passed to iSAT</span>
+<span class="sd">        :param msw: value of --msw parameter to eb passed to iSAT</span>
+<span class="sd">        :return: list of file names, each containing the output from iSAT from one iteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
         <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">edit_cost</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
-            <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">)</span>
+            <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
             <span class="n">result_file_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_file_name</span><span class="p">)</span>
             <span class="n">cost</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">result_file_names</span>
 
     <span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">        :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -1215,10 +1281,24 @@ table {
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call iSAT, and save its output to a file.</span>
+
+<span class="sd">        :param precision: value of --prabs parameter to be passed to iSAT</span>
+<span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">        :param otherPrams: string containing other arguments to pass to iSAT</span>
+<span class="sd">        :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">        :param msw: value of --msw (minimum splitting width) parameter to pass to iSAT</span>
+<span class="sd">        :return: name of output file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">msw</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msw</span> <span class="o">=</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span>
+
         <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-isat.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> --i </span><span class="si">%s</span><span class="s2"> --prabs=</span><span class="si">%s</span><span class="s2"> --msw=</span><span class="si">%s</span><span class="s2"> --max-depth=</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> \
-                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
+                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling solver!</span><span class="se">\n</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="n">command</span><span class="p">)</span>
@@ -1228,7 +1308,15 @@ table {
 
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-        <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing iSAT output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
 
@@ -1260,6 +1348,15 @@ table {
         <span class="k">return</span> <span class="n">constant_values</span><span class="p">,</span> <span class="n">all_values</span>
 
     <span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">        dictionary with their numerical values.</span>
+
+<span class="sd">        :param crn:</span>
+<span class="sd">        :param flow:</span>
+<span class="sd">        :param vals:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -1278,21 +1375,31 @@ table {
             <span class="k">del</span> <span class="n">parametrised_flow</span><span class="p">[</span><span class="n">derivative_symbol</span><span class="p">]</span>
             <span class="c1"># del initial_conditions[str(derivative_symbol)]</span>
 
-        <span class="c1">#print &quot;INPUT SPECIES:&quot;, crn.input_species</span>
-        <span class="c1">#for sp in crn.input_species:</span>
-        <span class="c1">#    initial_conditions[sp.name] = sp.initial_value</span>
-        <span class="c1">#    parametrised_flow[sp.name] = sp.ode</span>
-
         <span class="k">return</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span>
 
 
 <span class="k">class</span> <span class="nc">SolverCallerDReal</span><span class="p">(</span><span class="n">SolverCaller</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.drh&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param model_path: path to the .drh file containing the SAT-ODE problem to be solved</span>
+<span class="sd">        :param dreal_path:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerDReal</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span> <span class="o">=</span> <span class="n">dreal_path</span>
 
-    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+
+<span class="sd">        :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">        :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">        :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">        :param msw: ignored</span>
+<span class="sd">        :return: list of file names, each containing the output from dReach from one iteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
         <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
@@ -1302,8 +1409,12 @@ table {
             <span class="n">cost</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">result_file_names</span>
 
-
     <span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">        :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -1321,6 +1432,15 @@ table {
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call dReach, and save its output to a file.</span>
+
+<span class="sd">        :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">        :param otherPrams: string containing other arguments to pass to dReach</span>
+<span class="sd">        :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">        :return: name of output file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-dreal.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -k </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> --precision </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
                   <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
@@ -1332,6 +1452,15 @@ table {
         <span class="k">return</span> <span class="n">out_file</span>
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of dReach, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">        dictionary that contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing dReach output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1374,10 +1503,19 @@ table {
       <p id="CRNSynthesis.solverCaller.SolverCaller" class="name">class <span class="ident">SolverCaller</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>This abstract class is extended by <tt class="docutils literal">SolverCallerISAT</tt> and <tt class="docutils literal">SolverCallerDReal</tt>, which are specialized to call the
+corresponding solvers.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCaller', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCaller" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SolverCaller</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This abstract class is extended by ``SolverCallerISAT`` and ``SolverCallerDReal``, which are specialized to call the</span>
+<span class="sd">    corresponding solvers.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span> <span class="o">=</span> <span class="n">model_path</span>
 
@@ -1391,13 +1529,33 @@ table {
         <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">):</span>
             <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver</span>
+<span class="sd">        is used.</span>
+
+<span class="sd">        :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)</span>
+<span class="sd">        :param precision:</span>
+<span class="sd">        :param msw:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">        Requires a specific initial_condition and flow dictionary in which parameters have been</span>
+<span class="sd">        replaced by specific numerical values.</span>
+
+<span class="sd">        :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
+<span class="sd">        :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param t: vector of times at which the system state will be calculated</span>
+<span class="sd">        :param plot_name: name of file in which plot of results should be saved</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
 
@@ -1419,6 +1577,16 @@ table {
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">        ``scipy.odeint`` to obtain a simulated time-course.</span>
+
+<span class="sd">        :param X: vector of current concentrations (in order given by species_list)</span>
+<span class="sd">        :param t: current time (ignored, as not needed to evaluate derivatives)</span>
+<span class="sd">        :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param species_list: list of species names (SymPy objects)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_list</span><span class="p">):</span>
@@ -1452,11 +1620,42 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
+<tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param X:</th><td class="field-body">vector of current concentrations (in order given by species_list)</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">current time (ignored, as not needed to evaluate derivatives)</td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body">dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param species_list:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">list of species names (SymPy objects)</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCaller.gradient_function', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCaller.gradient_function" class="source">
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
+<span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
+<span class="sd">    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param species_list: list of species names (SymPy objects)</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_list</span><span class="p">):</span>
         <span class="n">vals</span><span class="p">[</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -1560,10 +1759,45 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+Requires a specific initial_condition and flow dictionary in which parameters have been
+replaced by specific numerical values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param initial_conditions:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names (string) and values are corresponding concentration (float)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param parametrised_flow:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">vector of times at which the system state will be calculated</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param plot_name:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">name of file in which plot of results should be saved</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCaller.simulate_solutions', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCaller.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
+<span class="sd">    replaced by specific numerical values.</span>
+<span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
+<span class="sd">    :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param t: vector of times at which the system state will be calculated</span>
+<span class="sd">    :param plot_name: name of file in which plot of results should be saved</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">ic</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1588,17 +1822,45 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCaller.single_synthesis">
-    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1)</p>
+    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1, msw=0)</p>
     </div>
     
 
     
   
+    <div class="desc"><div class="document">
+<p>Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
+is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param cost:</th><td class="field-body">maxmimum permitted value for the cost (if 0, cost is ignored)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCaller.single_synthesis', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCaller.single_synthesis" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver</span>
+<span class="sd">    is used.</span>
+<span class="sd">    :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)</span>
+<span class="sd">    :param precision:</span>
+<span class="sd">    :param msw:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1618,11 +1880,26 @@ table {
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SolverCallerDReal</span><span class="p">(</span><span class="n">SolverCaller</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.drh&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param model_path: path to the .drh file containing the SAT-ODE problem to be solved</span>
+<span class="sd">        :param dreal_path:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerDReal</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span> <span class="o">=</span> <span class="n">dreal_path</span>
 
-    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+
+<span class="sd">        :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">        :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">        :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">        :param msw: ignored</span>
+<span class="sd">        :return: list of file names, each containing the output from dReach from one iteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
         <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
@@ -1632,8 +1909,12 @@ table {
             <span class="n">cost</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">result_file_names</span>
 
-
     <span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">        :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -1651,6 +1932,15 @@ table {
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call dReach, and save its output to a file.</span>
+
+<span class="sd">        :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">        :param otherPrams: string containing other arguments to pass to dReach</span>
+<span class="sd">        :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">        :return: name of output file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-dreal.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -k </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> --precision </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
                   <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
@@ -1662,6 +1952,15 @@ table {
         <span class="k">return</span> <span class="n">out_file</span>
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of dReach, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">        dictionary that contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing dReach output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1694,11 +1993,42 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
+<tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param X:</th><td class="field-body">vector of current concentrations (in order given by species_list)</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">current time (ignored, as not needed to evaluate derivatives)</td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body">dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param species_list:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">list of species names (SymPy objects)</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.gradient_function', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.gradient_function" class="source">
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
+<span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
+<span class="sd">    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param species_list: list of species names (SymPy objects)</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_list</span><span class="p">):</span>
         <span class="n">vals</span><span class="p">[</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -1770,7 +2100,7 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerDReal.__init__">
-    <p>def <span class="ident">__init__</span>(</p><p>self, model_path=&#39;./bellshape.hys&#39;, dreal_path=&#39;/Users/maxtby/local/bin/dreach&#39;)</p>
+    <p>def <span class="ident">__init__</span>(</p><p>self, model_path=&#39;./bellshape.drh&#39;, dreal_path=&#39;/Users/maxtby/local/bin/dreach&#39;)</p>
     </div>
     
     <p class="inheritance">
@@ -1780,10 +2110,29 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-model-path field"><th class="docinfo-name" colspan="2">param model_path:</th></tr>
+<tr class="param-model-path field"><td>&nbsp;</td><td class="field-body">path to the .drh file containing the SAT-ODE problem to be solved</td>
+</tr>
+<tr class="param-dreal-path field"><th class="docinfo-name" colspan="2">param dreal_path:</th></tr>
+<tr class="param-dreal-path field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.__init__" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.drh&quot;</span><span class="p">,</span> <span class="n">dreal_path</span><span class="o">=</span><span class="s2">&quot;/Users/maxtby/local/bin/dreach&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param model_path: path to the .drh file containing the SAT-ODE problem to be solved</span>
+<span class="sd">    :param dreal_path:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerDReal</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span> <span class="o">=</span> <span class="n">dreal_path</span>
 </pre></div>
@@ -1802,10 +2151,41 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Call dReach, and save its output to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">value of --precision parameter to be passed to dReach</td>
+</tr>
+<tr class="field"><th class="field-name">param cost:</th><td class="field-body">maximum value of cost [determines output file name]</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param otherPrams:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">string containing other arguments to pass to dReach</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param max_depth:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">maximum unrolling depth for BMC</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body">name of output file</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.call_solver', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.call_solver" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call dReach, and save its output to a file.</span>
+<span class="sd">    :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">    :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">    :param otherPrams: string containing other arguments to pass to dReach</span>
+<span class="sd">    :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">    :return: name of output file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-dreal.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
     <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> -k </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> --precision </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
               <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dreal_path</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
@@ -1829,10 +2209,19 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Edit the model file to update the MAX_COST limit.
+:param cost: maximum permitted cost - 0 means no limit applied (float)</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.edit_cost', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.edit_cost" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">    :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
@@ -1861,10 +2250,31 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Parse the output of dReach, and extract parameter values and initial conditions.</p>
+<p>Returns a <tt class="docutils literal">constant_values</tt> dictionary, containing values of that do not change over time, and a <tt class="docutils literal">all_values</tt>
+dictionary that contains the initial value of variables that change over time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param file_path:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">path to the file containing dReach output</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.getCRNValues', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.getCRNValues" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the output of dReach, and extract parameter values and initial conditions.</span>
+<span class="sd">    Returns a ``constant_values`` dictionary, containing values of that do not change over time, and a ``all_values``</span>
+<span class="sd">    dictionary that contains the initial value of variables that change over time.</span>
+<span class="sd">    :param file_path: path to the file containing dReach output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">results</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">results</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
@@ -1879,7 +2289,7 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerDReal.optimal_synthesis_decreasing_cost">
-    <p>def <span class="ident">optimal_synthesis_decreasing_cost</span>(</p><p>self, max_cost=35, min_cost=10, precision=0.1)</p>
+    <p>def <span class="ident">optimal_synthesis_decreasing_cost</span>(</p><p>self, max_cost=35, min_cost=10, precision=0.1, msw=0)</p>
     </div>
     
     <p class="inheritance">
@@ -1889,10 +2299,39 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param max_cost:</th><td class="field-body">the maximum cost permitted on the first iteration</td>
+</tr>
+<tr class="field"><th class="field-name">param min_cost:</th><td class="field-body">the maximum cost permitted on the final iteration</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">value of --precision parameter to be passed to dReach</td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body">ignored</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body">list of file names, each containing the output from dReach from one iteration</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.optimal_synthesis_decreasing_cost', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.optimal_synthesis_decreasing_cost" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+<span class="sd">    :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">    :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">    :param precision: value of --precision parameter to be passed to dReach</span>
+<span class="sd">    :param msw: ignored</span>
+<span class="sd">    :return: list of file names, each containing the output from dReach from one iteration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
     <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
@@ -1921,10 +2360,45 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+Requires a specific initial_condition and flow dictionary in which parameters have been
+replaced by specific numerical values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param initial_conditions:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names (string) and values are corresponding concentration (float)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param parametrised_flow:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">vector of times at which the system state will be calculated</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param plot_name:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">name of file in which plot of results should be saved</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.simulate_solutions', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
+<span class="sd">    replaced by specific numerical values.</span>
+<span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
+<span class="sd">    :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param t: vector of times at which the system state will be calculated</span>
+<span class="sd">    :param plot_name: name of file in which plot of results should be saved</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">ic</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1949,7 +2423,7 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerDReal.single_synthesis">
-    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1)</p>
+    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1, msw=0)</p>
     </div>
     
     <p class="inheritance">
@@ -1959,11 +2433,39 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
+is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param cost:</th><td class="field-body">maxmimum permitted value for the cost (if 0, cost is ignored)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerDReal.single_synthesis', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerDReal.single_synthesis" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver</span>
+<span class="sd">    is used.</span>
+<span class="sd">    :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)</span>
+<span class="sd">    :param precision:</span>
+<span class="sd">    :param msw:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
 </pre></div>
 
   </div>
@@ -1978,28 +2480,55 @@ table {
       <p id="CRNSynthesis.solverCaller.SolverCallerISAT" class="name">class <span class="ident">SolverCallerISAT</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the
+extracted parameter values into the <tt class="docutils literal">CRNSketch</tt> to obtain a model that can be simulated</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">SolverCallerISAT</span><span class="p">(</span><span class="n">SolverCaller</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the</span>
+<span class="sd">    extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">isat_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param model_path: path to the .hys file containing the SAT-ODE problem to be solved</span>
+<span class="sd">        :param isat_path: path to the iSAT binary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerISAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span> <span class="o">=</span> <span class="n">isat_path</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">isat_path</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span> <span class="o">=</span> <span class="s2">&quot;./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt&quot;</span>
 
-    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+
+<span class="sd">        :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">        :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">        :param precision: value of --prabs parameter to eb passed to iSAT</span>
+<span class="sd">        :param msw: value of --msw parameter to eb passed to iSAT</span>
+<span class="sd">        :return: list of file names, each containing the output from iSAT from one iteration</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
         <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">edit_cost</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
-            <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">)</span>
+            <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
             <span class="n">result_file_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_file_name</span><span class="p">)</span>
             <span class="n">cost</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">return</span> <span class="n">result_file_names</span>
 
     <span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">        :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
 
@@ -2016,10 +2545,24 @@ table {
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
 
-    <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Call iSAT, and save its output to a file.</span>
+
+<span class="sd">        :param precision: value of --prabs parameter to be passed to iSAT</span>
+<span class="sd">        :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">        :param otherPrams: string containing other arguments to pass to iSAT</span>
+<span class="sd">        :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">        :param msw: value of --msw (minimum splitting width) parameter to pass to iSAT</span>
+<span class="sd">        :return: name of output file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">msw</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msw</span> <span class="o">=</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span>
+
         <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-isat.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
         <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> --i </span><span class="si">%s</span><span class="s2"> --prabs=</span><span class="si">%s</span><span class="s2"> --msw=</span><span class="si">%s</span><span class="s2"> --max-depth=</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> \
-                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
+                  <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
 
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling solver!</span><span class="se">\n</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="n">command</span><span class="p">)</span>
@@ -2029,7 +2572,15 @@ table {
 
 
     <span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-        <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+
+<span class="sd">        Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">        and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+
+<span class="sd">        :param file_path: path to the file containing iSAT output</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
         <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
 
@@ -2061,6 +2612,15 @@ table {
         <span class="k">return</span> <span class="n">constant_values</span><span class="p">,</span> <span class="n">all_values</span>
 
     <span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">        dictionary with their numerical values.</span>
+
+<span class="sd">        :param crn:</span>
+<span class="sd">        :param flow:</span>
+<span class="sd">        :param vals:</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
@@ -2078,11 +2638,6 @@ table {
             <span class="n">derivative_symbol</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
             <span class="k">del</span> <span class="n">parametrised_flow</span><span class="p">[</span><span class="n">derivative_symbol</span><span class="p">]</span>
             <span class="c1"># del initial_conditions[str(derivative_symbol)]</span>
-
-        <span class="c1">#print &quot;INPUT SPECIES:&quot;, crn.input_species</span>
-        <span class="c1">#for sp in crn.input_species:</span>
-        <span class="c1">#    initial_conditions[sp.name] = sp.initial_value</span>
-        <span class="c1">#    parametrised_flow[sp.name] = sp.ode</span>
 
         <span class="k">return</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span>
 </pre></div>
@@ -2112,11 +2667,42 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Evaluates the time-derivative of the system so that it can be numerically integrated by
+<tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param X:</th><td class="field-body">vector of current concentrations (in order given by species_list)</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">current time (ignored, as not needed to evaluate derivatives)</td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body">dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param species_list:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">list of species names (SymPy objects)</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.gradient_function', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.gradient_function" class="source">
     <div class="codehilite"><pre><span></span><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">gradient_function</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">species_list</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluates the time-derivative of the system so that it can be numerically integrated by</span>
+<span class="sd">    ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    :param X: vector of current concentrations (in order given by species_list)</span>
+<span class="sd">    :param t: current time (ignored, as not needed to evaluate derivatives)</span>
+<span class="sd">    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param species_list: list of species names (SymPy objects)</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">vals</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">t</span><span class="p">}</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">species</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_list</span><span class="p">):</span>
         <span class="n">vals</span><span class="p">[</span><span class="n">species</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
@@ -2198,10 +2784,29 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-model-path field"><th class="docinfo-name" colspan="2">param model_path:</th></tr>
+<tr class="param-model-path field"><td>&nbsp;</td><td class="field-body">path to the .hys file containing the SAT-ODE problem to be solved</td>
+</tr>
+<tr class="param-isat-path field"><th class="docinfo-name" colspan="2">param isat_path:</th></tr>
+<tr class="param-isat-path field"><td>&nbsp;</td><td class="field-body">path to the iSAT binary</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="o">=</span><span class="s2">&quot;./bellshape.hys&quot;</span><span class="p">,</span> <span class="n">isat_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param model_path: path to the .hys file containing the SAT-ODE problem to be solved</span>
+<span class="sd">    :param isat_path: path to the iSAT binary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">SolverCallerISAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span> <span class="o">=</span> <span class="n">isat_path</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">isat_path</span><span class="p">:</span>
@@ -2216,19 +2821,55 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerISAT.call_solver">
-    <p>def <span class="ident">call_solver</span>(</p><p>self, precision, cost, otherPrams, max_depth=2)</p>
+    <p>def <span class="ident">call_solver</span>(</p><p>self, precision, cost, otherPrams, max_depth=2, msw=0)</p>
     </div>
     
 
     
   
+    <div class="desc"><div class="document">
+<p>Call iSAT, and save its output to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">value of --prabs parameter to be passed to iSAT</td>
+</tr>
+<tr class="field"><th class="field-name">param cost:</th><td class="field-body">maximum value of cost [determines output file name]</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param otherPrams:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">string containing other arguments to pass to iSAT</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param max_depth:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">maximum unrolling depth for BMC</td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body">value of --msw (minimum splitting width) parameter to pass to iSAT</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body">name of output file</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.call_solver', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.call_solver" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call iSAT, and save its output to a file.</span>
+<span class="sd">    :param precision: value of --prabs parameter to be passed to iSAT</span>
+<span class="sd">    :param cost:  maximum value of cost [determines output file name]</span>
+<span class="sd">    :param otherPrams: string containing other arguments to pass to iSAT</span>
+<span class="sd">    :param max_depth: maximum unrolling depth for BMC</span>
+<span class="sd">    :param msw: value of --msw (minimum splitting width) parameter to pass to iSAT</span>
+<span class="sd">    :return: name of output file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">msw</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">msw</span> <span class="o">=</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span>
     <span class="n">out_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">results_dir</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">-isat.txt&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="p">))</span>
     <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> --i </span><span class="si">%s</span><span class="s2"> --prabs=</span><span class="si">%s</span><span class="s2"> --msw=</span><span class="si">%s</span><span class="s2"> --max-depth=</span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> \
-              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">precision</span> <span class="o">*</span> <span class="mi">5</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
+              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">isat_path</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="p">,</span> <span class="n">max_depth</span><span class="p">,</span> <span class="n">otherPrams</span><span class="p">)</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">out_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Calling solver!</span><span class="se">\n</span><span class="s2"> &quot;</span> <span class="o">+</span> <span class="n">command</span><span class="p">)</span>
         <span class="n">sub</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">command</span><span class="o">.</span><span class="n">split</span><span class="p">(),</span> <span class="n">stdout</span><span class="o">=</span><span class="n">f</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">sub</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
@@ -2249,10 +2890,19 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Edit the model file to update the MAX_COST limit.
+:param cost: maximum permitted cost - 0 means no limit applied (float)</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.edit_cost', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.edit_cost" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">edit_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Edit the model file to update the MAX_COST limit.</span>
+<span class="sd">    :param cost: maximum permitted cost - 0 means no limit applied (float)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">line_number</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">lines</span><span class="p">):</span>
@@ -2281,11 +2931,31 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Parse the output of iSAT, and extract parameter values and initial conditions.</p>
+<p>Returns a <tt class="docutils literal">constant_values</tt> dictionary, containing only values of that do not change over time,
+and a <tt class="docutils literal">all_values</tt> dictionary that also contains the initial value of variables that change over time.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param file_path:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">path to the file containing iSAT output</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.getCRNValues', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.getCRNValues" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getCRNValues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">):</span>
-    <span class="c1"># Return a dictionary containing the ranges for each parameter as returned from the solver</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parse the output of iSAT, and extract parameter values and initial conditions.</span>
+<span class="sd">    Returns a ``constant_values`` dictionary, containing only values of that do not change over time,</span>
+<span class="sd">    and a ``all_values`` dictionary that also contains the initial value of variables that change over time.</span>
+<span class="sd">    :param file_path: path to the file containing iSAT output</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">p</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(.+?) \(.+?\):&quot;</span><span class="p">)</span>
     <span class="n">p2</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.+?[\[\(](.+?),(.+?)[\]\)].+&quot;</span><span class="p">)</span>
     <span class="n">constant_values</span> <span class="o">=</span> <span class="p">{}</span>
@@ -2324,10 +2994,37 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
+dictionary with their numerical values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param crn:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param vals:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.get_full_solution', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.get_full_solution" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crn</span><span class="p">,</span> <span class="n">flow</span><span class="p">,</span> <span class="n">vals</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow</span>
+<span class="sd">    dictionary with their numerical values.</span>
+<span class="sd">    :param crn:</span>
+<span class="sd">    :param flow:</span>
+<span class="sd">    :param vals:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">initial_conditions</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">var_names</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">flow</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
     <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
@@ -2342,10 +3039,6 @@ table {
         <span class="n">derivative_symbol</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
         <span class="k">del</span> <span class="n">parametrised_flow</span><span class="p">[</span><span class="n">derivative_symbol</span><span class="p">]</span>
         <span class="c1"># del initial_conditions[str(derivative_symbol)]</span>
-    <span class="c1">#print &quot;INPUT SPECIES:&quot;, crn.input_species</span>
-    <span class="c1">#for sp in crn.input_species:</span>
-    <span class="c1">#    initial_conditions[sp.name] = sp.initial_value</span>
-    <span class="c1">#    parametrised_flow[sp.name] = sp.ode</span>
     <span class="k">return</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span>
 </pre></div>
 
@@ -2357,7 +3050,7 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerISAT.optimal_synthesis_decreasing_cost">
-    <p>def <span class="ident">optimal_synthesis_decreasing_cost</span>(</p><p>self, max_cost=35, min_cost=10, precision=0.1)</p>
+    <p>def <span class="ident">optimal_synthesis_decreasing_cost</span>(</p><p>self, max_cost=35, min_cost=10, precision=0.1, msw=0)</p>
     </div>
     
     <p class="inheritance">
@@ -2367,15 +3060,44 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param max_cost:</th><td class="field-body">the maximum cost permitted on the first iteration</td>
+</tr>
+<tr class="field"><th class="field-name">param min_cost:</th><td class="field-body">the maximum cost permitted on the final iteration</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">value of --prabs parameter to eb passed to iSAT</td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body">value of --msw parameter to eb passed to iSAT</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body">list of file names, each containing the output from iSAT from one iteration</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.optimal_synthesis_decreasing_cost', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.optimal_synthesis_decreasing_cost" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_cost</span><span class="o">=</span><span class="mi">35</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.</span>
+<span class="sd">    :param max_cost: the maximum cost permitted on the first iteration</span>
+<span class="sd">    :param min_cost: the maximum cost permitted on the final iteration</span>
+<span class="sd">    :param precision: value of --prabs parameter to eb passed to iSAT</span>
+<span class="sd">    :param msw: value of --msw parameter to eb passed to iSAT</span>
+<span class="sd">    :return: list of file names, each containing the output from iSAT from one iteration</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cost</span> <span class="o">=</span> <span class="n">max_cost</span>
     <span class="n">result_file_names</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">while</span> <span class="n">cost</span> <span class="o">&gt;=</span> <span class="n">min_cost</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">edit_cost</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
-        <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">)</span>
+        <span class="n">result_file_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call_solver</span><span class="p">(</span><span class="n">precision</span><span class="p">,</span> <span class="n">cost</span><span class="p">,</span> <span class="s1">&#39; --ode-opts --continue-after-not-reaching-horizon&#39;</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
         <span class="n">result_file_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_file_name</span><span class="p">)</span>
         <span class="n">cost</span> <span class="o">-=</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">result_file_names</span>
@@ -2399,10 +3121,45 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Numerically integrates the system using <tt class="docutils literal">scipy.odeint</tt> to obtain a simulated time-course.
+Requires a specific initial_condition and flow dictionary in which parameters have been
+replaced by specific numerical values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param initial_conditions:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names (string) and values are corresponding concentration (float)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param parametrised_flow:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+<tr class="field"><th class="field-name">param t:</th><td class="field-body">vector of times at which the system state will be calculated</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param plot_name:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">name of file in which plot of results should be saved</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.simulate_solutions', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.simulate_solutions" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">simulate_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_conditions</span><span class="p">,</span> <span class="n">parametrised_flow</span><span class="p">,</span> <span class="n">t</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_name</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.</span>
+<span class="sd">    Requires a specific initial_condition and flow dictionary in which parameters have been</span>
+<span class="sd">    replaced by specific numerical values.</span>
+<span class="sd">    :param initial_conditions: dictionary in which keys are species names (string) and values are corresponding concentration (float)</span>
+<span class="sd">    :param parametrised_flow: dictionary in which keys are species names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param t: vector of times at which the system state will be calculated</span>
+<span class="sd">    :param plot_name: name of file in which plot of results should be saved</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">t</span><span class="p">:</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
     <span class="n">ic</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2427,7 +3184,7 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.solverCaller.SolverCallerISAT.single_synthesis">
-    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1)</p>
+    <p>def <span class="ident">single_synthesis</span>(</p><p>self, cost=20, precision=0.1, msw=0)</p>
     </div>
     
     <p class="inheritance">
@@ -2437,11 +3194,39 @@ table {
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
+is used.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param cost:</th><td class="field-body">maxmimum permitted value for the cost (if 0, cost is ignored)</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param precision:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">param msw:</th><td class="field-body"></td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.solverCaller.SolverCallerISAT.single_synthesis', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.solverCaller.SolverCallerISAT.single_synthesis" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">single_synthesis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cost</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver</span>
+<span class="sd">    is used.</span>
+<span class="sd">    :param cost: maxmimum permitted value for the cost (if 0, cost is ignored)</span>
+<span class="sd">    :param precision:</span>
+<span class="sd">    :param msw:</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_synthesis_decreasing_cost</span><span class="p">(</span><span class="n">max_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">min_cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">,</span> <span class="n">msw</span><span class="o">=</span><span class="n">msw</span><span class="p">)</span>
 </pre></div>
 
   </div>

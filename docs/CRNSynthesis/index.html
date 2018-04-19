@@ -4,7 +4,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 
     <title>CRNSynthesis API documentation</title>
-    <meta name="description" content="This module represents a sketch of a Chemical Reaction Network." />
+    <meta name="description" content="This is a python package for the Syntax-Guide Synthesis of Chemical Reaction Networks to meet formal..." />
 
   <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300' rel='stylesheet' type='text/css'>
   
@@ -1063,14 +1063,27 @@ table {
   <header id="section-intro">
   <h1 class="title"><span class="name">CRNSynthesis</span> module</h1>
   <div class="document">
-<p>This module represents a sketch of a Chemical Reaction Network.</p>
+<p>This is a python package for the Syntax-Guide Synthesis of Chemical Reaction Networks to meet formal specifications,
+using the method described in <a class="reference external" href="https://link.springer.com/chapter/10.1007/978-3-319-63390-9_20">Syntax-Guided Optimal Synthesis for Chemical Reaction Networks</a>.</p>
+<p>The source code is hosted on <a class="reference external" href="https://github.com/max1s/CRNSynthesis">GitHub</a>.</p>
+<p>A graphical web-interface to this library is provided by <a class="reference external" href="https://github.com/jamesscottbrown/crn-designer">crn-designer</a>.</p>
+<p>Usage examples ar eprovided in the <tt class="docutils literal">examples/</tt> directory.</p>
 </div>
 
   
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis" class="source">
     <div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">This module represents a sketch of a Chemical Reaction Network.</span>
+
+<span class="sd">This is a python package for the Syntax-Guide Synthesis of Chemical Reaction Networks to meet formal specifications,</span>
+<span class="sd">using the method described in `Syntax-Guided Optimal Synthesis for Chemical Reaction Networks &lt;https://link.springer.com/chapter/10.1007/978-3-319-63390-9_20&gt;`_.</span>
+
+<span class="sd">The source code is hosted on `GitHub &lt;https://github.com/max1s/CRNSynthesis&gt;`_.</span>
+
+<span class="sd">A graphical web-interface to this library is provided by `crn-designer &lt;https://github.com/jamesscottbrown/crn-designer&gt;`_.</span>
+
+<span class="sd">Usage examples ar eprovided in the ``examples/`` directory.</span>
+
 <span class="sd">&quot;&quot;&quot;</span>
 </pre></div>
 
@@ -1100,6 +1113,12 @@ These will construct various objects to represent part of the pro...</p>
       <p class="name"><a href="solverCaller.m.html">CRNSynthesis.solverCaller</a></p>
       
   
+    <div class="desc"><div class="document">
+<p>This sub-module is responsible for calling iSAT or dReal, parsing their output, and substituting the extracted
+parameter values into the <tt class="docutils literal">CRNSketch</tt> to obtain a model that can be simulated.</p>
+<p>It is also able to perform optimization by iteratively solving the SAT-ODE problem, decreasing the permitte...</p>
+</div>
+</div>
 
       </div>
       <div class="item">
