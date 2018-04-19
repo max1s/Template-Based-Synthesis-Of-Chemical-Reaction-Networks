@@ -279,7 +279,9 @@ class Transition:
                 #mode invariants
                 s += "invt: "
                 s += "\n\n\t // invariant conditions during modes\n"
-                s += "\t " + ''.join(mode[1]) + ";"
+
+                if mode[1]:
+                    s += "\t " + ''.join(mode[1]) + ";"
 
                 #flow variables
                 s += '\n\nflow: \n'
