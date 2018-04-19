@@ -25,8 +25,7 @@ def formCRN():
 
     return CRNSketch([reaction1, reaction2], [reaction3], [])
 
-derivatives = []
-# derivatives = [{"variable": 'K', "order": 1, "is_variance": False, "name": "dK_dt"}]
+derivatives = [{"variable": 'K', "order": 1, "is_variance": False, "name": "dK_dt"}]
 # specification = [('', 'dK_dt >= 0', '((K > 0) and (dK_dt = 0))'), ('', 'dK_dt <= 0', '((K >= 0) and (K < 0.1))')]
 # specification = [('', '(dK_dt >= 0)', '(dK_dt = 0)' ), ('', '(dK_dt < 0)', '(dK_dt < 0)')]
 specification = [('', '', '(K > 0.1)'), ('', '', '(K < 0.3)')]
@@ -43,13 +42,37 @@ with open('bellshape.drh', 'w') as file:
     file.write(drh)
 
 
-# Try to solve using iSAT
-sc = SolverCallerISAT("./bellshape.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+# # Try to solve using iSAT
+# sc = SolverCallerISAT("./bellshape.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+#
+# result_files = sc.single_synthesis(cost=0)
+#
+# for file_name in result_files:
+#     print("\n\n")
+#     # print(sc.getCRNValues(file_name))
+#
+#     vals, all_vals = sc.getCRNValues(file_name)
+#     initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+#
+#     print("Initial Conditions", initial_conditions)
+#     print("Flow:", parametrised_flow)
+#
+#
+#     t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
+#                                                    plot_name=file_name + "-simulation.png")
+#     print("\n\n")
+#     print(variable_names)
+#     print(sol)
+#     savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 
+
+sc = SolverCallerDReal("./bellshape.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
 result_files = sc.single_synthesis(cost=0)
 
+
 for file_name in result_files:
-    print("\n\n")
+
+    print(file_name)
     # print(sc.getCRNValues(file_name))
 
     vals, all_vals = sc.getCRNValues(file_name)
@@ -60,13 +83,8 @@ for file_name in result_files:
 
 
     t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                   plot_name=file_name + "-simulation.png")
+                                                   plot_name=file_name + "-simulationdreal.png")
     print("\n\n")
     print(variable_names)
     print(sol)
-    savetxt(file_name + "-simulation.csv", sol, delimiter=",")
-
-
-# Try to solve using dReal
-sc = SolverCallerDReal("./bellshape.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-result_files = sc.single_synthesis(cost=0)
+    savetxt(file_name + "-simulationdreal.csv", sol, delimiter=",")

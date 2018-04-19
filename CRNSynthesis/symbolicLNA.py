@@ -457,7 +457,7 @@ class TermChoice:
                 clause = "( and " + "".join(subclauses) + ")"
                 clauses.append(clause)
 
-        return "\t" + "( or " "".join(clauses) + ") \n"
+        return "\t" + "( or " + "".join(clauses) + ") \n"
 
 
 
