@@ -75,7 +75,7 @@ class SolverCaller(object):
         variable_names = [str(x) for x in parametrised_flow]
 
         if plot_name:
-            lines = plt.plot(sol)
+            lines = plt.plot(t, sol)
             plt.legend(iter(lines), variable_names)
             plt.savefig(plot_name + "-simulation.png")
             plt.xlabel("Time")
