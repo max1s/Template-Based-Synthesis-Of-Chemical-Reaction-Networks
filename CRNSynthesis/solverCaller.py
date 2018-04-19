@@ -359,6 +359,10 @@ class SolverCallerDReal(SolverCaller):
                     var_name = p.match(line).groups()[0].strip()
                     var_name = "_".join(var_name.split("_")[:-2])
 
+                    # Mode transition times contain only a single underscore (e.g. time_0)
+                    if not var_name:
+                        continue
+
                     values = p.match(line).groups()[1:]
 
                     if "mode_" in var_name:
@@ -395,7 +399,11 @@ class SolverCallerDReal(SolverCaller):
         all_values = {}  # includes state variables
 
         for t in results["traces"][0]:
-            var_name =  "_".join(t["key"].split("_")[:-2])
+            var_name = "_".join(t["key"].split("_")[:-2])
+            
+            # Mode transition times contain only a single underscore (e.g. time_0)
+            if not var_name:
+                continue
 
             interval = t["values"][0]["enclosure"]
 
