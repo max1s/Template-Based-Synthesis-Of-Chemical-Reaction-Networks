@@ -129,7 +129,7 @@ class SolverCaller(object):
             else:
                 for x in flow:
                     mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
-                    flow[x] = flow[x].subs(val, mean_val)
+                    flow[x] = flow[x].subs(sympify(val), mean_val)
 
         parametrised_flow = dict(flow)
         for x in crn.derivatives:
