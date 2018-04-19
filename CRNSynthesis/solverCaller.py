@@ -10,6 +10,7 @@ after each iteration.
 import subprocess as sub
 import re
 import os
+import json
 from sympy import sympify
 from scipy.integrate import odeint
 import numpy as np
@@ -63,7 +64,7 @@ class SolverCaller(object):
         :param plot_name: name of file in which plot of results should be saved
         :return:
         """
-        if t is not False:
+        if t is False:
             t = np.linspace(0, 1, 100)
 
         ic = []
@@ -75,10 +76,11 @@ class SolverCaller(object):
         variable_names = [str(x) for x in parametrised_flow]
 
         if plot_name:
+            plt.figure()
             lines = plt.plot(t, sol)
             plt.legend(iter(lines), variable_names)
-            plt.savefig(plot_name + "-simulation.png")
             plt.xlabel("Time")
+            plt.savefig(plot_name + "-simulation.png")
 
         return t, sol, variable_names
 
@@ -105,6 +107,37 @@ class SolverCaller(object):
             result.append(flow[species].evalf(subs=vals))
 
         return result
+
+
+    def get_full_solution(self, crn, flow, vals):
+        """
+        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
+        dictionary with their numerical values.
+
+        :param crn:
+        :param flow:
+        :param vals:
+        :return:
+        """
+        initial_conditions = {}
+
+        var_names = [str(var) for var in flow.keys()]
+
+        for val in vals:
+            if val in var_names:
+                initial_conditions[val] = (float(vals[val][0]) + float(vals[val][1])) / 2
+            else:
+                for x in flow:
+                    mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
+                    flow[x] = flow[x].subs(val, mean_val)
+
+        parametrised_flow = dict(flow)
+        for x in crn.derivatives:
+            derivative_symbol = sympify(x["name"])
+            del parametrised_flow[derivative_symbol]
+            # del initial_conditions[str(derivative_symbol)]
+
+        return initial_conditions, parametrised_flow
 
 
 class SolverCallerISAT(SolverCaller):
@@ -230,36 +263,6 @@ class SolverCallerISAT(SolverCaller):
 
         return constant_values, all_values
 
-    def get_full_solution(self, crn, flow, vals):
-        """
-        Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
-        dictionary with their numerical values.
-
-        :param crn:
-        :param flow:
-        :param vals:
-        :return:
-        """
-        initial_conditions = {}
-
-        var_names = [str(var) for var in flow.keys()]
-
-        for val in vals:
-            if val in var_names:
-                initial_conditions[val] = (float(vals[val][0]) + float(vals[val][1])) / 2
-            else:
-                for x in flow:
-                    mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
-                    flow[x] = flow[x].subs(val, mean_val)
-
-        parametrised_flow = dict(flow)
-        for x in crn.derivatives:
-            derivative_symbol = sympify(x["name"])
-            del parametrised_flow[derivative_symbol]
-            # del initial_conditions[str(derivative_symbol)]
-
-        return initial_conditions, parametrised_flow
-
 
 class SolverCallerDReal(SolverCaller):
 
@@ -325,14 +328,15 @@ class SolverCallerDReal(SolverCaller):
         :return: name of output file
         """
         out_file = os.path.join(self.results_dir, "%s_%s_%s-dreal.txt" % (self.model_name, cost, precision))
-        command = "%s -k %s %s --precision %s %s" % \
+        command = "%s -k %s %s --precision %s --visualize %s" % \
                   (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
 
         with open(out_file, "w") as f:
             print("Calling solver!\n " + command)
             sub.call(command.split(), stdout=f, stderr=sub.PIPE)
 
-        return out_file
+        # dREach
+        return os.path.join(os.getcwd(), "%s_0_0.smt2.json" % self.model_name)
 
     def getCRNValues(self, file_path):
         """
@@ -346,28 +350,26 @@ class SolverCallerDReal(SolverCaller):
 
         results = ''
         with open(file_path) as f:
-            results = f.read()
+            results = json.load(f)
 
-        return results
+        constant_values = {}
+        all_values = {}  # includes state variables
 
-        # constant_values = {}
-        # all_values = {}  # includes state variables
-        #
-        # for t in results["traces"][0]:
-        #     var_name = t["key"].replace("_0_0", "")
-        #
-        #     interval = t["values"][0]["enclosure"]
-        #
-        #     single_value = True
-        #
-        #     for v in t["values"]:
-        #         # if i[0] != interval[0] or i[1] != interval[1] :
-        #         if v["enclosure"] != interval:
-        #             single_value = False
-        #             break
-        #
-        #     if single_value:
-        #         constant_values[var_name] = interval
-        #     all_values[var_name] = interval
-        #
-        # return constant_values, all_values
+        for t in results["traces"][0]:
+            var_name = t["key"].replace("_0_0", "")
+
+            interval = t["values"][0]["enclosure"]
+
+            single_value = True
+
+            for v in t["values"]:
+                # if i[0] != interval[0] or i[1] != interval[1] :
+                if v["enclosure"] != interval:
+                    single_value = False
+                    break
+
+            if single_value:
+                constant_values[var_name] = interval
+            all_values[var_name] = interval
+
+        return constant_values, all_values
