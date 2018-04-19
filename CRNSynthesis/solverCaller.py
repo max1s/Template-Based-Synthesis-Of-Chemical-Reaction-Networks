@@ -357,7 +357,7 @@ class SolverCallerDReal(SolverCaller):
 
                 if p.match(line):
                     var_name = p.match(line).groups()[0].strip()
-                    var_name = var_name.split("_")[0]
+                    var_name = "_".join(var_name.split("_")[:-2])
 
                     values = p.match(line).groups()[1:]
 
@@ -395,7 +395,7 @@ class SolverCallerDReal(SolverCaller):
         all_values = {}  # includes state variables
 
         for t in results["traces"][0]:
-            var_name = t["key"].replace("_0_0", "")
+            var_name =  "_".join(t["key"].split("_")[:-2])
 
             interval = t["values"][0]["enclosure"]
 
