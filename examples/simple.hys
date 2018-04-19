@@ -1,0 +1,62 @@
+
+DECL 
+define MAX_TIME = 1;
+	define SF = 1000;
+	-- declare time variables
+	float [0, MAX_TIME] time;
+	float [0, MAX_TIME] delta_time;
+
+	-- declare cost variables
+define MAX_COST = 0; 
+define NO_COST_LIMIT = 1;
+
+	-- Define State Variables
+	float[0, 1] X;
+
+	-- Rate constants
+	float [0, 1] k_1;
+
+	--Define modes
+	boole mode_1;
+
+INIT
+	time = 0;
+
+	-- cost condition
+	(((9) <= MAX_COST) or (NO_COST_LIMIT = 1));
+
+	-- cannot be in two modes at the same time. We start in mode_1.
+	mode_1 = 1;
+	mode_1 = 1;
+
+
+	-- Limits on initial conditions
+	X = 1;
+
+
+TRANS 
+
+	-- time constraint
+	time' = time + delta_time;
+
+
+
+	-- invariant conditions during modes
+
+	-- jump conditions between modes
+
+	-- No state change without time consumption.
+	(delta_time = 0) -> ((X' = X));
+	(delta_time = 0) -> ((X' = X));
+	(delta_time = 0) -> ((k_1' = k_1));
+
+	-- Rate constants are fixed
+	(d.k_1/d.time = 0);
+	(k_1 = k_1');
+
+
+	-- Flows
+	(mode_1) -> 	(d.X/d.time  = SF*(-X*k_1));
+
+TARGET 
+	mode_1 and (time < 1) and ((X < 0.1));

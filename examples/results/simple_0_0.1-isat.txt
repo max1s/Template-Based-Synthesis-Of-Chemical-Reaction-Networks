@@ -1,0 +1,971 @@
+######## VariableCNodeMap: #########
+NO_COST_LIMIT = ( 1 / 1 )
+MAX_COST = ( 0 / 1 )
+SF = ( 1000 / 1 )
+MAX_TIME = ( 1 / 1 )
+
+######## Bounds #######
+( ( 0 / 1 ) <= time )
+( time <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= delta_time )
+( delta_time <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= X )
+( X <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= k_1 )
+( k_1 <= ( 1 / 1 ) )
+( 0  <= __help_0 )
+( __help_0 <= 1  )
+( 0  <= __help_1 )
+( __help_1 <= 1  )
+
+######## INIT #########
+( ( __help_0 >= 1  ) and
+( __help_0 <= 1  ) and
+( __help_1 >= 1  ) and
+( __help_1 <= 1  ) and
+( time >= 0  ) and
+( time <= 0  ) and
+( X >= 1  ) and
+( X <= 1  ) and
+( mode_1 -> ( ( __help_0 >= 1  ) and
+( __help_0 <= 1  ) ) ) and
+( not( mode_1 ) -> ( ( __help_0 >= 0  ) and
+( __help_0 <= 0  ) ) ) and
+( mode_1 -> ( ( __help_1 >= 1  ) and
+( __help_1 <= 1  ) ) ) and
+( not( mode_1 ) -> ( ( __help_1 >= 0  ) and
+( __help_1 <= 0  ) ) ) )
+######## TRANS #########
+( ( ( time' - ( time + delta_time ) ) >= 0  ) and
+( ( time' - ( time + delta_time ) ) <= 0  ) and
+( ( k_1 - k_1' ) >= 0  ) and
+( ( k_1 - k_1' ) <= 0  ) and
+( mode_1 -> (d.X / d.time = ( 1000  * ( X * ( k_1 * -1  ) ) )) ) and
+(d.k_1 / d.time = 0 ) and
+( ( ( delta_time >= 0  ) and
+( delta_time <= 0  ) ) -> ( ( ( k_1' - k_1 ) >= 0  ) and
+( ( k_1' - k_1 ) <= 0  ) ) ) and
+( ( ( delta_time >= 0  ) and
+( delta_time <= 0  ) ) -> ( ( ( X' - X ) >= 0  ) and
+( ( X' - X ) <= 0  ) ) ) )
+######## TARGET #########
+( mode_1 and
+( time < 1  ) and
+( X < ( 1 / 10 ) ) )
+
+   69:    Andexp(
+   33:     GTEexp(
+    1:      Integervar[__help_0], 
+    2:      Integerconst[1 ]), 
+   34:     LTEexp(
+    1:      Integervar[__help_0], 
+    2:      Integerconst[1 ]), 
+   37:     GTEexp(
+   10:      Integervar[__help_1], 
+    2:      Integerconst[1 ]), 
+   38:     LTEexp(
+   10:      Integervar[__help_1], 
+    2:      Integerconst[1 ]), 
+   41:     GTEexp(
+   17:      Realvar[time], 
+    4:      Integerconst[0 ]), 
+   42:     LTEexp(
+   17:      Realvar[time], 
+    4:      Integerconst[0 ]), 
+   46:     GTEexp(
+   29:      Realvar[X], 
+    2:      Integerconst[1 ]), 
+   47:     LTEexp(
+   29:      Realvar[X], 
+    2:      Integerconst[1 ]), 
+   64:     R_Implexp(
+   51:      Boolvar[mode_1], 
+   50:      Andexp(
+   33:       GTEexp(
+    1:        Integervar[__help_0], 
+    2:        Integerconst[1 ]), 
+   34:       LTEexp(
+    1:        Integervar[__help_0], 
+    2:        Integerconst[1 ]))), 
+   65:     R_Implexp(
+   52:      Notexp(
+   51:       Boolvar[mode_1]), 
+   53:      Andexp(
+   35:       GTEexp(
+    1:        Integervar[__help_0], 
+    4:        Integerconst[0 ]), 
+   36:       LTEexp(
+    1:        Integervar[__help_0], 
+    4:        Integerconst[0 ]))), 
+   66:     R_Implexp(
+   51:      Boolvar[mode_1], 
+   54:      Andexp(
+   37:       GTEexp(
+   10:        Integervar[__help_1], 
+    2:        Integerconst[1 ]), 
+   38:       LTEexp(
+   10:        Integervar[__help_1], 
+    2:        Integerconst[1 ]))), 
+   67:     R_Implexp(
+   52:      Notexp(
+   51:       Boolvar[mode_1]), 
+   55:      Andexp(
+   39:       GTEexp(
+   10:        Integervar[__help_1], 
+    4:        Integerconst[0 ]), 
+   40:       LTEexp(
+   10:        Integervar[__help_1], 
+    4:        Integerconst[0 ]))))
+  132:    Andexp(
+   74:     GTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   75:     LTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   89:     GTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+   90:     LTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  131:     R_Implexp(
+   51:      Boolvar[mode_1], 
+  130:      Odeexp(
+   29:       Realvar[X], 
+  120:       Multexp(
+   97:        Integerconst[1000 ], 
+  119:        Multexp(
+   29:         Realvar[X], 
+  118:         Multexp(
+   84:          Realvar[k_1], 
+   95:          Integerconst[-1 ]))))), 
+  109:     Odeexp(
+   84:      Realvar[k_1], 
+    4:      Integerconst[0 ]), 
+  111:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  104:      Andexp(
+   86:       GTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+   87:       LTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]))), 
+  113:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  103:      Andexp(
+   81:       GTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]), 
+   82:       LTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]))))
+  129:    Andexp(
+   51:     Boolvar[mode_1], 
+  126:     LTexp(
+   17:      Realvar[time], 
+    2:      Integerconst[1 ]), 
+  127:     LTexp(
+   29:      Realvar[X], 
+  123:      Realconst[( 1 / 10 )]))
+Replacing ODEs in transition system.
+  132:    Andexp(
+   74:     GTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   75:     LTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   89:     GTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+   90:     LTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  131:     R_Implexp(
+   51:      Boolvar[mode_1], 
+  130:      Odeexp(
+   29:       Realvar[X], 
+  120:       Multexp(
+   97:        Integerconst[1000 ], 
+  119:        Multexp(
+   29:         Realvar[X], 
+  118:         Multexp(
+   84:          Realvar[k_1], 
+   95:          Integerconst[-1 ]))))), 
+  109:     Odeexp(
+   84:      Realvar[k_1], 
+    4:      Integerconst[0 ]), 
+  111:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  104:      Andexp(
+   86:       GTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+   87:       LTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]))), 
+  113:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  103:      Andexp(
+   81:       GTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]), 
+   82:       LTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]))))
+
+Since detect_independent_ode_groups is disabled, all variables will be used at the same time for deduction. There will be one group containing all constraints.
+Group 0
+    ODEs:
+        (d.ode_var_1['X'] / d.time = (1000 * (ode_var_1['X'] * (ode_var_2['k_1'] * -1))))
+        (d.ode_var_2['k_1'] / d.time = 0)
+    Flow invariants:
+        <none>
+
+  192:    Andexp(
+   74:     GTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   75:     LTEexp(
+   73:      Subexp(
+   70:       Realvar[time'], 
+   72:       Addexp(
+   17:        Realvar[time], 
+   71:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   89:     GTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+   90:     LTEexp(
+   88:      Subexp(
+   84:       Realvar[k_1], 
+   83:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  111:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  104:      Andexp(
+   86:       GTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+   87:       LTEexp(
+   85:        Subexp(
+   83:         Realvar[k_1'], 
+   84:         Realvar[k_1]), 
+    4:        Integerconst[0 ]))), 
+  113:     R_Implexp(
+  102:      Andexp(
+   99:       GTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   71:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  103:      Andexp(
+   81:       GTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]), 
+   82:       LTEexp(
+   80:        Subexp(
+   79:         Realvar[X'], 
+   29:         Realvar[X]), 
+    4:        Integerconst[0 ]))), 
+  135:     R_Implexp(
+   51:      Boolvar[mode_1], 
+  134:      GTEexp(
+  133:       Integervar[ode_trigger_0], 
+    2:       Integerconst[1 ])), 
+  137:     GTEexp(
+  136:      Integervar[ode_trigger_1], 
+    2:      Integerconst[1 ]), 
+  143:     Orexp(
+  140:      LTEexp(
+  139:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  142:      GTEexp(
+  141:       Integervar[dimension_trigger_0], 
+    2:       Integerconst[1 ])), 
+  147:     Orexp(
+  144:      LTEexp(
+  141:       Integervar[dimension_trigger_0], 
+    4:       Integerconst[0 ]), 
+  146:      Andexp(
+  134:       GTEexp(
+  133:        Integervar[ode_trigger_0], 
+    2:        Integerconst[1 ]), 
+  145:       LTEexp(
+  133:        Integervar[ode_trigger_0], 
+    2:        Integerconst[1 ]))), 
+  150:     Orexp(
+  140:      LTEexp(
+  139:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  149:      GTEexp(
+  148:       Integervar[dimension_trigger_1], 
+    2:       Integerconst[1 ])), 
+  154:     Orexp(
+  151:      LTEexp(
+  148:       Integervar[dimension_trigger_1], 
+    4:       Integerconst[0 ]), 
+  153:      Andexp(
+  137:       GTEexp(
+  136:        Integervar[ode_trigger_1], 
+    2:        Integerconst[1 ]), 
+  152:       LTEexp(
+  136:        Integervar[ode_trigger_1], 
+    2:        Integerconst[1 ]))), 
+  158:     Orexp(
+  156:      LTEexp(
+  155:       Addexp(
+  133:        Integervar[ode_trigger_0], 
+  136:        Integervar[ode_trigger_1]), 
+    4:       Integerconst[0 ]), 
+  157:      GTEexp(
+  139:       Integervar[odes_active0], 
+    2:       Integerconst[1 ])))
+
+Settings.
+Minimum splitting width    : 0.25
+Absolute bound progress    : 0.1
+Relative bound progress    : 0
+Interval divide parameter  : 2
+Filter vars using strongsat: off
+Decide interval borders    : random
+Variable decision order    : natural
+ Dynamically prefer current absolute width : false
+ Dynamically prefer current relative width : false
+Restarts                   : disabled
+Clause deletion            : enabled
+Implied clause deletion    : enabled
+Check SAT often            : disabled
+Point splitting            : disabled
+Purification               : disabled
+Continue after UNKNOWN     : disabled
+
+
+ODE-Options set to the following values:
+	dump_files = false
+	dump_files_for_call_number_fw = <>
+	dump_files_for_call_number_bw = <>
+	cache_handling = ADDALL
+	backwards_propagation = true
+	shown variables = <auto>
+	enc_params.max_number_of_tois = -1(ignored)
+	enc_params.use_bracketing_system = true
+	enc_params.stop_when_vnode_did_not_reach_horizon = false
+	enc_params.intersect_refined_with_original = true
+	enc_params.deduce_directions_at_beginning_of_trajectory = true
+	enc_params.use_direct_enclosures = true
+	enc_params.refine_using_stored_its = true
+	enc_params.may_stop_enclosure_when_flowinv_covered = true
+	enc_params.num_stored_max_widths_for_stopping_enc = 5
+	enc_params.must_stop_as_soon_as_flowinv_covered = false
+	enc_params.recover_from_brsys_failure = false
+	enc_params.optimization_for_jacobian_entries = true
+	enc_params.recover_from_direct_failure = 'never'
+	enc_params.harmonize_enclosures_threshold = -1
+	Cache tree settings:
+	    Maximum number of boxes in cache leaves = 2
+	    Maximum number of split points when splitting leaves = 2
+	    Maximum imbalance between maximum paths in tree cache = (deactivated rebalancing)
+	deduce_from_tightest_bounds = false
+	detect_independent_ode_groups = false
+	disable_conservative_toi_hull_deduction = false
+	dynamic_resolution = false
+
+This is iSAT (with ODE support) 0.1.
+
+SOLVING:
+    k = 0
+
+RESULT:
+    unsatisfiable
+
+Statistics.
+Number of variables                    : 13
+    Boolean variables                  : 7
+    Integer variables                  : 2
+    Real variables                     : 4
+Number of complex bounds               : 1
+Number of problem clauses              : 28
+Number of decisions (current / total)  : 0 / 0
+Variables preferred for splitting      : (none)
+Number of point splits                 : 0 / 0
+Number of assignments                  : 38 / 38
+    Number of IQ additions             : 38 / 38
+Maximum decision level                 : 0 / 0
+Maximum number of deductions per DL    : 38 / 38
+Number of conflicts                    : 1 / 1
+Average size of learnt clauses         : 0 / 0
+Maximum backjump distance              : 0 / 0
+Number of restarts                     : 0 / 0
+Number of conflict clauses
+implied by conflict clauses            : 0 / 0
+
+Time solver                            : 0 / 0 sec
+
+SOLVING:
+    k = 1
+
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #1, cur_group_id: 0, system signature: 11, toi: [0, 1],, 0% of forward conservative hull propagations cached, , 0% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #1, cur_group_id: 0, system signature: 11, toi: [0, 1],, 0% of backward conservative hull propagations cached, , 0% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : (not initialized)
+       intersect        : (not initialized)
+     tree-add           : 0s
+       split points     : (not initialized)
+       tree-rebalance   : (not initialized)
+     tree-lookup        : (not initialized)
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #2, cur_group_id: 0, system signature: 11, toi: [0.5, 1],, 0% of forward conservative hull propagations cached, , 0% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #2, cur_group_id: 0, system signature: 11, toi: [0.5, 1],, 0% of backward conservative hull propagations cached, , 0% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : (not initialized)
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #3, cur_group_id: 0, system signature: 11, toi: [0.5, 0.75],, 0% of forward conservative hull propagations cached, , 0% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #3, cur_group_id: 0, system signature: 11, toi: [0.5, 0.75],, 0% of backward conservative hull propagations cached, , 0% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #4, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_fw_conshull), 25% of forward conservative hull propagations cached, (cached_fw_postbox), 25% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #4, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_bw_conshull), 25% of backward conservative hull propagations cached, (cached_bw_postbox), 25% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #5, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 20% of forward conservative hull propagations cached, , 20% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #5, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 20% of backward conservative hull propagations cached, , 20% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #6, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 16.66667% of forward conservative hull propagations cached, , 16.66667% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #6, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 16.66667% of backward conservative hull propagations cached, , 16.66667% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there will be another split with 
+   allow_weaker_than_specified           : true
+   min_dist_to_rededuce                  : 0.25
+   enclosure_horizon_temporal_resolution : 0.1
+   temporal_resolution                   : 0.1
+   spatial_resolution                    : 0.1
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (fw) #7, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_fw_conshull), 28.57143% of forward conservative hull propagations cached, (cached_fw_postbox), 28.57143% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 0.1
+   temporal resolution            : 0.1
+   spatial resolution             : 0.1
+------------------------------------------------- 
+ODE-solver call (bw) #7, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_bw_conshull), 28.57143% of backward conservative hull propagations cached, (cached_bw_postbox), 28.57143% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0s
+   solver (bw)          : 0s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0s
+Calling ODE solver under the assumption that there might not be another split with 
+   allow_weaker_than_specified           : false
+   min_dist_to_rededuce                  : 0.1
+   enclosure_horizon_temporal_resolution : 1e-05
+   temporal_resolution                   : 0.01
+   spatial_resolution                    : 0.01
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (fw) #8, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 25% of forward conservative hull propagations cached, , 25% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (bw) #8, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 25% of backward conservative hull propagations cached, , 25% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0.45s
+   solver (bw)          : 0.04s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0.49s
+Calling ODE solver under the assumption that there might not be another split with 
+   allow_weaker_than_specified           : false
+   min_dist_to_rededuce                  : 0.1
+   enclosure_horizon_temporal_resolution : 1e-05
+   temporal_resolution                   : 0.01
+   spatial_resolution                    : 0.01
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (fw) #9, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 22.22222% of forward conservative hull propagations cached, , 22.22222% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (bw) #9, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],, 22.22222% of backward conservative hull propagations cached, , 22.22222% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0.5s
+   solver (bw)          : 0.05s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0.55s
+Calling ODE solver under the assumption that there might not be another split with 
+   allow_weaker_than_specified           : false
+   min_dist_to_rededuce                  : 0.1
+   enclosure_horizon_temporal_resolution : 1e-05
+   temporal_resolution                   : 0.01
+   spatial_resolution                    : 0.01
+Performing deductions for depth: 0, forward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (fw) #10, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_fw_conshull), 30% of forward conservative hull propagations cached, (cached_fw_postbox), 30% of forward postbox propagations cached,
+Performing deductions for depth: 0, backward
+Performing deduction with resolution:
+Enclosure Resolution Object --------------------- 
+   horzion encl. temp. resolution : 1e-05
+   temporal resolution            : 0.01
+   spatial resolution             : 0.01
+------------------------------------------------- 
+ODE-solver call (bw) #10, cur_group_id: 0, system signature: 11, toi: [0.625, 0.75],(cached_bw_conshull), 30% of backward conservative hull propagations cached, (cached_bw_postbox), 30% of backward postbox propagations cached,
+ODE profiling: timers.
+   cache                : 0s
+     add                : 0s
+     contain            : 0s
+       intersect        : 0s
+     tree-add           : 0s
+       split points     : 0s
+       tree-rebalance   : (not initialized)
+     tree-lookup        : 0s
+   solver_run cache     : 0s
+   solver (fw)          : 0.5s
+   solver (bw)          : 0.05s
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : 0s
+   total ODE layer      : 0.55s
+CANDIDATE SOLUTION:
+    mode_1 (boolean):
+        @0:  [1,1] (point interval)
+        @1:  [1,1] (point interval)
+
+    dimension_trigger_0 (int):
+        @0:  [1,1] (point interval)
+
+    ode_trigger_1 (int):
+        @0:  [1,1] (point interval)
+
+    odes_active0 (int):
+        @0:  [1,1] (point interval)
+
+    dimension_trigger_1 (int):
+        @0:  [1,1] (point interval)
+
+    ode_trigger_0 (int):
+        @0:  [1,1] (point interval)
+
+    delta_time (float):
+        @0:  [0.625,0.75] (width: 0.125)
+
+    time (float):
+        @0:  [0,0] (point interval)
+        @1:  [0.625,0.75] (width: 0.125)
+
+    k_1 (float):
+        @0:  (0.125,0.25) (width: 0.125)
+        @1:  (0.125,0.25) (width: 0.125)
+
+    X (float):
+        @0:  [1,1] (point interval)
+        @1:  [0,0.10000001) (width: 0.1)
+
+RESULT:
+    unknown
+
+Statistics.
+Number of variables                    : 43
+    Boolean variables                  : 20
+    Integer variables                  : 8
+    Real variables                     : 15
+Number of complex bounds               : 8
+Number of problem clauses              : 89
+Number of decisions (current / total)  : 8 / 8
+Variables preferred for splitting      : (none)
+Number of point splits                 : 0 / 0
+Number of assignments                  : 160 / 198
+    Number of IQ additions             : 164 / 202
+Maximum decision level                 : 8 / 8
+Maximum number of deductions per DL    : 130 / 130
+Number of conflicts                    : 0 / 1
+Average size of learnt clauses         : 0 / 0
+Maximum backjump distance              : 0 / 0
+Number of restarts                     : 0 / 0
+Number of conflict clauses
+implied by conflict clauses            : 0 / 0
+
+Time solver                            : 0.58 / 0.58 sec
+

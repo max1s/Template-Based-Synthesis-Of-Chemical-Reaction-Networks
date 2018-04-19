@@ -7,15 +7,14 @@
 	#define NO_COST_LIMIT 0
 
 	// define derivatives
-		#define dK_dt  (-k_1*(A*lamA1 + B*lamB1)*(K^2*c1_2 + K*c1_1 + c1_0)*(c1_1 + 2*c1_2 - c2_1 - 2*c2_2) - k_2*(c5_0 + c5_1*(A*lamA2 + B*lamB2))*(K^2*c3_2 + K*c3_1 + c3_0)*(c3_1 + 2*c3_2 - c4_1 - 2*c4_2) + k_3*o0*tc_1_1*(c7_1 + 2*c7_2))
 
 	// declare time variables
 	[0, MAX_TIME] time;
 
 	//Define State Variables
+	[0, 10] B;
 	[0, 10] K;
 	[0, 10] A;
-	[0, 10] B;
 
 	// Lambda Variables
 	[0, 1] lamA2;
@@ -24,19 +23,6 @@
 	[0, 1] lamB1;
 
 	// Choice Variables
-	[0, 1] c5_0;
-	[0, 1] c5_1;
-
-	[0, 1] c6_0;
-	[0, 1] c6_1;
-
-	[0, 1] c2_0;
-	[0, 1] c2_1;
-	[0, 1] c2_2;
-
-	[0, 1] c7_1;
-	[0, 1] c7_2;
-
 	[0, 1] c1_0;
 	[0, 1] c1_1;
 	[0, 1] c1_2;
@@ -45,9 +31,22 @@
 	[0, 1] c3_1;
 	[0, 1] c3_2;
 
+	[0, 1] c2_0;
+	[0, 1] c2_1;
+	[0, 1] c2_2;
+
 	[0, 1] c4_0;
 	[0, 1] c4_1;
 	[0, 1] c4_2;
+
+	[0, 1] c5_0;
+	[0, 1] c5_1;
+
+	[0, 1] c6_0;
+	[0, 1] c6_1;
+
+	[0, 1] c7_1;
+	[0, 1] c7_2;
 
 
 	// Joint choice Variables
@@ -82,24 +81,24 @@ flow:
 	d/dt[lamB1] = 0;
 
 	 // Choice variables are fixed
-	d/dt[c5_0] = 0;
-	d/dt[c5_1] = 0;
-	d/dt[c6_0] = 0;
-	d/dt[c6_1] = 0;
-	d/dt[c2_0] = 0;
-	d/dt[c2_1] = 0;
-	d/dt[c2_2] = 0;
-	d/dt[c7_1] = 0;
-	d/dt[c7_2] = 0;
 	d/dt[c1_0] = 0;
 	d/dt[c1_1] = 0;
 	d/dt[c1_2] = 0;
 	d/dt[c3_0] = 0;
 	d/dt[c3_1] = 0;
 	d/dt[c3_2] = 0;
+	d/dt[c2_0] = 0;
+	d/dt[c2_1] = 0;
+	d/dt[c2_2] = 0;
 	d/dt[c4_0] = 0;
 	d/dt[c4_1] = 0;
 	d/dt[c4_2] = 0;
+	d/dt[c5_0] = 0;
+	d/dt[c5_1] = 0;
+	d/dt[c6_0] = 0;
+	d/dt[c6_1] = 0;
+	d/dt[c7_1] = 0;
+	d/dt[c7_2] = 0;
 
 	 // Joint choice variables are fixed
 	d/dt[tc_1_0] = 0;
@@ -118,7 +117,7 @@ flow:
 jump: 
 
 	 // jump conditions during modes
-dK_dt >= 0 ==> @1 	 ( and (K' = K)(A' = A)(B' = B)(c5_0' = c5_0)(c5_1' = c5_1)(c6_0' = c6_0)(c6_1' = c6_1)(c2_0' = c2_0)(c2_1' = c2_1)(c2_2' = c2_2)(c7_1' = c7_1)(c7_2' = c7_2)(c1_0' = c1_0)(c1_1' = c1_1)(c1_2' = c1_2)(c3_0' = c3_0)(c3_1' = c3_1)(c3_2' = c3_2)(c4_0' = c4_0)(c4_1' = c4_1)(c4_2' = c4_2)(k_3' = k_3)(k_1' = k_1)(k_2' = k_2)(o0' = o0)(lamA2' = lamA2)(lamB2' = lamB2)(lamA1' = lamA1)(lamB1' = lamB1));
+dK_dt >= 0 ==> @1 	 ( and (B' = B)(K' = K)(A' = A)(c1_0' = c1_0)(c1_1' = c1_1)(c1_2' = c1_2)(c3_0' = c3_0)(c3_1' = c3_1)(c3_2' = c3_2)(c2_0' = c2_0)(c2_1' = c2_1)(c2_2' = c2_2)(c4_0' = c4_0)(c4_1' = c4_1)(c4_2' = c4_2)(c5_0' = c5_0)(c5_1' = c5_1)(c6_0' = c6_0)(c6_1' = c6_1)(c7_1' = c7_1)(c7_2' = c7_2)(k_3' = k_3)(k_1' = k_1)(k_2' = k_2)(o0' = o0)(lamA2' = lamA2)(lamB2' = lamB2)(lamA1' = lamA1)(lamB1' = lamB1));
 
 
  }{ mode 2;
@@ -142,24 +141,24 @@ flow:
 	d/dt[lamB1] = 0;
 
 	 // Choice variables are fixed
-	d/dt[c5_0] = 0;
-	d/dt[c5_1] = 0;
-	d/dt[c6_0] = 0;
-	d/dt[c6_1] = 0;
-	d/dt[c2_0] = 0;
-	d/dt[c2_1] = 0;
-	d/dt[c2_2] = 0;
-	d/dt[c7_1] = 0;
-	d/dt[c7_2] = 0;
 	d/dt[c1_0] = 0;
 	d/dt[c1_1] = 0;
 	d/dt[c1_2] = 0;
 	d/dt[c3_0] = 0;
 	d/dt[c3_1] = 0;
 	d/dt[c3_2] = 0;
+	d/dt[c2_0] = 0;
+	d/dt[c2_1] = 0;
+	d/dt[c2_2] = 0;
 	d/dt[c4_0] = 0;
 	d/dt[c4_1] = 0;
 	d/dt[c4_2] = 0;
+	d/dt[c5_0] = 0;
+	d/dt[c5_1] = 0;
+	d/dt[c6_0] = 0;
+	d/dt[c6_1] = 0;
+	d/dt[c7_1] = 0;
+	d/dt[c7_2] = 0;
 
 	 // Joint choice variables are fixed
 	d/dt[tc_1_0] = 0;
@@ -190,7 +189,7 @@ init:
 	 ( or ( and (lamA1 = 1)(lamB1 = 0))( and (lamA1 = 0)(lamB1 = 1)))
 
 	 // Integer encoding of choice variables
-	 ( or  ( ( and (c5_0 = 1)(c5_1 = 0)))   ( ( and (c5_0 = 0)(c5_1 = 1))) ) 	 ( or  ( ( and (c6_0 = 1)(c6_1 = 0)))   ( ( and (c6_0 = 0)(c6_1 = 1))) ) 	 ( or  ( ( and (c2_0 = 1)(c2_1 = 0)(c2_2 = 0)))   ( ( and (c2_0 = 0)(c2_1 = 1)(c2_2 = 0)))   ( ( and (c2_0 = 0)(c2_1 = 0)(c2_2 = 1))) ) 	 ( or  ( ( and (c7_1 = 1)(c7_2 = 0)))   ( ( and (c7_1 = 0)(c7_2 = 1))) ) 	 ( or  ( ( and (c1_0 = 1)(c1_1 = 0)(c1_2 = 0)))   ( ( and (c1_0 = 0)(c1_1 = 1)(c1_2 = 0)))   ( ( and (c1_0 = 0)(c1_1 = 0)(c1_2 = 1))) ) 	 ( or  ( ( and (c3_0 = 1)(c3_1 = 0)(c3_2 = 0)))   ( ( and (c3_0 = 0)(c3_1 = 1)(c3_2 = 0)))   ( ( and (c3_0 = 0)(c3_1 = 0)(c3_2 = 1))) ) 	 ( or  ( ( and (c4_0 = 1)(c4_1 = 0)(c4_2 = 0)))   ( ( and (c4_0 = 0)(c4_1 = 1)(c4_2 = 0)))   ( ( and (c4_0 = 0)(c4_1 = 0)(c4_2 = 1))) ) 
+	 ( or  ( ( and (c1_0 = 1)(c1_1 = 0)(c1_2 = 0)))   ( ( and (c1_0 = 0)(c1_1 = 1)(c1_2 = 0)))   ( ( and (c1_0 = 0)(c1_1 = 0)(c1_2 = 1))) ) 	 ( or  ( ( and (c3_0 = 1)(c3_1 = 0)(c3_2 = 0)))   ( ( and (c3_0 = 0)(c3_1 = 1)(c3_2 = 0)))   ( ( and (c3_0 = 0)(c3_1 = 0)(c3_2 = 1))) ) 	 ( or  ( ( and (c2_0 = 1)(c2_1 = 0)(c2_2 = 0)))   ( ( and (c2_0 = 0)(c2_1 = 1)(c2_2 = 0)))   ( ( and (c2_0 = 0)(c2_1 = 0)(c2_2 = 1))) ) 	 ( or  ( ( and (c4_0 = 1)(c4_1 = 0)(c4_2 = 0)))   ( ( and (c4_0 = 0)(c4_1 = 1)(c4_2 = 0)))   ( ( and (c4_0 = 0)(c4_1 = 0)(c4_2 = 1))) ) 	 ( or  ( ( and (c5_0 = 1)(c5_1 = 0)))   ( ( and (c5_0 = 0)(c5_1 = 1))) ) 	 ( or  ( ( and (c6_0 = 1)(c6_1 = 0)))   ( ( and (c6_0 = 0)(c6_1 = 1))) ) 	 ( or  ( ( and (c7_1 = 1)(c7_2 = 0)))   ( ( and (c7_1 = 0)(c7_2 = 1))) ) 
 	 // Integer encoding of optional reaction variables
 	(or (o0 = 0) (o0 = 1))
 

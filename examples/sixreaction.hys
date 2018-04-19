@@ -53,19 +53,16 @@ TRANS
 	-- time constraint
 	time' = time + delta_time;
 
-	-- must progress through modes in order
-	 mode_1' -> mode_1;
-	mode_2' -> (mode_2 or mode_1);
 
 
 	-- invariant conditions during modes
-	mode_1  -> (PThree_dot >= 0);
-	mode_1'  -> (PThree_dot >= 0);
-	mode_2  -> (PThree_dot <= 0);
-	mode_2'  -> (PThree_dot <= 0);
+	mode_1  -> ((PThree_dot >= 0));
+	mode_1'  -> ((PThree_dot >= 0));
+	mode_2  -> ((PThree_dot < 0));
+	mode_2'  -> ((PThree_dot < 0));
 
 	-- jump conditions between modes
-	(mode_1 and mode_2') -> (((PThree > 0.1) and (PThree_dot < 0.001)));
+	(mode_1 and mode_2') -> ((PThree_dot = 0));
 
 	-- No state change without time consumption.
 	(delta_time = 0) -> ((PThree' = PThree) and (POne' = POne) and (PTwo' = PTwo));
@@ -95,4 +92,4 @@ TRANS
 	(mode_1 or mode_2) -> 	(d.POne/d.time  = SF*(-POne*k_1 - POne*k_3 + PThree*k_5 + PTwo*k_6));
 
 TARGET 
-	mode_2 and (time < 1) ;
+	mode_2 and (time < 1) and ((PThree_dot < 0));

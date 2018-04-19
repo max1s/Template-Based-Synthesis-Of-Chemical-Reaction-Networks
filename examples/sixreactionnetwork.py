@@ -37,8 +37,8 @@ def formCRN():
 
 derivatives = [{"variable": 'PThree', "order": 1, "is_variance": False, "name": "PThree_dot"},
                {"variable": 'PThree', "order": 2, "is_variance": False, "name": "PThree_dot_dot"}]
-specification = [('', 'PThree_dot >= 0', '((PThree > 0.1) and (PThree_dot < 0.001))'), ('', 'PThree_dot <= 0', '')]
-
+#specification = [('', 'PThree_dot >= 0', '((PThree > 0.1) and (PThree_dot < 0.001))'), ('', 'PThree_dot <= 0', '')]
+specification = [('', '(PThree_dot >= 0)', '(PThree_dot = 0)' ), ('', '(PThree_dot < 0)', '(PThree_dot < 0)')]
 crn = formCRN()
 flow = crn.flow(False, derivatives)
 hys = iSATParser.constructISAT(crn, specification, flow)

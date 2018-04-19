@@ -25,8 +25,11 @@ def formCRN():
 
     return CRNSketch([reaction1, reaction2], [reaction3], [])
 
-derivatives = [{"variable": 'K', "order": 1, "is_variance": False, "name": "dK_dt"}]
-specification = [('', 'dK_dt >= 0', '((K > 0) and (dK_dt = 0))'), ('', 'dK_dt <= 0', '((K >= 0) and (K < 0.1))')]
+derivatives = []
+# derivatives = [{"variable": 'K', "order": 1, "is_variance": False, "name": "dK_dt"}]
+# specification = [('', 'dK_dt >= 0', '((K > 0) and (dK_dt = 0))'), ('', 'dK_dt <= 0', '((K >= 0) and (K < 0.1))')]
+# specification = [('', '(dK_dt >= 0)', '(dK_dt = 0)' ), ('', '(dK_dt < 0)', '(dK_dt < 0)')]
+specification = [('', '', '(K > 0.1)'), ('', '', '(K < 0.3)')]
 
 crn = formCRN()
 flow = crn.flow(False, derivatives)
