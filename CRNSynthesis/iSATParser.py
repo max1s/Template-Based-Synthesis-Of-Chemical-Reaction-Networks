@@ -26,14 +26,17 @@ class Declaration:
         self.numModes = numModes
         self.flows = flows
 
-    def constructiSAT(self):
+    def constructiSAT(self, max_time=1, scale_factor=1):
         """
         Returns a string containing variable definitions in iSat (.hys) format.
+
+        :param max_time: value for MAX_TIME by which goal condition must be reached
+        :param scale_factor: scale factor for time (multiplicative factor for all rates)
         """
         s = "\nDECL \n"
 
-        s += "define MAX_TIME = 1;\n"  # TODO: set this sensibly
-        s += "\tdefine SF = 1;\n"
+        s += "define MAX_TIME = %s;\n" % max_time
+        s += "\tdefine SF = %s;\n" % scale_factor
 
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
@@ -91,13 +94,16 @@ class Declaration:
 
         return s
 
-    def constructdReal(self):
+    def constructdReal(self, max_time=1, scale_factor=1):
         """
         Returns a string containing variable definitions in dReach (.drh) format.
+
+        :param max_time: value for MAX_TIME by which goal condition must be reached
+        :param scale_factor: scale factor for time (multiplicative factor for all rates)
         """
 
-        s = "\n #define MAX_TIME 1\n"  # TODO: set this sensibly
-        s += "\t#define SF 1\n\n"
+        s = "\n #define MAX_TIME %s\n" % max_time
+        s += "\t#define SF %s\n\n" % scale_factor
 
         s += "\t// declare cost variables\n"
         s += "\t#define MAX_COST 100\n"
@@ -112,7 +118,6 @@ class Declaration:
 
         s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
-
 
         if len(self.crn.real_species) > 0:
             s += "\n\t//Define State Variables\n"
