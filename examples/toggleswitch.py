@@ -49,7 +49,7 @@ def synthesize_with_isat(crn):
 
     flow = crn.flow(isLNA, derivatives)
 
-    hys = iSATParser.constructdReal(crn, specification, flow)
+    hys = iSATParser.constructISAT(crn, specification, flow)
 
     with open("./toggleswitch.hys", "w") as f:
         f.write(hys)
