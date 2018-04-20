@@ -28,21 +28,41 @@ class InputSpecies:
         return self.name
 
     def iSATDefinition(self):
+        """
+        Returns string that defines variable in iSAT (.hys) format.
+        """
+
         return "\tfloat[%s, %s] %s;\n" % (0, 100, self.name) # TODO: set min/max better
 
     def iSATInitialization(self):
+        """
+        Returns string that assigns initial value to variable in iSAT (.hys) format.
+        """
         return "\t%s = %s;\n" % (self.name, self.initial_value)
 
     def dRealDefinition(self):
+        """
+        Returns string that defines variable in dReach (.drh) format.
+        """
         return "\t[%s, %s] %s;\n" % (0, 10, self.name) # TODO: set min/max better
 
     def dRealInitialization(self):
+        """
+        Returns string that assigns initial value to variable in dReach (.drh) format.
+        """
         return "\t(%s = %s)\n" % (self.name, self.initial_value)
 
     def get_species(self):
+        """
+        Returns an list containing self, as this InputSpecies is a species.
+        """
         return [self]
 
     def get_real_species(self):
+        """
+        Returns an empty list, as this InputSpecies is a not a real (non-input) species.
+        """
+
         return []
 
 class Species:
@@ -73,9 +93,15 @@ class Species:
         return self.name
 
     def iSATDefinition(self):
+        """
+        Returns string that defines variable in iSAT (.hys) format.
+        """
         return "\tfloat[0, %s] %s;\n" % (1, self.name)
 
     def iSATInitialization(self):
+        """
+        Returns string that assigns initial value to variable in iSAT (.hys) format.
+        """
         if self.initial_value:
             return "\t%s = %s;\n" % (self.name, self.initial_value)
 
@@ -91,9 +117,15 @@ class Species:
         return ""
 
     def dRealDefinition(self):
+        """
+        Returns string that defines variable in dReach (.drh) format.
+        """
         return "\t[0, %s] %s;\n" % (10, self.name)
 
     def dRealInitialization(self):
+        """
+        Returns string that assigns initial value to variable in dReach (.drh) format.
+        """
         if self.initial_value:
             return "\t(%s = %s)\n" % (self.name, self.initial_value)
 
@@ -110,9 +142,15 @@ class Species:
 
 
     def get_species(self):
+        """
+        Returns an list containing self, as this Species is a species.
+        """
         return [self]
 
     def get_real_species(self):
+        """
+        Returns an list containing self, as this InputSpecies is a real (non-input) species.
+        """
         return [self]
 
 class Term:
@@ -136,6 +174,10 @@ class Term:
         return "%s%s" % (self.coefficient, self.species)
 
     def specRep(self):
+        """
+        Returns a string representation of the product of stoichiometric coefficient and species name
+        (including decision variables if there is choice).
+        """
         coefficient = self.coefficient
         if isinstance(coefficient, Choice):
             coefficient_expression = 0
@@ -177,6 +219,9 @@ class Term:
 
 
 class RateConstant:
+    """
+    Represents a constant that appears in the formula for a reaction's propensity.
+    """
     def __init__(self, name, minimum=0.1, maximum=10):
         self.name = name
         self.min = minimum
@@ -191,7 +236,17 @@ class RateConstant:
 
 
 class Reaction(object):
+    """
+    Represents a chemical reaction with Mass Action kinetics.
+    """
+
     def __init__(self, r, p, ra):
+        """
+
+        :param r: list of reactant terms
+        :param p: list of product terms
+        :param ra: rate constant
+        """
         self.reactants = r
 
         for i, r in enumerate(self.reactants):
@@ -205,7 +260,7 @@ class Reaction(object):
 
         self.reactionrate = ra
         self.is_optional = False
-        self.variable_name = "" # Boolean variable indicating whether optional reaction occurs
+        self.variable_name = ""
 
     def __repr__(self):
         return "" + ' + '.join([repr(x) for x in self.reactants]) + " ->{" + repr(self.reactionrate) + "} " + ' + '.join([repr(y) for y in self.products])
@@ -214,9 +269,15 @@ class Reaction(object):
         return "" + ' + '.join([str(x) for x in self.reactants]) + " ->{" + str(self.reactionrate) + "} " + ' + '.join([str(y) for y in self.products])
 
     def get_rate_constants(self):
+        """
+        Returns list of constants appearing in this reaction's propensity expression.
+        """
         return [self.reactionrate]
 
     def get_propensity(self):
+        """
+        Return propensity of this reaction as a sympPy expression.
+        """
         propensity = symbols(str(self.reactionrate.name))
         for reactant in self.reactants:
             propensity *= sympify(reactant.constructPropensity())
@@ -225,60 +286,118 @@ class Reaction(object):
         return propensity
 
 class ArbitraryRateReaction(Reaction):
-        def __init__(self, r, p, ra, constants):
-            super(ArbitraryRateReaction, self).__init__(r, p, ra)
-            self.reactionrate = sympify(ra) # rate is a sympy formula, rather than constant
-            self.constants = constants
+    """
+    Represents a reaction with kinetics described by a narbitrary SymPy expression.
+    """
 
-        def get_rate_constants(self):
-            return self.constants
+    def __init__(self, r, p, ra, constants):
+        super(ArbitraryRateReaction, self).__init__(r, p, ra)
+        self.reactionrate = sympify(ra)
+        self.constants = constants
 
-        def get_propensity(self):
-            return self.reactionrate
+    def get_rate_constants(self):
+        """
+        Returns list of constants appearing in this reaction's propensity expression.
+        """
+        return self.constants
+
+    def get_propensity(self):
+        """
+        Return propensity of this reaction as a sympPy expression.
+        """
+        return self.reactionrate
 
 
 class HillActivationReaction(Reaction):
+    """
+    Represents a reaction with Hill Activation kinetics.
+
+    The propensity is given by:
+
+    reactionrate * (reactant ** n / (Ka ** n + reactant ** n))
+    """
+
     def __init__(self, r, p, Kmax, Ka, n):
         super(HillActivationReaction, self).__init__(r, p, Kmax)
         self.Ka = Ka
         self.n = n
 
     def get_rate_constants(self):
+        """
+        Returns list of constants appearing in this reaction's propensity expression.
+        """
         return [self.reactionrate, self.Ka, self.n]
 
     def get_propensity(self):
+        """
+        Return propensity of this reaction as a sympPy expression.
+        """
         species = getSpeciesFromTerm(self.reactants[0])
         return self.reactionrate.symbol * (species ** self.n.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol))
 
 class HillRepressionReaction(Reaction):
+    """
+    Represents a reaction with Hill Repression kinetics.
+
+    The propensity is given by:
+
+    reactionrate * (1 / (Ka ** n + reactant ** n))
+    """
+
     def __init__(self, r, p, Kmax, Ka, n):
         super(HillRepressionReaction, self).__init__(r, p, Kmax)
         self.Ka = Ka
         self.n = n
 
     def get_rate_constants(self):
+        """
+        Returns list of constants appearing in this reaction's propensity expression.
+        """
         return [self.reactionrate, self.Ka, self.n]
 
     def get_propensity(self):
+        """
+        Return propensity of this reaction as a sympPy expression.
+        """
         species = getSpeciesFromTerm(self.reactants[0])
         return self.reactionrate.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol)
 
 
 class MichaelisMentenReaction(Reaction):
+    """
+    Represents a reaction with Michaelis Menten kinetics.
+
+    The propensity is given by:
+
+    reactionrate * (reactant / (Km + reactant))
+    """
+
     def __init__(self, r, p, Kmax, Km):
         super(MichaelisMentenReaction, self).__init__(r, p, Kmax)
         self.Km = Km
 
     def get_rate_constants(self):
+        """
+        Returns list of constants appearing in this reaction's propensity expression.
+        """
         return [self.reactionrate, self.Km]
 
     def get_propensity(self):
+        """
+        Return propensity of this reaction as a sympPy expression.
+        """
         species = getSpeciesFromTerm(self.reactants[0])
         return species * (self.reactionrate.symbol / (self.Km.symbol + species))
 
 
 def getSpeciesFromTerm(initial_term):
-    # This returns something like specRep without the stoichiometric coefficients
+    """
+    Return a SymPy expression for the species in a term dependent on the decision parameters.
+
+    It is similar to .specRep(), but doesn't including the stoichiometric coefficients
+
+    :param initial_term:
+    """
 
     terms = []
 
@@ -298,7 +417,15 @@ def getSpeciesFromTerm(initial_term):
 
 
 class LambdaChoice:
+    """
+    Represents a choice between different species.
+    """
     def __init__(self, species, choiceNumber):
+        """
+
+        :param species: a list of alternative species
+        :param choiceNumber: integer index number for this choice (must be distinct)
+        """
         self.choiceNo = choiceNumber
         self.species = species
         self.lambdas = [symbols("lam" + str(sp) + str(choiceNumber)) for sp in species]
@@ -323,6 +450,10 @@ class LambdaChoice:
         return x
 
     def iSATformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.
+        """
+
         clauses = []
         for active_value in self.lambdas:
             # generate term in which only element i is on
@@ -339,6 +470,10 @@ class LambdaChoice:
         return "\t" + " or ".join(clauses) + ";\n"
 
     def dRealformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.
+        """
+
         clauses = []
         for active_value in self.lambdas:
             # generate term in which only element i is on
@@ -355,16 +490,32 @@ class LambdaChoice:
         return "\t" + " ( or " + "".join(clauses) + ")\n"
 
     def iSATDefinition(self):
+        """
+        Returns string that defines corresponding decision variable in iSAT (.hys) format.
+        """
+
         declarations = ["\tfloat [0, 1] %s;" % str(lam) for lam in self.lambdas]
         return "\n".join(declarations)
 
     def dRealDefinition(self):
+        """
+        Returns string that defines corresponding decision variable in dReach (.drh) format.
+        """
         declarations = ["\t[0, 1] %s;" % str(lam) for lam in self.lambdas]
         return "\n".join(declarations)
 
 
 class Choice:
+    """
+    Represents a choice between different values of stoichiometric coefficient.
+    """
     def __init__(self, choiceNumber, minValue, maxValue):
+        """
+
+        :param choiceNumber: integer index number for this choice (must be distinct)
+        :param minValue: minimum permitted value for the stoichiometric coefficient
+        :param maxValue: minimum permitted value for the stoichiometric coefficient
+        """
         self.choiceNumber = choiceNumber
         self.name = str('c' + str(self.choiceNumber))
         self.symbol = Symbol(self.name)
@@ -372,6 +523,9 @@ class Choice:
         self.maxValue = maxValue
 
     def iSATformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.
+        """
         clauses = []
 
         for i in list(range(self.minValue, self.maxValue + 1)):
@@ -383,6 +537,10 @@ class Choice:
         return "\t" + " or ".join([" (%s) " % clause for clause in clauses]) + ";\n"
 
     def dRealformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.
+        """
+
         clauses = []
 
         for i in list(range(self.minValue, self.maxValue + 1)):
@@ -395,12 +553,19 @@ class Choice:
         return "\t ( or %s) " % alternatives
 
     def iSATDefinition(self):
+        """
+        Returns string that defines corresponding decision variable in iSAT (.hys) format.
+        """
+
         s = ""
         for value in list(range(self.minValue, self.maxValue + 1)):
             s += "\tfloat [0, 1] %s_%s;\n" % (self.name, value)
         return s
 
     def dRealDefinition(self):
+        """
+        Returns string that defines corresponding decision variable in dReach (.drh) format.
+        """
         s = ""
         for value in list(range(self.minValue, self.maxValue + 1)):
             s += "\t[0, 1] %s_%s;\n" % (self.name, value)
@@ -411,7 +576,14 @@ class Choice:
 
 
 class TermChoice:
+    """
+    Represents a choice between alternative terms (pairs of stoichiometry and species).
+    """
     def __init__(self, termChoiceNumber, choices):
+        """
+        :param termChoiceNumber: integer index number for this choice (must be distinct)
+        :param choices: alternative terms
+        """
         self.termChoiceNumber = termChoiceNumber
         self.possible_terms = choices # each choice is a term
         self.base_variable_name = "tc_%s_" % self.termChoiceNumber
@@ -430,6 +602,10 @@ class TermChoice:
         return " + ".join(terms)
 
     def specRep(self):
+        """
+        Returns a string representation of the product of stoichiometric coefficient and species name
+        (including decision variables if there is choice).
+        """
         substrings = []
         for i, term in enumerate(self.possible_terms):
             substrings.append("%s%s * (%s)" % (self.base_variable_name, i, term.specRep()))
@@ -452,18 +628,29 @@ class TermChoice:
         return list(x)
 
     def iSATDefinition(self):
+        """
+        Returns string that defines corresponding decision variables in iSAT (.hys) format.
+        """
+
         declarations = []
         for i, term in enumerate(self.possible_terms):
             declarations.append("\tfloat[0, 1] %s%s;" % (self.base_variable_name, i))
         return "\n".join(declarations)
 
     def dRealDefinition(self):
+        """
+        Returns string that defines corresponding decision variables in dReach (.drh) format.
+        """
         declarations = []
         for i, term in enumerate(self.possible_terms):
             declarations.append("\t [0, 1] %s%s;" % (self.base_variable_name, i))
         return "\n".join(declarations)
 
     def iSATformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variables in iSAT (.hys) format.
+        """
+
         clauses = []
         for active_value in list(range(len(self.possible_terms))):
 
@@ -481,6 +668,10 @@ class TermChoice:
         return "\t" + " or ".join(clauses) + ";\n"
 
     def dRealformat_constraint(self):
+        """
+        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.
+        """
+
         clauses = []
         for active_value in list(range(len(self.possible_terms))):
 
@@ -500,6 +691,10 @@ class TermChoice:
 
 
 class CRNSketch:
+    """
+    Represents a sketch of a Chemical Reaction Network.
+    """
+
     def __init__(self, reactions, optional_reactions, input_species=None):
         self.reactions = reactions
         self.optionalReactions = optional_reactions
@@ -532,6 +727,11 @@ class CRNSketch:
         return "[" + '\n' + '\n'.join([str(x) for x in self.all_reactions]) + "\n]"
 
     def record_decision_variables(self):
+        """
+        Iterates over all reactions in self.all_reactions, populating the lists of decision variables
+        ``self.joint_choice_variables``, ``self.lambda_variables`` and ``self.choice_variables``
+        """
+
         for reaction in self.all_reactions:
             terms = reaction.reactants[:]
             terms.extend(reaction.products)
@@ -552,32 +752,34 @@ class CRNSketch:
                 if isinstance(term.coefficient, Choice):
                     self.choice_variables.add(term.coefficient)
 
-    def generateAllTokens(self, C=set()):
+    def generateAllTokens(self, covariance_matrix=None):
+        """
+        Returns a dictionary of all free_symbols that will appear in the system's rate equations.
+        :param covariance_matrix: covariance matrix (needed only if LNA approximation is used)
+        """
 
+        sym = set()
         species_strings = [] # entries will be strings representing caluses that appear reactants/products
         for y in self.all_reactions:
             reactants_or_products = y.reactants[:]
             reactants_or_products.extend(y.products)
             for react in reactants_or_products:
-                if react not in species_strings:
-                    species_strings.append(react.specRep())
+                new_symbols = sympify(react.specRep()).free_symbols
+                sym = sym.union(new_symbols)
 
+        if covariance_matrix is not None:
+            sym = sym.union(covariance_matrix.free_symbols)
 
-        sym = [x.free_symbols for x in sympify(species_strings)]
-
-        if len(sym) == 0:
-            return []
-
-        a = reduce(lambda x, y: x | y, sym)
-        b = set()
-        if len(C) is not 0:
-            b = C.free_symbols
-        return a | b
-
-
+        return sym
 
     def getSpecies(self, include_inputs=True):
-        # Construct list of only those species (or InputSpecies) that participate in a reaction
+        """
+        Returns list of only those species (or InputSpecies) that participate in one or more reactions as either a
+        reactant or product
+
+        :param include_inputs: if True, include InputSpecies in list.
+        """
+
         x = set()
         for y in self.all_reactions:
             reactants_or_products = y.reactants[:]
@@ -592,6 +794,10 @@ class CRNSketch:
         return list(x)
 
     def getRateConstants(self):
+        """
+        Generate list of all rate constants (needed when generating iSAT/dReach files)
+        :return:
+        """
         rate_constants = {}
         for reaction in self.all_reactions:
             for rate in reaction.get_rate_constants():
@@ -601,6 +807,12 @@ class CRNSketch:
         return rate_constants
 
     def flow(self, isLNA, derivatives):
+        """
+        Returns a dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+        :param isLNA: if True, use the Linear Noise Approximation (LNA); if False use the Rate Reaction Equations (RRE)
+        :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)
+        """
+
         if not derivatives:
             derivatives = set()
         self.derivatives = derivatives
@@ -620,7 +832,6 @@ class CRNSketch:
             else:
                 a[sp.symbol] = dSpeciesdt[i]
 
-
         if isLNA:
             jmat = [sp.symbol for sp in self.real_species]
             J = Matrix(dSpeciesdt).jacobian(jmat)
@@ -629,9 +840,7 @@ class CRNSketch:
             for i in range(C.cols * C.rows):
                 a[C[i]] = dCovdt[i]
 
-        derivative_expressions = derivative(derivatives, a)
-        #for x in derivative_expressions:
-        #    derivative_expressions[x] = self.simplify_expression(derivative_expressions[x])
+        derivative_expressions = compute_derivatives(derivatives, a)
         a.update(derivative_expressions)
 
         for sp in self.input_species:
@@ -652,6 +861,16 @@ class CRNSketch:
         return a
 
     def get_cost(self):
+        """
+        Construct a SymPy expression for the topology cost in terms of the decision variables.
+
+        The cost is defined as:
+         3*(total number of species that participate in a reaction) +
+          6*(sum of stoichiometric coefficients of all reactants) +
+          5*(sum of stoichiometric coefficients of all products) +
+
+        :return:
+        """
 
         # Weighted sum of stoichiometric coefficients for each reaction
         change = []
@@ -707,14 +926,22 @@ class CRNSketch:
         return cost.simplify()
 
     def parametricPropensity(self):
-        # Returns a list: each element is a sympy expression corresponding to the propensity of the n'th reaction
+        """
+        Returns a list of reaction propensities. The n'th element is a SymPy expression for the propensity of the n'th reaction
+        """
+
         propensities = []
         for reaction in self.all_reactions:
             propensities.append(reaction.get_propensity())
         return propensities
 
     def parametricNetReactionChange(self):
-        # Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
+        """
+        Construct a matrix recording the change in stoichiometry of each species in each reaction.
+        Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change
+
+        :return:
+        """
 
         change = []
         for reaction in self.all_reactions:
@@ -755,6 +982,16 @@ class CRNSketch:
 
 
 def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
+    """
+    Update the matrix of stoichiometry changes for each reaction. This allows the matrix to be constructed incrementally,
+    by iterating over the reactants and products of each reaction.
+
+    :param species: list of species
+    :param stoichiometry_change: matrix recording the change in stoichiometry of each species in each reaction
+    :param fragment: a reactant or product term (which may be a choice)
+    :param sign: "+" or "-" (string)
+    :return: udated stoichiometry_change matrix
+    """
     for i, sp in enumerate(species):
         if str(sp) in fragment.specRep():
             if "lam" in fragment.specRep():
@@ -767,38 +1004,58 @@ def add_stoichiometry_change(species, stoichiometry_change, fragment, sign):
     return stoichiometry_change
 
 
-def generateCovarianceMatrix(speciesVector):
-    mat = eye(len(speciesVector))
+def generateCovarianceMatrix(species_names):
+    """
+    Returns a SympPy Matrix that is a covariance matrix. Each entry is a SymPY Symbol whose name is determined by
+     species_names.
 
-    for i, m in enumerate(speciesVector):
-        for j, n in enumerate(speciesVector):
+    For example::
+
+        >> generateCovarianceMatrix(['A', 'B', 'C'])
+        >>   Matrix([
+            [ covA, covAB, covAC],
+            [covAB,  covB, covBC],
+            [covAC, covBC,  covC]])
+
+    :param species_names: list of names of species
+    """
+    mat = eye(len(species_names))
+
+    for i, m in enumerate(species_names):
+        for j, n in enumerate(species_names):
             if m == n:
                 mat[i, j] = 'cov' + str(m)
             else:
                 mat[i, j] = 'cov' + str(n) + str(m)
 
-    for x in range(len(speciesVector)):
-        for y in range(len(speciesVector)):
+    for x in range(len(species_names)):
+        for y in range(len(species_names)):
             mat[x, y] = mat[y, x]
     return mat
 
 
-def derivative(derivatives, flowdict):
+def compute_derivatives(derivatives, flow):
+    """
+    Returns a dictionary containing SymPy expressions for the requested derivatives of state variables.
+
+    :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)
+    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+    """
     # define function for each state variable
     funcs = {}
     function_reverse = {}
-    for variable in flowdict:
+    for variable in flow:
         new_function = Function(variable.name)(Symbol('t'))
         funcs[variable] = new_function
         function_reverse[new_function] = variable
 
     function_flowdict = {}
     constants = []
-    for variable in flowdict:
-        if flowdict[variable] is None:
+    for variable in flow:
+        if flow[variable] is None:
             constants.append(variable.subs(funcs))
         else:
-            function_flowdict[variable.subs(funcs)] = flowdict[variable].subs(funcs)
+            function_flowdict[variable.subs(funcs)] = flow[variable].subs(funcs)
 
     results = {}
     for d in derivatives:
