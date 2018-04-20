@@ -1,6 +1,13 @@
 *.pyc
 .idea/workspace.xml
 .idea/tasks.xml
+.idea/*
+*/.idea/*
 build/*
 dist/*
 *.egg-info
+*.paths
+*.drh
+*.smt2
+*.smt2.*
+*.hys
