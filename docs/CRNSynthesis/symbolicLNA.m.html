@@ -1055,7 +1055,7 @@ table {
       
   <ul>
     <li class="mono"><a href="#CRNSynthesis.symbolicLNA.add_stoichiometry_change">add_stoichiometry_change</a></li>
-    <li class="mono"><a href="#CRNSynthesis.symbolicLNA.derivative">derivative</a></li>
+    <li class="mono"><a href="#CRNSynthesis.symbolicLNA.compute_derivatives">compute_derivatives</a></li>
     <li class="mono"><a href="#CRNSynthesis.symbolicLNA.generateCovarianceMatrix">generateCovarianceMatrix</a></li>
     <li class="mono"><a href="#CRNSynthesis.symbolicLNA.getSpeciesFromTerm">getSpeciesFromTerm</a></li>
   </ul>
@@ -1270,6 +1270,7 @@ table {
 <span class="sd">    This class represents an Input Species - that is, a species whose concentration follows a fixed trajectory,</span>
 <span class="sd">    rather than being determined by the kinetics of reactions in which it is a reactant or product.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ode</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param name: name of the species (string)</span>
@@ -1287,21 +1288,41 @@ table {
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 
     <span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 
     <span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this InputSpecies is a species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an empty list, as this InputSpecies is a not a real (non-input) species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">return</span> <span class="p">[]</span>
 
 <span class="k">class</span> <span class="nc">Species</span><span class="p">:</span>
@@ -1320,6 +1341,7 @@ table {
 <span class="sd">        :param initial_min:  lower limit of possible initial values of concentration for this species (float)</span>
 <span class="sd">        :param initial_max:  upper limit of possible initial value of concentration for this species (float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span> <span class="o">=</span> <span class="n">initial_value</span>
@@ -1331,9 +1353,15 @@ table {
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
@@ -1349,9 +1377,15 @@ table {
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
@@ -1368,9 +1402,15 @@ table {
 
 
     <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this Species is a species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this InputSpecies is a real (non-input) species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
 <span class="k">class</span> <span class="nc">Term</span><span class="p">:</span>
@@ -1386,6 +1426,7 @@ table {
 <span class="sd">        :param species: a Species, InputSpecies, or LambdaChoice object</span>
 <span class="sd">        :param coefficient: an Integer or Choice object representing the stoichiometric coefficient</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span> <span class="o">=</span> <span class="n">coefficient</span>
 
@@ -1612,10 +1653,17 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; ( or &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
@@ -1652,12 +1700,19 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> ( or </span><span class="si">%s</span><span class="s2">) &quot;</span> <span class="o">%</span> <span class="n">alternatives</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -1709,12 +1764,19 @@ table {
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> [0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
@@ -1752,11 +1814,15 @@ table {
                 <span class="n">clause</span> <span class="o">=</span> <span class="s2">&quot;( and &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subclauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
                 <span class="n">clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clause</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
 
 
 
 <span class="k">class</span> <span class="nc">CRNSketch</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a sketch of a Chemical Reaction Network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactions</span><span class="p">,</span> <span class="n">optional_reactions</span><span class="p">,</span> <span class="n">input_species</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reactions</span> <span class="o">=</span> <span class="n">reactions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optionalReactions</span> <span class="o">=</span> <span class="n">optional_reactions</span>
@@ -1789,6 +1855,11 @@ table {
         <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">]&quot;</span>
 
     <span class="k">def</span> <span class="nf">record_decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates over all reactions in self.all_reactions, populating the lists of decision variables</span>
+<span class="sd">        ``self.joint_choice_variables``, ``self.lambda_variables`` and ``self.choice_variables``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">terms</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
             <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
@@ -1809,32 +1880,34 @@ table {
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">Choice</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">choice_variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">coefficient</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="nb">set</span><span class="p">()):</span>
+    <span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of all free_symbols that will appear in the system&#39;s rate equations.</span>
+<span class="sd">        :param covariance_matrix: covariance matrix (needed only if LNA approximation is used)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">sym</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">species_strings</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># entries will be strings representing caluses that appear reactants/products</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
             <span class="n">reactants_or_products</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">react</span> <span class="ow">in</span> <span class="n">reactants_or_products</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">react</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">species_strings</span><span class="p">:</span>
-                    <span class="n">species_strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span>
+                <span class="n">new_symbols</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span><span class="o">.</span><span class="n">free_symbols</span>
+                <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">new_symbols</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">covariance_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">covariance_matrix</span><span class="o">.</span><span class="n">free_symbols</span><span class="p">)</span>
 
-        <span class="n">sym</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">free_symbols</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sympify</span><span class="p">(</span><span class="n">species_strings</span><span class="p">)]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">,</span> <span class="n">sym</span><span class="p">)</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">free_symbols</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span>
-
-
+        <span class="k">return</span> <span class="n">sym</span>
 
     <span class="k">def</span> <span class="nf">getSpecies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_inputs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="c1"># Construct list of only those species (or InputSpecies) that participate in a reaction</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of only those species (or InputSpecies) that participate in one or more reactions as either a</span>
+<span class="sd">        reactant or product</span>
+
+<span class="sd">        :param include_inputs: if True, include InputSpecies in list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">x</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
@@ -1849,6 +1922,10 @@ table {
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">getRateConstants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate list of all rate constants (needed when generating iSAT/dReach files)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rate_constants</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">rate</span> <span class="ow">in</span> <span class="n">reaction</span><span class="o">.</span><span class="n">get_rate_constants</span><span class="p">():</span>
@@ -1858,6 +1935,12 @@ table {
         <span class="k">return</span> <span class="n">rate_constants</span>
 
     <span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isLNA</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param isLNA: if True, use the Linear Noise Approximation (LNA); if False use the Rate Reaction Equations (RRE)</span>
+<span class="sd">        :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">derivatives</span><span class="p">:</span>
             <span class="n">derivatives</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">derivatives</span> <span class="o">=</span> <span class="n">derivatives</span>
@@ -1877,7 +1960,6 @@ table {
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">a</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">dSpeciesdt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-
         <span class="k">if</span> <span class="n">isLNA</span><span class="p">:</span>
             <span class="n">jmat</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_species</span><span class="p">]</span>
             <span class="n">J</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">dSpeciesdt</span><span class="p">)</span><span class="o">.</span><span class="n">jacobian</span><span class="p">(</span><span class="n">jmat</span><span class="p">)</span>
@@ -1886,9 +1968,7 @@ table {
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">cols</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">rows</span><span class="p">):</span>
                 <span class="n">a</span><span class="p">[</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dCovdt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-        <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-        <span class="c1">#for x in derivative_expressions:</span>
-        <span class="c1">#    derivative_expressions[x] = self.simplify_expression(derivative_expressions[x])</span>
+        <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">compute_derivatives</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
         <span class="n">a</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">derivative_expressions</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_species</span><span class="p">:</span>
@@ -1909,6 +1989,16 @@ table {
         <span class="k">return</span> <span class="n">a</span>
 
     <span class="k">def</span> <span class="nf">get_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a SymPy expression for the topology cost in terms of the decision variables.</span>
+
+<span class="sd">        The cost is defined as:</span>
+<span class="sd">         3*(total number of species that participate in a reaction) +</span>
+<span class="sd">          6*(sum of stoichiometric coefficients of all reactants) +</span>
+<span class="sd">          5*(sum of stoichiometric coefficients of all products) +</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Weighted sum of stoichiometric coefficients for each reaction</span>
         <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1964,14 +2054,22 @@ table {
         <span class="k">return</span> <span class="n">cost</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">parametricPropensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Returns a list: each element is a sympy expression corresponding to the propensity of the n&#39;th reaction</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of reaction propensities. The n&#39;th element is a SymPy expression for the propensity of the n&#39;th reaction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">propensities</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">propensities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">get_propensity</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">propensities</span>
 
     <span class="k">def</span> <span class="nf">parametricNetReactionChange</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a matrix recording the change in stoichiometry of each species in each reaction.</span>
+<span class="sd">        Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
@@ -2012,6 +2110,16 @@ table {
 
 
 <span class="k">def</span> <span class="nf">add_stoichiometry_change</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">stoichiometry_change</span><span class="p">,</span> <span class="n">fragment</span><span class="p">,</span> <span class="n">sign</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the matrix of stoichiometry changes for each reaction. This allows the matrix to be constructed incrementally,</span>
+<span class="sd">    by iterating over the reactants and products of each reaction.</span>
+
+<span class="sd">    :param species: list of species</span>
+<span class="sd">    :param stoichiometry_change: matrix recording the change in stoichiometry of each species in each reaction</span>
+<span class="sd">    :param fragment: a reactant or product term (which may be a choice)</span>
+<span class="sd">    :param sign: &quot;+&quot; or &quot;-&quot; (string)</span>
+<span class="sd">    :return: udated stoichiometry_change matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="ow">in</span> <span class="n">fragment</span><span class="o">.</span><span class="n">specRep</span><span class="p">():</span>
             <span class="k">if</span> <span class="s2">&quot;lam&quot;</span> <span class="ow">in</span> <span class="n">fragment</span><span class="o">.</span><span class="n">specRep</span><span class="p">():</span>
@@ -2024,38 +2132,58 @@ table {
     <span class="k">return</span> <span class="n">stoichiometry_change</span>
 
 
-<span class="k">def</span> <span class="nf">generateCovarianceMatrix</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
-    <span class="n">mat</span> <span class="o">=</span> <span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">generateCovarianceMatrix</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a SympPy Matrix that is a covariance matrix. Each entry is a SymPY Symbol whose name is determined by</span>
+<span class="sd">     species_names.</span>
 
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
+<span class="sd">    For example::</span>
+
+<span class="sd">        &gt;&gt; generateCovarianceMatrix([&#39;A&#39;, &#39;B&#39;, &#39;C&#39;])</span>
+<span class="sd">        &gt;&gt;   Matrix([</span>
+<span class="sd">            [ covA, covAB, covAC],</span>
+<span class="sd">            [covAB,  covB, covBC],</span>
+<span class="sd">            [covAC, covBC,  covC]])</span>
+
+<span class="sd">    :param species_names: list of names of species</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
                 <span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cov&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cov&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">)):</span>
             <span class="n">mat</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">mat</span>
 
 
-<span class="k">def</span> <span class="nf">derivative</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">flowdict</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">compute_derivatives</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary containing SymPy expressions for the requested derivatives of state variables.</span>
+
+<span class="sd">    :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</span>
+<span class="sd">    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># define function for each state variable</span>
     <span class="n">funcs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">function_reverse</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flowdict</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flow</span><span class="p">:</span>
         <span class="n">new_function</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)(</span><span class="n">Symbol</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">))</span>
         <span class="n">funcs</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_function</span>
         <span class="n">function_reverse</span><span class="p">[</span><span class="n">new_function</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
 
     <span class="n">function_flowdict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">constants</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flowdict</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">flowdict</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flow</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flow</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">constants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">function_flowdict</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">flowdict</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
+            <span class="n">function_flowdict</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">flow</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">derivatives</span><span class="p">:</span>
@@ -2139,10 +2267,42 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Update the matrix of stoichiometry changes for each reaction. This allows the matrix to be constructed incrementally,
+by iterating over the reactants and products of each reaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">param species:</th><td class="field-body">list of species</td>
+</tr>
+<tr class="field"><th class="field-name" colspan="2">param stoichiometry_change:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">matrix recording the change in stoichiometry of each species in each reaction</td>
+</tr>
+<tr class="field"><th class="field-name">param fragment:</th><td class="field-body">a reactant or product term (which may be a choice)</td>
+</tr>
+<tr class="field"><th class="field-name">param sign:</th><td class="field-body">&quot;+&quot; or &quot;-&quot; (string)</td>
+</tr>
+<tr class="field"><th class="field-name">return:</th><td class="field-body">udated stoichiometry_change matrix</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.add_stoichiometry_change', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.add_stoichiometry_change" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_stoichiometry_change</span><span class="p">(</span><span class="n">species</span><span class="p">,</span> <span class="n">stoichiometry_change</span><span class="p">,</span> <span class="n">fragment</span><span class="p">,</span> <span class="n">sign</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update the matrix of stoichiometry changes for each reaction. This allows the matrix to be constructed incrementally,</span>
+<span class="sd">    by iterating over the reactants and products of each reaction.</span>
+
+<span class="sd">    :param species: list of species</span>
+<span class="sd">    :param stoichiometry_change: matrix recording the change in stoichiometry of each species in each reaction</span>
+<span class="sd">    :param fragment: a reactant or product term (which may be a choice)</span>
+<span class="sd">    :param sign: &quot;+&quot; or &quot;-&quot; (string)</span>
+<span class="sd">    :return: udated stoichiometry_change matrix</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="ow">in</span> <span class="n">fragment</span><span class="o">.</span><span class="n">specRep</span><span class="p">():</span>
             <span class="k">if</span> <span class="s2">&quot;lam&quot;</span> <span class="ow">in</span> <span class="n">fragment</span><span class="o">.</span><span class="n">specRep</span><span class="p">():</span>
@@ -2162,32 +2322,53 @@ table {
   
       
   <div class="item">
-    <div class="name def" id="CRNSynthesis.symbolicLNA.derivative">
-    <p>def <span class="ident">derivative</span>(</p><p>derivatives, flowdict)</p>
+    <div class="name def" id="CRNSynthesis.symbolicLNA.compute_derivatives">
+    <p>def <span class="ident">compute_derivatives</span>(</p><p>derivatives, flow)</p>
     </div>
     
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a dictionary containing SymPy expressions for the requested derivatives of state variables.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param derivatives:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">list specifying which derivatives appear in the specification (each element is a dict)</td>
+</tr>
+<tr class="field"><th class="field-name">param flow:</th><td class="field-body">dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
-  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.derivative', this);">Show source &equiv;</a></p>
-  <div id="source-CRNSynthesis.symbolicLNA.derivative" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">derivative</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">flowdict</span><span class="p">):</span>
+  <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.compute_derivatives', this);">Show source &equiv;</a></p>
+  <div id="source-CRNSynthesis.symbolicLNA.compute_derivatives" class="source">
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">compute_derivatives</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">flow</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary containing SymPy expressions for the requested derivatives of state variables.</span>
+
+<span class="sd">    :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</span>
+<span class="sd">    :param flow: dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># define function for each state variable</span>
     <span class="n">funcs</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">function_reverse</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flowdict</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flow</span><span class="p">:</span>
         <span class="n">new_function</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">name</span><span class="p">)(</span><span class="n">Symbol</span><span class="p">(</span><span class="s1">&#39;t&#39;</span><span class="p">))</span>
         <span class="n">funcs</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_function</span>
         <span class="n">function_reverse</span><span class="p">[</span><span class="n">new_function</span><span class="p">]</span> <span class="o">=</span> <span class="n">variable</span>
 
     <span class="n">function_flowdict</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">constants</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flowdict</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">flowdict</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">flow</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">flow</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="n">constants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">function_flowdict</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">flowdict</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
+            <span class="n">function_flowdict</span><span class="p">[</span><span class="n">variable</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)]</span> <span class="o">=</span> <span class="n">flow</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">subs</span><span class="p">(</span><span class="n">funcs</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">derivatives</span><span class="p">:</span>
@@ -2230,27 +2411,65 @@ table {
       
   <div class="item">
     <div class="name def" id="CRNSynthesis.symbolicLNA.generateCovarianceMatrix">
-    <p>def <span class="ident">generateCovarianceMatrix</span>(</p><p>speciesVector)</p>
+    <p>def <span class="ident">generateCovarianceMatrix</span>(</p><p>species_names)</p>
     </div>
     
 
     
   
+    <div class="desc"><div class="document">
+<dl class="docutils">
+<dt>Returns a SympPy Matrix that is a covariance matrix. Each entry is a SymPY Symbol whose name is determined by</dt>
+<dd>species_names.</dd>
+</dl>
+<p>For example:</p>
+<pre class="literal-block">
+&gt;&gt; generateCovarianceMatrix(['A', 'B', 'C'])
+&gt;&gt;   Matrix([
+    [ covA, covAB, covAC],
+    [covAB,  covB, covBC],
+    [covAC, covBC,  covC]])
+</pre>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param species_names:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">list of names of species</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.generateCovarianceMatrix', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.generateCovarianceMatrix" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generateCovarianceMatrix</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
-    <span class="n">mat</span> <span class="o">=</span> <span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">))</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generateCovarianceMatrix</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a SympPy Matrix that is a covariance matrix. Each entry is a SymPY Symbol whose name is determined by</span>
+<span class="sd">     species_names.</span>
 
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">):</span>
+<span class="sd">    For example::</span>
+
+<span class="sd">        &gt;&gt; generateCovarianceMatrix([&#39;A&#39;, &#39;B&#39;, &#39;C&#39;])</span>
+<span class="sd">        &gt;&gt;   Matrix([</span>
+<span class="sd">            [ covA, covAB, covAC],</span>
+<span class="sd">            [covAB,  covB, covBC],</span>
+<span class="sd">            [covAC, covBC,  covC]])</span>
+
+<span class="sd">    :param species_names: list of names of species</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">species_names</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
                 <span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cov&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">mat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;cov&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
 
-    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">)):</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">speciesVector</span><span class="p">)):</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">species_names</span><span class="p">)):</span>
             <span class="n">mat</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="p">[</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">mat</span>
 </pre></div>
@@ -2497,10 +2716,18 @@ table {
       <p id="CRNSynthesis.symbolicLNA.CRNSketch" class="name">class <span class="ident">CRNSketch</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a sketch of a Chemical Reaction Network.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">CRNSketch</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a sketch of a Chemical Reaction Network.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">reactions</span><span class="p">,</span> <span class="n">optional_reactions</span><span class="p">,</span> <span class="n">input_species</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reactions</span> <span class="o">=</span> <span class="n">reactions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">optionalReactions</span> <span class="o">=</span> <span class="n">optional_reactions</span>
@@ -2533,6 +2760,11 @@ table {
         <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">]&quot;</span>
 
     <span class="k">def</span> <span class="nf">record_decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Iterates over all reactions in self.all_reactions, populating the lists of decision variables</span>
+<span class="sd">        ``self.joint_choice_variables``, ``self.lambda_variables`` and ``self.choice_variables``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">terms</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
             <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
@@ -2553,32 +2785,34 @@ table {
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">Choice</span><span class="p">):</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">choice_variables</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">term</span><span class="o">.</span><span class="n">coefficient</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="nb">set</span><span class="p">()):</span>
+    <span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary of all free_symbols that will appear in the system&#39;s rate equations.</span>
+<span class="sd">        :param covariance_matrix: covariance matrix (needed only if LNA approximation is used)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="n">sym</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="n">species_strings</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># entries will be strings representing caluses that appear reactants/products</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
             <span class="n">reactants_or_products</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">react</span> <span class="ow">in</span> <span class="n">reactants_or_products</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">react</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">species_strings</span><span class="p">:</span>
-                    <span class="n">species_strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span>
+                <span class="n">new_symbols</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span><span class="o">.</span><span class="n">free_symbols</span>
+                <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">new_symbols</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="n">covariance_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">covariance_matrix</span><span class="o">.</span><span class="n">free_symbols</span><span class="p">)</span>
 
-        <span class="n">sym</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">free_symbols</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sympify</span><span class="p">(</span><span class="n">species_strings</span><span class="p">)]</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">a</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">,</span> <span class="n">sym</span><span class="p">)</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">b</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">free_symbols</span>
-        <span class="k">return</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span>
-
-
+        <span class="k">return</span> <span class="n">sym</span>
 
     <span class="k">def</span> <span class="nf">getSpecies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_inputs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-        <span class="c1"># Construct list of only those species (or InputSpecies) that participate in a reaction</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of only those species (or InputSpecies) that participate in one or more reactions as either a</span>
+<span class="sd">        reactant or product</span>
+
+<span class="sd">        :param include_inputs: if True, include InputSpecies in list.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">x</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
@@ -2593,6 +2827,10 @@ table {
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">getRateConstants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate list of all rate constants (needed when generating iSAT/dReach files)</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rate_constants</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">rate</span> <span class="ow">in</span> <span class="n">reaction</span><span class="o">.</span><span class="n">get_rate_constants</span><span class="p">():</span>
@@ -2602,6 +2840,12 @@ table {
         <span class="k">return</span> <span class="n">rate_constants</span>
 
     <span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isLNA</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">        :param isLNA: if True, use the Linear Noise Approximation (LNA); if False use the Rate Reaction Equations (RRE)</span>
+<span class="sd">        :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">derivatives</span><span class="p">:</span>
             <span class="n">derivatives</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">derivatives</span> <span class="o">=</span> <span class="n">derivatives</span>
@@ -2621,7 +2865,6 @@ table {
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">a</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">dSpeciesdt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-
         <span class="k">if</span> <span class="n">isLNA</span><span class="p">:</span>
             <span class="n">jmat</span> <span class="o">=</span> <span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">real_species</span><span class="p">]</span>
             <span class="n">J</span> <span class="o">=</span> <span class="n">Matrix</span><span class="p">(</span><span class="n">dSpeciesdt</span><span class="p">)</span><span class="o">.</span><span class="n">jacobian</span><span class="p">(</span><span class="n">jmat</span><span class="p">)</span>
@@ -2630,9 +2873,7 @@ table {
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">cols</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">rows</span><span class="p">):</span>
                 <span class="n">a</span><span class="p">[</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dCovdt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 
-        <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-        <span class="c1">#for x in derivative_expressions:</span>
-        <span class="c1">#    derivative_expressions[x] = self.simplify_expression(derivative_expressions[x])</span>
+        <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">compute_derivatives</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
         <span class="n">a</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">derivative_expressions</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_species</span><span class="p">:</span>
@@ -2653,6 +2894,16 @@ table {
         <span class="k">return</span> <span class="n">a</span>
 
     <span class="k">def</span> <span class="nf">get_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a SymPy expression for the topology cost in terms of the decision variables.</span>
+
+<span class="sd">        The cost is defined as:</span>
+<span class="sd">         3*(total number of species that participate in a reaction) +</span>
+<span class="sd">          6*(sum of stoichiometric coefficients of all reactants) +</span>
+<span class="sd">          5*(sum of stoichiometric coefficients of all products) +</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># Weighted sum of stoichiometric coefficients for each reaction</span>
         <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2708,14 +2959,22 @@ table {
         <span class="k">return</span> <span class="n">cost</span><span class="o">.</span><span class="n">simplify</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">parametricPropensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Returns a list: each element is a sympy expression corresponding to the propensity of the n&#39;th reaction</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a list of reaction propensities. The n&#39;th element is a SymPy expression for the propensity of the n&#39;th reaction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">propensities</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
             <span class="n">propensities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">get_propensity</span><span class="p">())</span>
         <span class="k">return</span> <span class="n">propensities</span>
 
     <span class="k">def</span> <span class="nf">parametricNetReactionChange</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Construct a matrix recording the change in stoichiometry of each species in each reaction.</span>
+<span class="sd">        Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
@@ -2922,10 +3181,21 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives
+:param isLNA: if True, use the Linear Noise Approximation (LNA); if False use the Rate Reaction Equations (RRE)
+:param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.flow', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.flow" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">flow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isLNA</span><span class="p">,</span> <span class="n">derivatives</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary in which keys are species-names, and values are SympPy expressions for their time derivatives</span>
+<span class="sd">    :param isLNA: if True, use the Linear Noise Approximation (LNA); if False use the Rate Reaction Equations (RRE)</span>
+<span class="sd">    :param derivatives: list specifying which derivatives appear in the specification (each element is a dict)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">derivatives</span><span class="p">:</span>
         <span class="n">derivatives</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">derivatives</span> <span class="o">=</span> <span class="n">derivatives</span>
@@ -2948,9 +3218,7 @@ table {
         <span class="n">dCovdt</span> <span class="o">=</span> <span class="n">J</span> <span class="o">*</span> <span class="n">C</span> <span class="o">+</span> <span class="n">C</span> <span class="o">*</span> <span class="n">transpose</span><span class="p">(</span><span class="n">J</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">cols</span> <span class="o">*</span> <span class="n">C</span><span class="o">.</span><span class="n">rows</span><span class="p">):</span>
             <span class="n">a</span><span class="p">[</span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">=</span> <span class="n">dCovdt</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-    <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">derivative</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-    <span class="c1">#for x in derivative_expressions:</span>
-    <span class="c1">#    derivative_expressions[x] = self.simplify_expression(derivative_expressions[x])</span>
+    <span class="n">derivative_expressions</span> <span class="o">=</span> <span class="n">compute_derivatives</span><span class="p">(</span><span class="n">derivatives</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
     <span class="n">a</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">derivative_expressions</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_species</span><span class="p">:</span>
         <span class="n">a</span><span class="p">[</span><span class="n">sp</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">ode</span>
@@ -2975,31 +3243,36 @@ table {
             
   <div class="item">
     <div class="name def" id="CRNSynthesis.symbolicLNA.CRNSketch.generateAllTokens">
-    <p>def <span class="ident">generateAllTokens</span>(</p><p>self, C=set([]))</p>
+    <p>def <span class="ident">generateAllTokens</span>(</p><p>self, covariance_matrix=None)</p>
     </div>
     
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a dictionary of all free_symbols that will appear in the system's rate equations.
+:param covariance_matrix: covariance matrix (needed only if LNA approximation is used)</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.generateAllTokens', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.generateAllTokens" class="source">
-    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="nb">set</span><span class="p">()):</span>
+    <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generateAllTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">covariance_matrix</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a dictionary of all free_symbols that will appear in the system&#39;s rate equations.</span>
+<span class="sd">    :param covariance_matrix: covariance matrix (needed only if LNA approximation is used)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sym</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">species_strings</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1"># entries will be strings representing caluses that appear reactants/products</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
         <span class="n">reactants_or_products</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">react</span> <span class="ow">in</span> <span class="n">reactants_or_products</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">react</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">species_strings</span><span class="p">:</span>
-                <span class="n">species_strings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span>
-    <span class="n">sym</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">free_symbols</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sympify</span><span class="p">(</span><span class="n">species_strings</span><span class="p">)]</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sym</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">[]</span>
-    <span class="n">a</span> <span class="o">=</span> <span class="nb">reduce</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">x</span> <span class="o">|</span> <span class="n">y</span><span class="p">,</span> <span class="n">sym</span><span class="p">)</span>
-    <span class="n">b</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">free_symbols</span>
-    <span class="k">return</span> <span class="n">a</span> <span class="o">|</span> <span class="n">b</span>
+            <span class="n">new_symbols</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">react</span><span class="o">.</span><span class="n">specRep</span><span class="p">())</span><span class="o">.</span><span class="n">free_symbols</span>
+            <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">new_symbols</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">covariance_matrix</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">sym</span> <span class="o">=</span> <span class="n">sym</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">covariance_matrix</span><span class="o">.</span><span class="n">free_symbols</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">sym</span>
 </pre></div>
 
   </div>
@@ -3016,10 +3289,19 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Generate list of all rate constants (needed when generating iSAT/dReach files)
+:return:</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.getRateConstants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.getRateConstants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getRateConstants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate list of all rate constants (needed when generating iSAT/dReach files)</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">rate_constants</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">rate</span> <span class="ow">in</span> <span class="n">reaction</span><span class="o">.</span><span class="n">get_rate_constants</span><span class="p">():</span>
@@ -3043,11 +3325,29 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns list of only those species (or InputSpecies) that participate in one or more reactions as either a
+reactant or product</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param include_inputs:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body">if True, include InputSpecies in list.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.getSpecies', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.getSpecies" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getSpecies</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_inputs</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
-    <span class="c1"># Construct list of only those species (or InputSpecies) that participate in a reaction</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of only those species (or InputSpecies) that participate in one or more reactions as either a</span>
+<span class="sd">    reactant or product</span>
+<span class="sd">    :param include_inputs: if True, include InputSpecies in list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">x</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="n">reactants_or_products</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
@@ -3075,10 +3375,39 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Construct a SymPy expression for the topology cost in terms of the decision variables.</p>
+<dl class="docutils">
+<dt>The cost is defined as:</dt>
+<dd><dl class="first last docutils">
+<dt>3*(total number of species that participate in a reaction) +</dt>
+<dd>6*(sum of stoichiometric coefficients of all reactants) +
+5*(sum of stoichiometric coefficients of all products) +</dd>
+</dl>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.get_cost', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.get_cost" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_cost</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a SymPy expression for the topology cost in terms of the decision variables.</span>
+<span class="sd">    The cost is defined as:</span>
+<span class="sd">     3*(total number of species that participate in a reaction) +</span>
+<span class="sd">      6*(sum of stoichiometric coefficients of all reactants) +</span>
+<span class="sd">      5*(sum of stoichiometric coefficients of all products) +</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Weighted sum of stoichiometric coefficients for each reaction</span>
     <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
@@ -3135,11 +3464,28 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Construct a matrix recording the change in stoichiometry of each species in each reaction.
+Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name">return:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.parametricNetReactionChange', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.parametricNetReactionChange" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parametricNetReactionChange</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="c1"># Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a matrix recording the change in stoichiometry of each species in each reaction.</span>
+<span class="sd">    Returns a 2D list: change[reaction_index][species_index] is a string representing the stoichiometry change</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">change</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="n">netChange</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;0&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">real_species</span><span class="p">)</span>
@@ -3165,11 +3511,17 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a list of reaction propensities. The n'th element is a SymPy expression for the propensity of the n'th reaction</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.parametricPropensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.parametricPropensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parametricPropensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-    <span class="c1"># Returns a list: each element is a sympy expression corresponding to the propensity of the n&#39;th reaction</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a list of reaction propensities. The n&#39;th element is a SymPy expression for the propensity of the n&#39;th reaction</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">propensities</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="n">propensities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">get_propensity</span><span class="p">())</span>
@@ -3190,10 +3542,19 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Iterates over all reactions in self.all_reactions, populating the lists of decision variables
+<tt class="docutils literal">self.joint_choice_variables</tt>, <tt class="docutils literal">self.lambda_variables</tt> and <tt class="docutils literal">self.choice_variables</tt></p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.CRNSketch.record_decision_variables', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.CRNSketch.record_decision_variables" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">record_decision_variables</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Iterates over all reactions in self.all_reactions, populating the lists of decision variables</span>
+<span class="sd">    ``self.joint_choice_variables``, ``self.lambda_variables`` and ``self.choice_variables``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">reaction</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_reactions</span><span class="p">:</span>
         <span class="n">terms</span> <span class="o">=</span> <span class="n">reaction</span><span class="o">.</span><span class="n">reactants</span><span class="p">[:]</span>
         <span class="n">terms</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">reaction</span><span class="o">.</span><span class="n">products</span><span class="p">)</span>
@@ -3299,12 +3660,19 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> ( or </span><span class="si">%s</span><span class="s2">) &quot;</span> <span class="o">%</span> <span class="n">alternatives</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">s</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
             <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -3409,10 +3777,17 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice.dRealDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -3461,10 +3836,17 @@ table {
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice.iSATDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">s</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -3933,6 +4315,7 @@ rather than being determined by the kinetics of reactions in which it is a react
 <span class="sd">    This class represents an Input Species - that is, a species whose concentration follows a fixed trajectory,</span>
 <span class="sd">    rather than being determined by the kinetics of reactions in which it is a reactant or product.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ode</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        :param name: name of the species (string)</span>
@@ -3950,21 +4333,41 @@ rather than being determined by the kinetics of reactions in which it is a react
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 
     <span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 
     <span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this InputSpecies is a species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an empty list, as this InputSpecies is a not a real (non-input) species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
@@ -4073,10 +4476,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.dRealDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 </pre></div>
 
@@ -4094,10 +4504,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that assigns initial value to variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.dRealInitialization', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.dRealInitialization" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 </pre></div>
 
@@ -4115,10 +4532,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns an empty list, as this InputSpecies is a not a real (non-input) species.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.get_real_species', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.get_real_species" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an empty list, as this InputSpecies is a not a real (non-input) species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[]</span>
 </pre></div>
 
@@ -4136,10 +4560,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns an list containing self, as this InputSpecies is a species.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.get_species', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.get_species" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an list containing self, as this InputSpecies is a species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
 
@@ -4157,10 +4588,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.iSATDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[</span><span class="si">%s</span><span class="s2">, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c1"># TODO: set min/max better</span>
 </pre></div>
 
@@ -4178,10 +4616,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that assigns initial value to variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.InputSpecies.iSATInitialization', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.InputSpecies.iSATInitialization" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 </pre></div>
 
@@ -4258,10 +4703,17 @@ rather than being determined by the kinetics of reactions in which it is a react
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; ( or &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 </pre></div>
@@ -4385,10 +4837,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice.dRealDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 </pre></div>
@@ -4481,10 +4940,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice.iSATDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 </pre></div>
@@ -5034,6 +5500,7 @@ in which it is a reactant or product.</p>
 <span class="sd">        :param initial_min:  lower limit of possible initial values of concentration for this species (float)</span>
 <span class="sd">        :param initial_max:  upper limit of possible initial value of concentration for this species (float)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span> <span class="o">=</span> <span class="n">initial_value</span>
@@ -5045,9 +5512,15 @@ in which it is a reactant or product.</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
@@ -5063,9 +5536,15 @@ in which it is a reactant or product.</p>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
 
@@ -5082,9 +5561,15 @@ in which it is a reactant or product.</p>
 
 
     <span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this Species is a species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns an list containing self, as this InputSpecies is a real (non-input) species.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
 
@@ -5215,10 +5700,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.dRealDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 
@@ -5236,10 +5728,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that assigns initial value to variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.dRealInitialization', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.dRealInitialization" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that assigns initial value to variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">(</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">)</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
     <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -5266,10 +5765,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns an list containing self, as this InputSpecies is a real (non-input) species.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.get_real_species', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.get_real_species" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_real_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an list containing self, as this InputSpecies is a real (non-input) species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
 
@@ -5287,10 +5793,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns an list containing self, as this Species is a species.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.get_species', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.get_species" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_species</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns an list containing self, as this Species is a species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
 </pre></div>
 
@@ -5308,10 +5821,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.iSATDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, </span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 </pre></div>
 
@@ -5329,10 +5849,17 @@ in which it is a reactant or product.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that assigns initial value to variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Species.iSATInitialization', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Species.iSATInitialization" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATInitialization</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that assigns initial value to variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="si">%s</span><span class="s2"> = </span><span class="si">%s</span><span class="s2">;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_value</span><span class="p">)</span>
     <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -5379,6 +5906,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 <span class="sd">        :param species: a Species, InputSpecies, or LambdaChoice object</span>
 <span class="sd">        :param coefficient: an Integer or Choice object representing the stoichiometric coefficient</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span> <span class="o">=</span> <span class="n">coefficient</span>
 
@@ -5655,12 +6183,19 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> [0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
@@ -5698,7 +6233,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
                 <span class="n">clause</span> <span class="o">=</span> <span class="s2">&quot;( and &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subclauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
                 <span class="n">clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clause</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
 </pre></div>
 
   </div>
@@ -5801,10 +6336,17 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.dRealDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
         <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2"> [0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
@@ -5840,7 +6382,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
                     <span class="n">subclauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;(</span><span class="si">%s%s</span><span class="s2"> = 0)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
             <span class="n">clause</span> <span class="o">=</span> <span class="s2">&quot;( and &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">subclauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
             <span class="n">clauses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">clause</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;( or &quot;</span> <span class="o">+</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;) </span><span class="se">\n</span><span class="s2">&quot;</span>
 </pre></div>
 
   </div>
@@ -5905,10 +6447,17 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string that defines variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.iSATDefinition', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
         <span class="n">declarations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float[0, 1] </span><span class="si">%s%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
