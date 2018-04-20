@@ -1434,6 +1434,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">        (including decision variables if there is choice).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">Choice</span><span class="p">):</span>
             <span class="n">coefficient_expression</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1475,6 +1479,9 @@ table {
 
 
 <span class="k">class</span> <span class="nc">RateConstant</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a constant that appears in the formula for a reaction&#39;s propensity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">minimum</span>
@@ -1489,7 +1496,17 @@ table {
 
 
 <span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a chemical reaction with Mass Action kinetics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param r: list of reactant terms</span>
+<span class="sd">        :param p: list of product terms</span>
+<span class="sd">        :param ra: rate constant</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span> <span class="o">=</span> <span class="n">r</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">):</span>
@@ -1503,7 +1520,7 @@ table {
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">ra</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_optional</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># Boolean variable indicating whether optional reaction occurs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; -&gt;{&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;} &quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">])</span>
@@ -1512,9 +1529,15 @@ table {
         <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; -&gt;{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;} &quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">propensity</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">reactant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">:</span>
             <span class="n">propensity</span> <span class="o">*=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">reactant</span><span class="o">.</span><span class="n">constructPropensity</span><span class="p">())</span>
@@ -1523,60 +1546,118 @@ table {
         <span class="k">return</span> <span class="n">propensity</span>
 
 <span class="k">class</span> <span class="nc">ArbitraryRateReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">ArbitraryRateReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span> <span class="c1"># rate is a sympy formula, rather than constant</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with kinetics described by a narbitrary SymPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ArbitraryRateReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
 
-        <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span>
+    <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span>
+
+    <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span>
 
 
 <span class="k">class</span> <span class="nc">HillActivationReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Hill Activation kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (reactant ** n / (Ka ** n + reactant ** n))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Ka</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">HillActivationReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span> <span class="o">=</span> <span class="n">Ka</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">*</span> <span class="p">(</span><span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
 
 <span class="k">class</span> <span class="nc">HillRepressionReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Hill Repression kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (1 / (Ka ** n + reactant ** n))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Ka</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">HillRepressionReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span> <span class="o">=</span> <span class="n">Ka</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">MichaelisMentenReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Michaelis Menten kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (reactant / (Km + reactant))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Km</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MichaelisMentenReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Km</span> <span class="o">=</span> <span class="n">Km</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">species</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span><span class="p">))</span>
 
 
 <span class="k">def</span> <span class="nf">getSpeciesFromTerm</span><span class="p">(</span><span class="n">initial_term</span><span class="p">):</span>
-    <span class="c1"># This returns something like specRep without the stoichiometric coefficients</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a SymPy expression for the species in a term dependent on the decision parameters.</span>
+
+<span class="sd">    It is similar to .specRep(), but doesn&#39;t including the stoichiometric coefficients</span>
+
+<span class="sd">    :param initial_term:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -1596,7 +1677,15 @@ table {
 
 
 <span class="k">class</span> <span class="nc">LambdaChoice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between different species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param species: a list of alternative species</span>
+<span class="sd">        :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choiceNo</span> <span class="o">=</span> <span class="n">choiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">(</span><span class="s2">&quot;lam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">choiceNumber</span><span class="p">))</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
@@ -1621,6 +1710,10 @@ table {
         <span class="k">return</span> <span class="n">x</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -1637,6 +1730,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -1654,7 +1751,7 @@ table {
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
@@ -1662,14 +1759,23 @@ table {
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
 
 <span class="k">class</span> <span class="nc">Choice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between different values of stoichiometric coefficient.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">,</span> <span class="n">minValue</span><span class="p">,</span> <span class="n">maxValue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        :param minValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">        :param maxValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span> <span class="o">=</span> <span class="n">choiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;c&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -1677,6 +1783,9 @@ table {
         <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">=</span> <span class="n">maxValue</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -1688,6 +1797,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; (</span><span class="si">%s</span><span class="s2">) &quot;</span> <span class="o">%</span> <span class="n">clause</span> <span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">clauses</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -1701,7 +1814,7 @@ table {
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -1711,7 +1824,7 @@ table {
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -1723,7 +1836,14 @@ table {
 
 
 <span class="k">class</span> <span class="nc">TermChoice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between alternative terms (pairs of stoichiometry and species).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">termChoiceNumber</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param termChoiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        :param choices: alternative terms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span> <span class="o">=</span> <span class="n">termChoiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span> <span class="o">=</span> <span class="n">choices</span> <span class="c1"># each choice is a term</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span> <span class="o">=</span> <span class="s2">&quot;tc_</span><span class="si">%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span>
@@ -1742,6 +1862,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">        (including decision variables if there is choice).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">substrings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">substrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> * (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">specRep</span><span class="p">()))</span>
@@ -1765,7 +1889,7 @@ table {
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variables in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1775,7 +1899,7 @@ table {
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variables in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
@@ -1783,6 +1907,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variables in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
 
@@ -1800,6 +1928,10 @@ table {
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
 
@@ -2488,11 +2620,31 @@ by iterating over the reactants and products of each reaction.</p>
 
     
   
+    <div class="desc"><div class="document">
+<p>Return a SymPy expression for the species in a term dependent on the decision parameters.</p>
+<p>It is similar to .specRep(), but doesn't including the stoichiometric coefficients</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field"><th class="field-name" colspan="2">param initial_term:</th></tr>
+<tr class="field"><td>&nbsp;</td><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.getSpeciesFromTerm', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.getSpeciesFromTerm" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">getSpeciesFromTerm</span><span class="p">(</span><span class="n">initial_term</span><span class="p">):</span>
-    <span class="c1"># This returns something like specRep without the stoichiometric coefficients</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return a SymPy expression for the species in a term dependent on the decision parameters.</span>
+
+<span class="sd">    It is similar to .specRep(), but doesn&#39;t including the stoichiometric coefficients</span>
+
+<span class="sd">    :param initial_term:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -2523,20 +2675,34 @@ by iterating over the reactants and products of each reaction.</p>
       <p id="CRNSynthesis.symbolicLNA.ArbitraryRateReaction" class="name">class <span class="ident">ArbitraryRateReaction</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a reaction with kinetics described by a narbitrary SymPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ArbitraryRateReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
-        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
-            <span class="nb">super</span><span class="p">(</span><span class="n">ArbitraryRateReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span> <span class="c1"># rate is a sympy formula, rather than constant</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with kinetics described by a narbitrary SymPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-        <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ArbitraryRateReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
 
-        <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span>
+    <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span>
+
+    <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span>
 </pre></div>
 
   </div>
@@ -2645,12 +2811,27 @@ by iterating over the reactants and products of each reaction.</p>
 
     
   
+    <div class="desc inherited"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-r field"><th class="docinfo-name">param r:</th><td class="field-body">list of reactant terms</td>
+</tr>
+<tr class="param-p field"><th class="docinfo-name">param p:</th><td class="field-body">list of product terms</td>
+</tr>
+<tr class="param-ra field"><th class="docinfo-name">param ra:</th><td class="field-body">rate constant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">,</span> <span class="n">constants</span><span class="p">):</span>
     <span class="nb">super</span><span class="p">(</span><span class="n">ArbitraryRateReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span> <span class="c1"># rate is a sympy formula, rather than constant</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">ra</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">constants</span> <span class="o">=</span> <span class="n">constants</span>
 </pre></div>
 
@@ -2672,10 +2853,17 @@ by iterating over the reactants and products of each reaction.</p>
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Return propensity of this reaction as a sympPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.get_propensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.get_propensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span>
 </pre></div>
 
@@ -2697,10 +2885,17 @@ by iterating over the reactants and products of each reaction.</p>
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Returns list of constants appearing in this reaction's propensity expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.get_rate_constants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.ArbitraryRateReaction.get_rate_constants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constants</span>
 </pre></div>
 
@@ -3625,11 +3820,24 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
       <p id="CRNSynthesis.symbolicLNA.Choice" class="name">class <span class="ident">Choice</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a choice between different values of stoichiometric coefficient.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Choice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between different values of stoichiometric coefficient.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">,</span> <span class="n">minValue</span><span class="p">,</span> <span class="n">maxValue</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        :param minValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">        :param maxValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span> <span class="o">=</span> <span class="n">choiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;c&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -3637,6 +3845,9 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
         <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">=</span> <span class="n">maxValue</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -3648,6 +3859,10 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot; (</span><span class="si">%s</span><span class="s2">) &quot;</span> <span class="o">%</span> <span class="n">clause</span> <span class="k">for</span> <span class="n">clause</span> <span class="ow">in</span> <span class="n">clauses</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -3661,7 +3876,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
@@ -3671,7 +3886,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -3752,10 +3967,31 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-choicenumber field"><th class="docinfo-name" colspan="2">param choiceNumber:</th></tr>
+<tr class="param-choicenumber field"><td>&nbsp;</td><td class="field-body">integer index number for this choice (must be distinct)</td>
+</tr>
+<tr class="param-minvalue field"><th class="docinfo-name">param minValue:</th><td class="field-body">minimum permitted value for the stoichiometric coefficient</td>
+</tr>
+<tr class="param-maxvalue field"><th class="docinfo-name">param maxValue:</th><td class="field-body">minimum permitted value for the stoichiometric coefficient</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">,</span> <span class="n">minValue</span><span class="p">,</span> <span class="n">maxValue</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">    :param minValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">    :param maxValue: minimum permitted value for the stoichiometric coefficient</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span> <span class="o">=</span> <span class="n">choiceNumber</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="s1">&#39;c&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">choiceNumber</span><span class="p">))</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">Symbol</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -3778,7 +4014,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in dReach (.drh) format.</p>
+<p>Returns string that defines corresponding decision variable in dReach (.drh) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -3786,7 +4022,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
   <div id="source-CRNSynthesis.symbolicLNA.Choice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -3808,10 +4044,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice.dRealformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice.dRealformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3837,7 +4080,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in iSAT (.hys) format.</p>
+<p>Returns string that defines corresponding decision variable in iSAT (.hys) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -3845,7 +4088,7 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
   <div id="source-CRNSynthesis.symbolicLNA.Choice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">s</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
@@ -3867,10 +4110,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Choice.iSATformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Choice.iSATformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">minValue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">maxValue</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
         <span class="n">terms</span> <span class="o">=</span> <span class="p">[]</span>
@@ -3892,19 +4142,39 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
       <p id="CRNSynthesis.symbolicLNA.HillActivationReaction" class="name">class <span class="ident">HillActivationReaction</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a reaction with Hill Activation kinetics.</p>
+<p>The propensity is given by:</p>
+<p>reactionrate * (reactant ** n / (Ka ** n + reactant ** n))</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillActivationReaction', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillActivationReaction" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">HillActivationReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Hill Activation kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (reactant ** n / (Ka ** n + reactant ** n))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Ka</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">HillActivationReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span> <span class="o">=</span> <span class="n">Ka</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">*</span> <span class="p">(</span><span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
 </pre></div>
@@ -4025,6 +4295,21 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-r field"><th class="docinfo-name">param r:</th><td class="field-body">list of reactant terms</td>
+</tr>
+<tr class="param-p field"><th class="docinfo-name">param p:</th><td class="field-body">list of product terms</td>
+</tr>
+<tr class="param-ra field"><th class="docinfo-name">param ra:</th><td class="field-body">rate constant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillActivationReaction.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillActivationReaction.__init__" class="source">
@@ -4052,10 +4337,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Return propensity of this reaction as a sympPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillActivationReaction.get_propensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillActivationReaction.get_propensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">*</span> <span class="p">(</span><span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">))</span>
 </pre></div>
@@ -4078,10 +4370,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Returns list of constants appearing in this reaction's propensity expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillActivationReaction.get_rate_constants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillActivationReaction.get_rate_constants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 </pre></div>
 
@@ -4097,19 +4396,39 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
       <p id="CRNSynthesis.symbolicLNA.HillRepressionReaction" class="name">class <span class="ident">HillRepressionReaction</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a reaction with Hill Repression kinetics.</p>
+<p>The propensity is given by:</p>
+<p>reactionrate * (1 / (Ka ** n + reactant ** n))</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillRepressionReaction', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillRepressionReaction" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">HillRepressionReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Hill Repression kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (1 / (Ka ** n + reactant ** n))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Ka</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">HillRepressionReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span> <span class="o">=</span> <span class="n">Ka</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">n</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 </pre></div>
@@ -4230,6 +4549,21 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-r field"><th class="docinfo-name">param r:</th><td class="field-body">list of reactant terms</td>
+</tr>
+<tr class="param-p field"><th class="docinfo-name">param p:</th><td class="field-body">list of product terms</td>
+</tr>
+<tr class="param-ra field"><th class="docinfo-name">param ra:</th><td class="field-body">rate constant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillRepressionReaction.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillRepressionReaction.__init__" class="source">
@@ -4257,10 +4591,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Return propensity of this reaction as a sympPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillRepressionReaction.get_propensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillRepressionReaction.get_propensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="o">.</span><span class="n">symbol</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span> <span class="o">**</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
 </pre></div>
@@ -4283,10 +4624,17 @@ Returns a 2D list: change[reaction_index][species_index] is a string representin
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Returns list of constants appearing in this reaction's propensity expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.HillRepressionReaction.get_rate_constants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.HillRepressionReaction.get_rate_constants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ka</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">]</span>
 </pre></div>
 
@@ -4642,11 +4990,23 @@ rather than being determined by the kinetics of reactions in which it is a react
       <p id="CRNSynthesis.symbolicLNA.LambdaChoice" class="name">class <span class="ident">LambdaChoice</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a choice between different species.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LambdaChoice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between different species.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param species: a list of alternative species</span>
+<span class="sd">        :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">choiceNo</span> <span class="o">=</span> <span class="n">choiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">(</span><span class="s2">&quot;lam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">choiceNumber</span><span class="p">))</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
@@ -4671,6 +5031,10 @@ rather than being determined by the kinetics of reactions in which it is a react
         <span class="k">return</span> <span class="n">x</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -4687,6 +5051,10 @@ rather than being determined by the kinetics of reactions in which it is a react
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -4704,7 +5072,7 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
@@ -4712,7 +5080,7 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
@@ -4768,10 +5136,28 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-species field"><th class="docinfo-name">param species:</th><td class="field-body">a list of alternative species</td>
+</tr>
+<tr class="param-choicenumber field"><th class="docinfo-name" colspan="2">param choiceNumber:</th></tr>
+<tr class="param-choicenumber field"><td>&nbsp;</td><td class="field-body">integer index number for this choice (must be distinct)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">species</span><span class="p">,</span> <span class="n">choiceNumber</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param species: a list of alternative species</span>
+<span class="sd">    :param choiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">choiceNo</span> <span class="o">=</span> <span class="n">choiceNumber</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">species</span> <span class="o">=</span> <span class="n">species</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span> <span class="o">=</span> <span class="p">[</span><span class="n">symbols</span><span class="p">(</span><span class="s2">&quot;lam&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">sp</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">choiceNumber</span><span class="p">))</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="n">species</span><span class="p">]</span>
@@ -4838,7 +5224,7 @@ rather than being determined by the kinetics of reactions in which it is a react
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in dReach (.drh) format.</p>
+<p>Returns string that defines corresponding decision variable in dReach (.drh) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -4846,7 +5232,7 @@ rather than being determined by the kinetics of reactions in which it is a react
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variable in dReach (.drh) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">[0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
@@ -4866,10 +5252,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice.dRealformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.dRealformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
         <span class="c1"># generate term in which only element i is on</span>
@@ -4941,7 +5334,7 @@ rather than being determined by the kinetics of reactions in which it is a react
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in iSAT (.hys) format.</p>
+<p>Returns string that defines corresponding decision variable in iSAT (.hys) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -4949,7 +5342,7 @@ rather than being determined by the kinetics of reactions in which it is a react
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variable in iSAT (.hys) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">float [0, 1] </span><span class="si">%s</span><span class="s2">;&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">lam</span><span class="p">)</span> <span class="k">for</span> <span class="n">lam</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">]</span>
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
@@ -4969,10 +5362,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.LambdaChoice.iSATformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.LambdaChoice.iSATformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variable in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lambdas</span><span class="p">:</span>
         <span class="c1"># generate term in which only element i is on</span>
@@ -4999,18 +5399,38 @@ rather than being determined by the kinetics of reactions in which it is a react
       <p id="CRNSynthesis.symbolicLNA.MichaelisMentenReaction" class="name">class <span class="ident">MichaelisMentenReaction</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a reaction with Michaelis Menten kinetics.</p>
+<p>The propensity is given by:</p>
+<p>reactionrate * (reactant / (Km + reactant))</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">MichaelisMentenReaction</span><span class="p">(</span><span class="n">Reaction</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a reaction with Michaelis Menten kinetics.</span>
+
+<span class="sd">    The propensity is given by:</span>
+
+<span class="sd">    reactionrate * (reactant / (Km + reactant))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">,</span> <span class="n">Km</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MichaelisMentenReaction</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">Kmax</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Km</span> <span class="o">=</span> <span class="n">Km</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">species</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span><span class="p">))</span>
 </pre></div>
@@ -5121,6 +5541,21 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc inherited"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-r field"><th class="docinfo-name">param r:</th><td class="field-body">list of reactant terms</td>
+</tr>
+<tr class="param-p field"><th class="docinfo-name">param p:</th><td class="field-body">list of product terms</td>
+</tr>
+<tr class="param-ra field"><th class="docinfo-name">param ra:</th><td class="field-body">rate constant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.__init__" class="source">
@@ -5147,10 +5582,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Return propensity of this reaction as a sympPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.get_propensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.get_propensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">species</span> <span class="o">=</span> <span class="n">getSpeciesFromTerm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">species</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">symbol</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="o">.</span><span class="n">symbol</span> <span class="o">+</span> <span class="n">species</span><span class="p">))</span>
 </pre></div>
@@ -5173,10 +5615,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc inherited"><div class="document">
+<p>Returns list of constants appearing in this reaction's propensity expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.get_rate_constants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.MichaelisMentenReaction.get_rate_constants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Km</span><span class="p">]</span>
 </pre></div>
 
@@ -5192,10 +5641,17 @@ rather than being determined by the kinetics of reactions in which it is a react
       <p id="CRNSynthesis.symbolicLNA.RateConstant" class="name">class <span class="ident">RateConstant</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a constant that appears in the formula for a reaction's propensity.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.RateConstant', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.RateConstant" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">RateConstant</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a constant that appears in the formula for a reaction&#39;s propensity.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">maximum</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min</span> <span class="o">=</span> <span class="n">minimum</span>
@@ -5291,11 +5747,25 @@ rather than being determined by the kinetics of reactions in which it is a react
       <p id="CRNSynthesis.symbolicLNA.Reaction" class="name">class <span class="ident">Reaction</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a chemical reaction with Mass Action kinetics.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Reaction', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Reaction" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Reaction</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a chemical reaction with Mass Action kinetics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        :param r: list of reactant terms</span>
+<span class="sd">        :param p: list of product terms</span>
+<span class="sd">        :param ra: rate constant</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span> <span class="o">=</span> <span class="n">r</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">):</span>
@@ -5309,7 +5779,7 @@ rather than being determined by the kinetics of reactions in which it is a react
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">ra</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_optional</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># Boolean variable indicating whether optional reaction occurs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; -&gt;{&quot;</span> <span class="o">+</span> <span class="nb">repr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;} &quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">repr</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">])</span>
@@ -5318,9 +5788,15 @@ rather than being determined by the kinetics of reactions in which it is a react
         <span class="k">return</span> <span class="s2">&quot;&quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; -&gt;{&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;} &quot;</span> <span class="o">+</span> <span class="s1">&#39; + &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">propensity</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">reactant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">:</span>
             <span class="n">propensity</span> <span class="o">*=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">reactant</span><span class="o">.</span><span class="n">constructPropensity</span><span class="p">())</span>
@@ -5400,10 +5876,30 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-r field"><th class="docinfo-name">param r:</th><td class="field-body">list of reactant terms</td>
+</tr>
+<tr class="param-p field"><th class="docinfo-name">param p:</th><td class="field-body">list of product terms</td>
+</tr>
+<tr class="param-ra field"><th class="docinfo-name">param ra:</th><td class="field-body">rate constant</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Reaction.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Reaction.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">ra</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param r: list of reactant terms</span>
+<span class="sd">    :param p: list of product terms</span>
+<span class="sd">    :param ra: rate constant</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span> <span class="o">=</span> <span class="n">r</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
@@ -5414,7 +5910,7 @@ rather than being determined by the kinetics of reactions in which it is a react
             <span class="bp">self</span><span class="o">.</span><span class="n">products</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">Term</span><span class="p">(</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span> <span class="o">=</span> <span class="n">ra</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">is_optional</span> <span class="o">=</span> <span class="bp">False</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span> <span class="c1"># Boolean variable indicating whether optional reaction occurs</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">variable_name</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 </pre></div>
 
   </div>
@@ -5431,10 +5927,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Return propensity of this reaction as a sympPy expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Reaction.get_propensity', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Reaction.get_propensity" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_propensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Return propensity of this reaction as a sympPy expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">propensity</span> <span class="o">=</span> <span class="n">symbols</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">reactant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reactants</span><span class="p">:</span>
         <span class="n">propensity</span> <span class="o">*=</span> <span class="n">sympify</span><span class="p">(</span><span class="n">reactant</span><span class="o">.</span><span class="n">constructPropensity</span><span class="p">())</span>
@@ -5457,10 +5960,17 @@ rather than being determined by the kinetics of reactions in which it is a react
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns list of constants appearing in this reaction's propensity expression.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Reaction.get_rate_constants', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Reaction.get_rate_constants" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_rate_constants</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of constants appearing in this reaction&#39;s propensity expression.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">reactionrate</span><span class="p">]</span>
 </pre></div>
 
@@ -5914,6 +6424,10 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">species</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">        (including decision variables if there is choice).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">coefficient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">Choice</span><span class="p">):</span>
             <span class="n">coefficient_expression</span> <span class="o">=</span> <span class="mi">0</span>
@@ -6110,10 +6624,19 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a string representation of the product of stoichiometric coefficient and species name
+(including decision variables if there is choice).</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.Term.specRep', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.Term.specRep" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">    (including decision variables if there is choice).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">coefficient</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">coefficient</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">coefficient</span><span class="p">,</span> <span class="n">Choice</span><span class="p">):</span>
         <span class="n">coefficient_expression</span> <span class="o">=</span> <span class="mi">0</span>
@@ -6138,11 +6661,22 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
       <p id="CRNSynthesis.symbolicLNA.TermChoice" class="name">class <span class="ident">TermChoice</span></p>
       
   
+    <div class="desc"><div class="document">
+<p>Represents a choice between alternative terms (pairs of stoichiometry and species).</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice" class="source">
     <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">TermChoice</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a choice between alternative terms (pairs of stoichiometry and species).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">termChoiceNumber</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param termChoiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">        :param choices: alternative terms</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span> <span class="o">=</span> <span class="n">termChoiceNumber</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span> <span class="o">=</span> <span class="n">choices</span> <span class="c1"># each choice is a term</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span> <span class="o">=</span> <span class="s2">&quot;tc_</span><span class="si">%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span>
@@ -6161,6 +6695,10 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
         <span class="k">return</span> <span class="s2">&quot; + &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">terms</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">        (including decision variables if there is choice).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">substrings</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
             <span class="n">substrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> * (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">specRep</span><span class="p">()))</span>
@@ -6184,7 +6722,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     <span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variables in iSAT (.hys) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -6194,7 +6732,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     <span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">        Returns string that defines corresponding decision variables in dReach (.drh) format.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
@@ -6202,6 +6740,10 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">declarations</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variables in iSAT (.hys) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
 
@@ -6219,6 +6761,10 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot; or &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">clauses</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;</span><span class="se">\n</span><span class="s2">&quot;</span>
 
     <span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
 
@@ -6286,10 +6832,28 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<table class="docinfo" frame="void" rules="none">
+<col class="docinfo-name" />
+<col class="docinfo-content" />
+<tbody valign="top">
+<tr class="param-termchoicenumber field"><th class="docinfo-name" colspan="2">param termChoiceNumber:</th></tr>
+<tr class="param-termchoicenumber field"><td>&nbsp;</td><td class="field-body">integer index number for this choice (must be distinct)</td>
+</tr>
+<tr class="param-choices field"><th class="docinfo-name">param choices:</th><td class="field-body">alternative terms</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.__init__', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.__init__" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">termChoiceNumber</span><span class="p">,</span> <span class="n">choices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    :param termChoiceNumber: integer index number for this choice (must be distinct)</span>
+<span class="sd">    :param choices: alternative terms</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span> <span class="o">=</span> <span class="n">termChoiceNumber</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span> <span class="o">=</span> <span class="n">choices</span> <span class="c1"># each choice is a term</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span> <span class="o">=</span> <span class="s2">&quot;tc_</span><span class="si">%s</span><span class="s2">_&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">termChoiceNumber</span>
@@ -6337,7 +6901,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in dReach (.drh) format.</p>
+<p>Returns string that defines corresponding decision variables in dReach (.drh) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -6345,7 +6909,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.dRealDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in dReach (.drh) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variables in dReach (.drh) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
@@ -6367,10 +6931,17 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.dRealformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.dRealformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">dRealformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variable in dReach (.drh) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -6448,7 +7019,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
     
   
     <div class="desc"><div class="document">
-<p>Returns string that defines variable in iSAT (.hys) format.</p>
+<p>Returns string that defines corresponding decision variables in iSAT (.hys) format.</p>
 </div>
 </div>
   <div class="source_cont">
@@ -6456,7 +7027,7 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.iSATDefinition" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATDefinition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Returns string that defines variable in iSAT (.hys) format.</span>
+<span class="sd">    Returns string that defines corresponding decision variables in iSAT (.hys) format.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">declarations</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
@@ -6478,10 +7049,17 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns string expressing constraint on value of corresponding decision variables in iSAT (.hys) format.</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.iSATformat_constraint', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.iSATformat_constraint" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iSATformat_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns string expressing constraint on value of corresponding decision variables in iSAT (.hys) format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">clauses</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">active_value</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">))):</span>
             <span class="c1"># generate term in which only element i is on</span>
@@ -6531,10 +7109,19 @@ The stoichiometric coefficient may be either an integer or a Choice object repre
 
     
   
+    <div class="desc"><div class="document">
+<p>Returns a string representation of the product of stoichiometric coefficient and species name
+(including decision variables if there is choice).</p>
+</div>
+</div>
   <div class="source_cont">
   <p class="source_link"><a href="javascript:void(0);" onclick="toggle('source-CRNSynthesis.symbolicLNA.TermChoice.specRep', this);">Show source &equiv;</a></p>
   <div id="source-CRNSynthesis.symbolicLNA.TermChoice.specRep" class="source">
     <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">specRep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a string representation of the product of stoichiometric coefficient and species name</span>
+<span class="sd">    (including decision variables if there is choice).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">substrings</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">possible_terms</span><span class="p">):</span>
         <span class="n">substrings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s%s</span><span class="s2"> * (</span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">base_variable_name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">specRep</span><span class="p">()))</span>
