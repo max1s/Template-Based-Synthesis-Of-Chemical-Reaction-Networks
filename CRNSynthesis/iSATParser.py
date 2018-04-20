@@ -33,7 +33,7 @@ class Declaration:
         s = "\nDECL \n"
 
         s += "define MAX_TIME = 1;\n"  # TODO: set this sensibly
-        s += "\tdefine SF = 1000;\n"
+        s += "\tdefine SF = 1;\n"
 
         s += "\t-- declare time variables\n"
         s += "\tfloat [0, MAX_TIME] time;\n"
@@ -97,7 +97,7 @@ class Declaration:
         """
 
         s = "\n #define MAX_TIME 1\n"  # TODO: set this sensibly
-        s += "\t#define SF 1000\n\n"
+        s += "\t#define SF 1\n\n"
 
         s += "\t// declare cost variables\n"
         s += "\t#define MAX_COST 100\n"

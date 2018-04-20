@@ -37,7 +37,7 @@ class SolverCaller(object):
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-    def single_synthesis(self, cost=20, precision=0.1, msw=0):
+    def single_synthesis(self, cost=20, precision=0.01, msw=0):
         """
         Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
         is used.
