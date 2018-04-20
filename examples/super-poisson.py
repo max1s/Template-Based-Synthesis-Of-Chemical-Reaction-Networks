@@ -4,7 +4,7 @@ from CRNSynthesis.solverCaller import SolverCallerISAT, SolverCallerDReal
 from sympy import init_printing, Matrix, transpose, pprint
 from numpy import savetxt
 
-def formCRN():
+def form_crn():
     A = Species('A')
     B = Species('B')
 
@@ -20,44 +20,66 @@ def formCRN():
 
     return CRNSketch([r1, r2], [], [])
 
-derivatives = []
+def synthesize_with_isat(crn):
+    derivatives = []
+    flow = crn.flow(True, derivatives)
 
-specification = [('', '(covA > A)', '')]
+    specification = [('', '(covA > A)', '')]
 
-crn = formCRN()
-flow = crn.flow(True, derivatives)
-hys = iSATParser.constructISAT(crn, specification, flow)
-with open('super-poisson.hys', 'w') as file:
-    file.write(hys)
+    hys = iSATParser.constructISAT(crn, specification, flow)
+    with open('super-poisson.hys', 'w') as file:
+        file.write(hys)
 
-specification_dreal = [('', '(covA > A)', '')]
-drh = iSATParser.constructdReal(crn, specification_dreal, flow)
-with open('super-poisson.drh', 'w') as file:
-    file.write(drh)
+    sc = SolverCallerISAT("./super-poisson.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
+    result_files = sc.single_synthesis(cost=0)
 
-# Try to solve using iSAT
-sc = SolverCallerISAT("./super-poisson.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+    for file_name in result_files:
+        print("\n\n")
+        # print(sc.getCRNValues(file_name))
 
-result_files = sc.single_synthesis(cost=0)
+        vals, all_vals = sc.getCRNValues(file_name)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
-for file_name in result_files:
-    print("\n\n")
-    # print(sc.getCRNValues(file_name))
+        print("Initial Conditions", initial_conditions)
+        print("Flow:", parametrised_flow)
 
-    vals, all_vals = sc.getCRNValues(file_name)
-    initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
-
-    print("Initial Conditions", initial_conditions)
-    print("Flow:", parametrised_flow)
-
-    t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
-    print("\n\n")
-    print(variable_names)
-    print(sol)
-    savetxt(file_name + "-simulation.csv", sol, delimiter=",")
+        t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
+        print("\n\n")
+        print(variable_names)
+        print(sol)
+        savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 
 
-# Try to solve using dReal
-sc = SolverCallerDReal("./super-poisson.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-result_files = sc.single_synthesis(cost=0)
+def synthesize_with_dreal(crn):
+    derivatives = []
+    flow = crn.flow(True, derivatives)
+
+    specification_dreal = [('', '(covA > A)', '')]
+
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow)
+    with open('super-poisson.drh', 'w') as file:
+        file.write(drh)
+
+    sc = SolverCallerDReal("./super-poisson.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+    result_files = sc.single_synthesis(cost=0)
+
+    for file_name in result_files:
+            vals, all_vals = sc.getCRNValues('./sixreactionnetwork_1_0.smt2.proof')
+            initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+
+            print("Initial Conditions", initial_conditions)
+            print("Flow:", parametrised_flow)
+            t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
+                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 100, 1000))
+            print("\n\n")
+            print(variable_names)
+            print(sol)
+            savetxt(file_name + "-simulationdreal.csv", sol, delimiter=",")
+
+
+if __name__ == "__main__":
+    crn = form_crn()
+
+    synthesize_with_isat(crn)
+    synthesize_with_dreal(crn)

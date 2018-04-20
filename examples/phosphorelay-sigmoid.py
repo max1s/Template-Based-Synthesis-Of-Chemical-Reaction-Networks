@@ -4,7 +4,7 @@ from CRNSynthesis.solverCaller import SolverCallerISAT, SolverCallerDReal
 from sympy import init_printing, Matrix, transpose, pprint
 from numpy import savetxt
 
-def formCRN():
+def form_crn():
     B = Species('B')
     L1 = Species('L1')
     L1p = Species('L1p')
@@ -21,47 +21,67 @@ def formCRN():
 
     return CRNSketch([r1, r2, r3, r4, r5], [], [])
 
-derivatives = [{"variable": 'L3p', "order": 1, "is_variance": False, "name": "L3p_dot"},
-               {"variable": 'L3p', "order": 2, "is_variance": False, "name": "L3p_dot_dot"}]
+def synthesize_with_isat(crn):
+    derivatives = [{"variable": 'L3p', "order": 1, "is_variance": False, "name": "L3p_dot"},
+                   {"variable": 'L3p', "order": 2, "is_variance": False, "name": "L3p_dot_dot"}]
+    flow = crn.flow(False, derivatives)
 
-specification = [('', '(L3p_dot >= 0) and (L3p_dot_dot >= 0)', '(L3p_dot_dot < 0.001)'),
-                 ('', '(L3p_dot >= 0) and (L3p_dot_dot <= 0)', '(L3p > 100)')]
+    specification = [('', '(L3p_dot >= 0) and (L3p_dot_dot >= 0)', '(L3p_dot_dot < 0.001)'),
+                     ('', '(L3p_dot >= 0) and (L3p_dot_dot <= 0)', '(L3p > 100)')]
 
-crn = formCRN()
-flow = crn.flow(False, derivatives)
-hys = iSATParser.constructISAT(crn, specification, flow)
-with open('sigmoid.hys', 'w') as file:
-    file.write(hys)
+    hys = iSATParser.constructISAT(crn, specification, flow)
+    with open('sigmoid.hys', 'w') as file:
+        file.write(hys)
 
-specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(L3p_dot_dot < 0.001)'),
-                 ('', '(and (L3p_dot >= 0)(L3p_dot_dot <= 0))', '(L3p > 100)')]
-drh = iSATParser.constructdReal(crn, specification_dreal, flow)
-with open('sigmoid.drh', 'w') as file:
-    file.write(drh)
+    sc = SolverCallerISAT("./sigmoid.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+
+    result_files = sc.single_synthesis(cost=0)
 
 
-# Try to solve using iSAT
-sc = SolverCallerISAT("./sigmoid.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+    for file_name in result_files:
+        vals, all_vals = sc.getCRNValues(file_name)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
-result_files = sc.single_synthesis(cost=0)
+        print("\n\nInitial Conditions", initial_conditions)
+        print("Flow:", parametrised_flow)
 
-for file_name in result_files:
-    print("\n\n")
-    # print(sc.getCRNValues(file_name))
-
-    vals, all_vals = sc.getCRNValues(file_name)
-    initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
-
-    print("Initial Conditions", initial_conditions)
-    print("Flow:", parametrised_flow)
-
-    t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
-    print("\n\n")
-    print(variable_names)
-    print(sol)
-    savetxt(file_name + "-simulation.csv", sol, delimiter=",")
+        t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
+        print("\n\n")
+        print(variable_names)
+        print(sol)
+        savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 
 
-# Try to solve using dReal
-sc = SolverCallerDReal("./sigmoid.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-result_files = sc.single_synthesis(cost=0)
+def synthesize_with_dreal(crn):
+    derivatives = [{"variable": 'L3p', "order": 1, "is_variance": False, "name": "L3p_dot"},
+                   {"variable": 'L3p', "order": 2, "is_variance": False, "name": "L3p_dot_dot"}]
+    flow = crn.flow(False, derivatives)
+
+    specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(L3p_dot_dot < 0.001)'),
+                           ('', '(and (L3p_dot >= 0)(L3p_dot_dot <= 0))', '(L3p > 100)')]
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow)
+    with open('sigmoid.drh', 'w') as file:
+        file.write(drh)
+
+    sc = SolverCallerDReal("./sigmoid.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+    result_files = sc.single_synthesis(cost=0)
+
+    for file_name in result_files:
+        vals, all_vals = sc.getCRNValues(file_name)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+
+        print("\n\nInitial Conditions", initial_conditions)
+        print("Flow:", parametrised_flow)
+
+        t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
+                                                       plot_name=file_name + "-simulationdreal.png")
+        print("\n\n")
+        print(variable_names)
+        print(sol)
+        savetxt(file_name + "-simulationdreal.csv", sol, delimiter=",")
+
+if __name__ == "__main__":
+    crn = form_crn()
+
+    synthesize_with_isat(crn)
+    synthesize_with_dreal(crn)

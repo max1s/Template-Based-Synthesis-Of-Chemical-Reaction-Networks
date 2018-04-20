@@ -1,11 +1,11 @@
 from CRNSynthesis.symbolicLNA import *
 from CRNSynthesis import iSATParser
-from CRNSynthesis.solverCaller import SolverCaller
-from CRNSynthesis.solverCaller import SolverCallerDReal
+from CRNSynthesis.solverCaller import SolverCallerISAT, SolverCallerDReal
 from sympy import init_printing, Matrix, transpose, pprint
+from numpy import savetxt
 
 
-def exampleToggleSwitch():
+def form_crn():
     lacl = Species('lacl')
     clts = Species('clts')
 
@@ -39,45 +39,70 @@ def exampleToggleSwitch():
     reaction3 = Reaction([Term(empty_3, 1)],[Term(clts, 1)], a_3)
     reaction4 = Reaction([Term(clts, 1)], [Term(empty_4, 1)], a_4)
 
-    crn = CRNSketch([reaction1, reaction2, reaction3, reaction4], [], [input1])
+    return CRNSketch([reaction1, reaction2, reaction3, reaction4], [], [input1])
 
+
+def synthesize_with_isat(crn):
     isLNA = False
     derivatives = []
     specification = []
 
     flow = crn.flow(isLNA, derivatives)
 
-    return iSATParser.constructdReal(crn, specification, flow)
+    hys = iSATParser.constructdReal(crn, specification, flow)
 
-
-def complete_process():
-
-    flow, problem_string = toggleSwitch()
     with open("./toggleswitch.hys", "w") as f:
-        f.write(problem_string)
+        f.write(hys)
 
-    sc = SolverCaller("./test.hys")
-    result_file = sc.single_synthesis(cost=60, precision=0.1)
-    param_values = sc.getCRNValues(result_file)
+    sc = SolverCallerISAT("./toggleswitch.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
-    print("\n\nSpecific CRN identified is:\n")
-    print(sc.get_parametrised_flow(flow, param_values))
+    result_files = sc.single_synthesis(cost=0)
 
-def dReal_process(filename):
-    problem_string = toggleSwitch()
-    print problem_string
-    with open("./" + filename, "w") as f:
-        f.write(problem_string)
+    for file_name in result_files:
+        vals, all_vals = sc.getCRNValues(file_name)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
-    sc = SolverCallerDReal(model_path="./" + filename)
-    result_file = sc.single_synthesis(precision=0.1)
-    param_values = sc.getCRNValues(result_file[0])
-    print param_values
-    quit()
-    #print("\n\nSpecific CRN identified is:\n")
-    #print(sc.get_parametrised_flow(flow, param_values))
+        print("\n\nInitial Conditions", initial_conditions)
+        print("Flow:", parametrised_flow)
 
+        t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow)
+        print("\n\n")
+        print(variable_names)
+        print(sol)
+        savetxt(file_name + "-simulation.csv", sol, delimiter=",")
+
+
+def synthesize_with_dreal(crn):
+
+    isLNA = False
+    derivatives = []
+    specification_dreal = []
+
+    flow = crn.flow(isLNA, derivatives)
+
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow)
+    with open('toggleswitch.drh', 'w') as file:
+        file.write(drh)
+
+    sc = SolverCallerDReal("./toggleswitch.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+    result_files = sc.single_synthesis(cost=0)
+
+    for file_name in result_files:
+            vals, all_vals = sc.getCRNValues('./sixreactionnetwork_1_0.smt2.proof')
+            initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+
+            print("Initial Conditions", initial_conditions)
+            print("Flow:", parametrised_flow)
+            t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
+                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 100, 1000))
+            print("\n\n")
+            print(variable_names)
+            print(sol)
+            savetxt(file_name + "-simulationdreal.csv", sol, delimiter=",")
 
 
 if __name__ == "__main__":
-    complete_process()
+    crn = form_crn()
+
+    synthesize_with_isat(crn)
+    synthesize_with_dreal(crn)
