@@ -67,6 +67,8 @@ class SolverCaller(object):
         if t is False:
             t = np.linspace(0, 1, 100)
 
+        parametrised_flow = {k: v for k, v in parametrised_flow.items() if str(k) in initial_conditions.keys()}
+
         ic = []
         species_list = parametrised_flow.keys()
         for i, species in enumerate(species_list):
