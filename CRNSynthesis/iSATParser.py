@@ -399,7 +399,7 @@ class Transition:
 
             for lambda_choice in self.crn.lambda_variables:
                 terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
-                
+
             s += "\n\njump: \n\n }"
 
 
@@ -620,7 +620,7 @@ class Post:
 
         return s
 
-def constructISAT(crn, modes, flow, other_constraints=False):
+def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1):
     """
     Returns a string in iSAT (.hys) format encoding the CRN Synthesis problem as an SMT-ODE problem.
 
@@ -632,7 +632,7 @@ def constructISAT(crn, modes, flow, other_constraints=False):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
-    d = Declaration(crn, numModes, []).constructiSAT()
+    d = Declaration(crn, numModes, []).constructiSAT(scale_factor=scale_factor)
     i = Initial(crn, numModes, other_constraints).constructiSAT()
     t = Transition(crn, m_flow, modes).constructiSAT()
     p = Post(1, modes).constructiSAT()  # TODO: set maxtime
@@ -640,7 +640,7 @@ def constructISAT(crn, modes, flow, other_constraints=False):
     return d + i + t + p
 
 
-def constructdReal(crn, modes, flow, other_constraints=False):
+def constructdReal(crn, modes, flow, other_constraints=False, scale_factor=1):
     """
 
     Returns a string in dReach (.drh) format encoding the CRN Synthesis problem as an SMT-ODE problem.
@@ -652,7 +652,7 @@ def constructdReal(crn, modes, flow, other_constraints=False):
     """
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
-    d = Declaration(crn, numModes, m_flow).constructdReal()
+    d = Declaration(crn, numModes, m_flow).constructdReal(scale_factor=scale_factor)
     i = Initial(crn, numModes, other_constraints).constructdReal()
     t = Transition(crn, m_flow, modes).constructdReal()
     p = Post(1, modes).constructdReal()
