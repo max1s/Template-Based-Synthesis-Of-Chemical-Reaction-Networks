@@ -381,11 +381,25 @@ class Transition:
             for c in self.crn.optionalReactions:
                 s += "\td/dt[%s] = 0;\n" % c.variable_name
 
-            s += "\n\n\t //Flows\n"
-            s += ''.join(['\t%s\n\n' % (x.constructdReal()) for x in self.flow])
+            s += "\n\n\t// Flows\n"
+            for x in self.flow:
+                f = x.constructdReal()
+                if f:
+                    s += '\t%s\n' % (f)
 
+            # mode jump
+            terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
 
-                # mode jump
+            for c in self.crn.choice_variables:
+                terms.extend(
+                    ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in list(range(c.minValue, c.maxValue + 1))])
+
+            terms.extend(["(%s' = %s)" % (x.name, x.name) for x in self.crn.getRateConstants()])
+            terms.extend(["(%s' = %s)" % (x.variable_name, x.variable_name) for x in self.crn.optionalReactions])
+
+            for lambda_choice in self.crn.lambda_variables:
+                terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
+                
             s += "\n\njump: \n\n }"
 
 
@@ -599,10 +613,11 @@ class Post:
         if len(self.modes) > 0 and len(self.modes[-1]) > 2 and self.modes[-1][2]:
             post_condition = "and (" + self.modes[-1][2] + ")"
         else:
-            post_condition = "true;"
+            post_condition = "true"
 
         s = "\n\ngoal: \n"
-        s += "\t@%s %s;\n" % (len(self.modes), post_condition)
+        s += "\t@%s %s;\n" % (len(self.modes), post_condition) if (len(self.modes) > 0) else  "\t@%s %s;\n" % (len(self.modes) + 1, post_condition)
+
         return s
 
 def constructISAT(crn, modes, flow, other_constraints=False):
