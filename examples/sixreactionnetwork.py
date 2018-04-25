@@ -6,7 +6,7 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
+    input1 = InputSpecies("Input1", sympify("10*(-355.556 * exp(-177.778 * (-0.5 + t) ** 2) * (-0.5 + t))"), 15)
 
 
     POne = Species('POne', initial_max=5)
@@ -38,7 +38,7 @@ def synthesize_with_isat(crn):
     # specification = [('', 'PThree_dot >= 0', '((PThree > 0.1) and (PThree_dot < 0.001))'), ('', 'PThree_dot <= 0', '')]
     # specification = [('', '(K > 0.3) and (PThree_dot >= 0)', '(PThree_dot = 0)' ), ('', '(PThree_dot < 0)', '(K < 0.1) and (PThree_dot < 0)')]
     # specification = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-    specification = []
+    specification = [('','','')]
     hys = iSATParser.constructISAT(crn, specification, flow)
     with open('sixreactionnetwork.hys', 'w') as file:
         file.write(hys)
@@ -70,7 +70,7 @@ def synthesize_with_dreal(crn):
     flow = crn.flow(False, derivatives)
 
     #specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-    specification_dreal = []
+    specification_dreal = [('','','')]
     #specification_dreal = [('', 'PThree_dot >= 0', '(and (PThree > 0.3) (PThree_dot = 0))'), ('', 'PThree_dot <= 0', '(and (PThree >= 0)(PThree < 0.1))')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow)
