@@ -118,6 +118,8 @@ class Declaration:
 
         s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
+        if len(self.crn.input_species) > 0:
+            s += "\t[0, MAX_TIME] t;\n\n"
 
         if len(self.crn.real_species) > 0:
             s += "\n\t//Define State Variables\n"
@@ -267,7 +269,7 @@ class Transition:
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
         if len(self.crn.input_species) > 0:
-            s += '\t(%s) -> (d.t/d.time  = 1);\n' % modes_string
+            s += '\t(%s) -> (d.t/d.time  = SF);\n' % modes_string
 
         return s
 
@@ -325,6 +327,9 @@ class Transition:
                     f = x.constructdReal()
                     if f:
                         s += '\t%s\n' % (f)
+
+                if len(self.crn.input_species) > 0:
+                    return "\td/dt[t] = SF;"
 
                 #mode jump
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
