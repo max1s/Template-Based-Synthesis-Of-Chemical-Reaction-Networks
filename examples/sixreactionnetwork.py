@@ -37,8 +37,8 @@ def synthesize_with_isat(crn):
     # derivatives = [{"variable": 'PThree', "order": 1, "is_variance": False, "name": "PThree_dot"}]
     # specification = [('', 'PThree_dot >= 0', '((PThree > 0.1) and (PThree_dot < 0.001))'), ('', 'PThree_dot <= 0', '')]
     # specification = [('', '(K > 0.3) and (PThree_dot >= 0)', '(PThree_dot = 0)' ), ('', '(PThree_dot < 0)', '(K < 0.1) and (PThree_dot < 0)')]
-    specification = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-
+    # specification = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
+    specification = []
     hys = iSATParser.constructISAT(crn, specification, flow)
     with open('sixreactionnetwork.hys', 'w') as file:
         file.write(hys)
