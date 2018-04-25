@@ -8,6 +8,7 @@ from numpy import linspace
 def form_crn():
     input1 = InputSpecies("Input1", sympify("0.1*t + 54.2735055776743*exp(-(0.04*t - 2.81375654916915)**2) + 35.5555607722356/(1.04836341039216e+15*(1/t)**10.0 + 1)"), 15)
 
+
     POne = Species('POne', initial_max=5)
     PTwo = Species('PTwo', initial_max=5)
     PThree = Species('PThree', initial_max=5)
@@ -19,6 +20,7 @@ def form_crn():
     k5 = RateConstant('k_5', 0, 5)
     k6 = RateConstant('k_6', 0, 5)
 
+    reactionI = Reaction([Term(POne, 1)], [Term(input1, 1)], RateConstant('inpt', 1, 1))
     reaction1 = Reaction([Term(POne, 1)], [Term(PTwo, 1)], k1)
     reaction2 = Reaction([Term(PTwo, 1)], [Term(PThree, 1)], k2)
     reaction3 = Reaction([Term(POne, 1)], [Term(PThree, 1)], k3)
@@ -26,7 +28,7 @@ def form_crn():
     reaction5 = Reaction([Term(PThree, 1)], [Term(POne, 1)], k5)
     reaction6 = Reaction([Term(PTwo, 1)], [Term(POne, 1)], k6)
 
-    return CRNSketch([reaction1, reaction2, reaction3, reaction4, reaction5, reaction6], [], [input1])
+    return CRNSketch([reaction1, reaction2, reaction3, reaction4, reaction5, reaction6, reactionI], [], [input1])
 
 def synthesize_with_isat(crn):
     derivatives = []
@@ -41,7 +43,7 @@ def synthesize_with_isat(crn):
     with open('sixreactionnetwork.hys', 'w') as file:
         file.write(hys)
 
-    sc = SolverCallerISAT("./sixreaction.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
+    sc = SolverCallerISAT("./sixreactionnetwork.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
     result_files = sc.single_synthesis(cost=0)
 
@@ -67,7 +69,8 @@ def synthesize_with_dreal(crn):
     derivatives = []
     flow = crn.flow(False, derivatives)
 
-    specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
+    #specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
+    specification_dreal = []
     #specification_dreal = [('', 'PThree_dot >= 0', '(and (PThree > 0.3) (PThree_dot = 0))'), ('', 'PThree_dot <= 0', '(and (PThree >= 0)(PThree < 0.1))')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow)
