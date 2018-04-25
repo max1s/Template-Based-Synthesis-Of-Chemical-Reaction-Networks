@@ -20,7 +20,7 @@ def form_crn():
     k5 = RateConstant('k_5', 0, 1)
     k6 = RateConstant('k_6', 0, 1)
 
-    reactionI = Reaction([Term(POne, 1)], [Term(input1, 1)], RateConstant('inpt', 1, 1))
+    reactionI = Reaction([Term(input1, 1)], [Term(POne, 1)], RateConstant('inpt', 1, 1))
     reaction1 = Reaction([Term(POne, 1)], [Term(PTwo, 1)], k1)
     reaction2 = Reaction([Term(PTwo, 1)], [Term(PThree, 1)], k2)
     reaction3 = Reaction([Term(POne, 1)], [Term(PThree, 1)], k3)
@@ -70,7 +70,7 @@ def synthesize_with_dreal(crn):
     flow = crn.flow(False, derivatives)
 
     #specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-    specification_dreal = [('','','')]
+    specification_dreal = [('','inpt = 1','')]
     #specification_dreal = [('', 'PThree_dot >= 0', '(and (PThree > 0.3) (PThree_dot = 0))'), ('', 'PThree_dot <= 0', '(and (PThree >= 0)(PThree < 0.1))')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow)
