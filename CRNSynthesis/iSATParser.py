@@ -329,7 +329,7 @@ class Transition:
                         s += '\t%s\n' % (f)
 
                 if len(self.crn.input_species) > 0:
-                    return "\td/dt[t] = SF;"
+                    s += "\td/dt[t] = SF;"
 
                 #mode jump
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
@@ -343,12 +343,16 @@ class Transition:
                 for lambda_choice in self.crn.lambda_variables:
                     terms.extend(["(%s' = %s)" % (x, x) for x in lambda_choice.lambdas])
 
+
+
+
                 s += "\n\njump: "
 
                 if (mode_index + 1) < len(self.modes):
                     s += "\n\n\t // jump conditions during modes\n"
                     invariants = "\t ( and " + "".join(terms) + ");"
                     s += "%s ==> @%s %s\n" % (mode[2], mode_index+2, invariants)
+
 
                 s += "\n\n }"
 

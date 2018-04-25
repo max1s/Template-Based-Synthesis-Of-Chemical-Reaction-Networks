@@ -6,19 +6,19 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    input1 = InputSpecies("Input1", sympify("10*(-355.556 * exp(-177.778 * (-0.5 + t) ** 2) * (-0.5 + t))"), 15)
+    input1 = InputSpecies("Input1", sympify("10*(-355.556 * exp(-177.778 * (-0.5 + t) ** 2) * (-0.5 + t))"), initial_value=0.01)
 
 
     POne = Species('POne', initial_max=5)
     PTwo = Species('PTwo', initial_max=5)
     PThree = Species('PThree', initial_max=5)
 
-    k1 = RateConstant('k_1', 0, 5)
-    k2 = RateConstant('k_2', 0, 5)
-    k3 = RateConstant('k_3', 0, 5)
-    k4 = RateConstant('k_4', 0, 5)
-    k5 = RateConstant('k_5', 0, 5)
-    k6 = RateConstant('k_6', 0, 5)
+    k1 = RateConstant('k_1', 0, 1)
+    k2 = RateConstant('k_2', 0, 1)
+    k3 = RateConstant('k_3', 0, 1)
+    k4 = RateConstant('k_4', 0, 1)
+    k5 = RateConstant('k_5', 0, 1)
+    k6 = RateConstant('k_6', 0, 1)
 
     reactionI = Reaction([Term(POne, 1)], [Term(input1, 1)], RateConstant('inpt', 1, 1))
     reaction1 = Reaction([Term(POne, 1)], [Term(PTwo, 1)], k1)
