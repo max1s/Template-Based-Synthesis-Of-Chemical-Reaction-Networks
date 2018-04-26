@@ -1,3 +1,5 @@
+from sympy import integrate, Symbol
+
 """
 
 This sub-module is responsible for actually generating a iSAT (.hys) or dReach (.drh) file
@@ -579,7 +581,9 @@ class Flow:
             return "\td/dt[%s]  = SF*(%s);" % (self.variable, flow)
 
     def constructdRealDerivativeDefinitions(self):
-        flow = str(self.flow).replace('**', '^')
+        
+        flow = integrate(self.flow, Symbol('t')).doit()
+        flow = str(flow).replace('**', '^')
 
         derivative_names = [x["name"] for x in self.crn.derivatives]
 
