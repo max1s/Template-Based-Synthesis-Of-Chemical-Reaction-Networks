@@ -247,7 +247,7 @@ class SolverCallerISAT(SolverCaller):
                 if p.match(line):
                     var_name = p.match(line).groups()[0].strip()
 
-                    if "solver" in var_name or "_trigger" in var_name:
+                    if "solver" in var_name or "_trigger" in var_name or var_name == "t":
                         var_name = False
 
                 elif p2.match(line) and var_name:
@@ -362,7 +362,7 @@ class SolverCallerDReal(SolverCaller):
                     var_name = "_".join(var_name.split("_")[:-2])
 
                     # Mode transition times contain only a single underscore (e.g. time_0)
-                    if not var_name:
+                    if not var_name or var_name == 't':
                         continue
 
                     values = p.match(line).groups()[1:]
@@ -378,7 +378,7 @@ class SolverCallerDReal(SolverCaller):
                         # if we've already recorded a different value, it's because value changes between modes
                         # it's not a constant parameter, so don't record it
                         constant_values.pop(var_name, None)
-
+        print constant_values, all_values
         return constant_values, all_values
 
 
