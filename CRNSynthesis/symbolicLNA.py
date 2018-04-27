@@ -824,7 +824,7 @@ class CRNSketch:
 
         propensities = self.parametricPropensity()
         stoichiometry_change = self.parametricNetReactionChange()
-        dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities)
+        dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities) * sympify("SF")
 
         for i, sp in enumerate(self.real_species):
             if isinstance(sp, str):
@@ -844,7 +844,7 @@ class CRNSketch:
         a.update(derivative_expressions)
 
         for sp in self.input_species:
-            a[sp.symbol] = sp.ode
+            a[sp.symbol] = sp.ode.subs(sympify('t'), sympify('t*SF'))
 
         constants_to_remove = []
         for key in a:
