@@ -32,7 +32,7 @@ class InputSpecies:
         Returns string that defines variable in iSAT (.hys) format.
         """
 
-        return "\tfloat[%s, %s] %s;\n" % (0, 100, self.name) # TODO: set min/max better
+        return "\tfloat[%s, %s] %s;\n" % (0, 10, self.name) # TODO: set min/max better
 
     def iSATInitialization(self):
         """
