@@ -529,7 +529,7 @@ class Initial:
             s += sp.dRealInitialization()
 
         if self.other_constraints:
-            s += "\n\t $Manually specified constraints\n"
+            s += "\n\t //Manually specified constraints\n"
             s += "\t%s\n" % self.other_constraints
 
         s += ");"
