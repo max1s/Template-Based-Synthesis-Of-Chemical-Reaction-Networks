@@ -111,7 +111,7 @@ class SolverCaller(object):
         return result
 
 
-    def get_full_solution(self, crn, flow, vals):
+    def get_full_solution(self, crn, flow, vals, scale_factor=1):
         """
         Use values extracted from iSAT output to construct initial conditions dictionary and replace parameters in flow
         dictionary with their numerical values.
@@ -132,6 +132,9 @@ class SolverCaller(object):
                 for x in flow:
                     mean_val = (float(vals[val][0]) + float(vals[val][1])) / 2
                     flow[x] = flow[x].subs(sympify(val), mean_val)
+
+        for x in flow:
+            flow[x] = flow[x].subs(sympify('SF'), scale_factor)
 
         parametrised_flow = dict(flow)
         for x in crn.derivatives:

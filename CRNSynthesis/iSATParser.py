@@ -271,7 +271,7 @@ class Transition:
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
         if len(self.crn.input_species) > 0:
-            s += '\t(%s) -> (d.t/d.time  = SF);\n' % modes_string
+            s += '\t(%s) -> (d.t/d.time  = 1);\n' % modes_string
 
         return s
 
@@ -331,7 +331,7 @@ class Transition:
                         s += '\t%s\n' % (f)
 
                 if len(self.crn.input_species) > 0:
-                    s += "\td/dt[t] = SF;"
+                    s += "\td/dt[t] = 1;"
 
                 #mode jump
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
@@ -567,7 +567,7 @@ class Flow:
         if str(self.variable) in derivative_names:
             return "\t(%s = %s)" % (self.variable, flow)
         else:
-            return "\t(d.%s/d.%s  = SF*(%s))" % (self.variable, self.time, flow)
+            return "\t(d.%s/d.%s  = %s)" % (self.variable, self.time, flow)
 
     def constructdReal(self):
         """
@@ -578,7 +578,7 @@ class Flow:
         derivative_names = [x["name"] for x in self.crn.derivatives]
 
         if str(self.variable) not in derivative_names:
-            return "\td/dt[%s]  = SF*(%s);" % (self.variable, flow)
+            return "\td/dt[%s]  = %s;" % (self.variable, flow)
 
     def constructdRealDerivativeDefinitions(self):
         
