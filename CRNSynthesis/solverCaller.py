@@ -370,11 +370,11 @@ class SolverCallerDReal(SolverCaller):
                     if "mode_" in var_name:
                         continue
 
-                    if var_name not in constant_values.keys():
+                    if var_name not in all_values.keys():
                         constant_values[var_name] = values
                         all_values[var_name] = values
 
-                    elif constant_values[var_name] != values:
+                    elif var_name in constant_values.keys() and constant_values[var_name] != values:
                         # if we've already recorded a different value, it's because value changes between modes
                         # it's not a constant parameter, so don't record it
                         constant_values.pop(var_name, None)
