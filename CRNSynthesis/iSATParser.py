@@ -47,7 +47,7 @@ class Declaration:
             s += "\tfloat [0, MAX_TIME] t;\n\n"
 
         s += "\t-- declare cost variables\n"
-        s += "\tdefine MAX_COST = 100;\n"
+        s += "\tdefine MAX_COST = 1000;\n"
         s += "\tdefine NO_COST_LIMIT = 0;\n"
 
         if len(self.crn.real_species) > 0:
@@ -108,7 +108,7 @@ class Declaration:
         s += "\t#define SF %s\n\n" % scale_factor
 
         s += "\t// declare cost variables\n"
-        s += "\t#define MAX_COST 100\n"
+        s += "\t#define MAX_COST 1000\n"
         s += "\t#define NO_COST_LIMIT 0\n\n"
 
         s += "\t// define derivatives\n"
