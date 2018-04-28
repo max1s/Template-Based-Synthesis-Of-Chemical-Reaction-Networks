@@ -633,7 +633,7 @@ class Post:
 
         return s
 
-def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1):
+def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1, max_time=1):
     """
     Returns a string in iSAT (.hys) format encoding the CRN Synthesis problem as an SMT-ODE problem.
 
@@ -645,7 +645,7 @@ def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1):
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
 
-    d = Declaration(crn, numModes, []).constructiSAT(scale_factor=scale_factor)
+    d = Declaration(crn, numModes, []).constructiSAT(scale_factor=scale_factor, max_time=max_time)
     i = Initial(crn, numModes, other_constraints).constructiSAT()
     t = Transition(crn, m_flow, modes).constructiSAT()
     p = Post(1, modes).constructiSAT()  # TODO: set maxtime
@@ -653,7 +653,7 @@ def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1):
     return d + i + t + p
 
 
-def constructdReal(crn, modes, flow, other_constraints=False, scale_factor=1):
+def constructdReal(crn, modes, flow, other_constraints=False, scale_factor=1, max_time=1):
     """
 
     Returns a string in dReach (.drh) format encoding the CRN Synthesis problem as an SMT-ODE problem.
@@ -665,7 +665,7 @@ def constructdReal(crn, modes, flow, other_constraints=False, scale_factor=1):
     """
     m_flow = [Flow(x, 'time', y, crn) for x, y in flow.items()]
     numModes = max(1, len(modes))
-    d = Declaration(crn, numModes, m_flow).constructdReal(scale_factor=scale_factor)
+    d = Declaration(crn, numModes, m_flow).constructdReal(scale_factor=scale_factor, max_time=max_time)
     i = Initial(crn, numModes, other_constraints).constructdReal()
     t = Transition(crn, m_flow, modes).constructdReal()
     p = Post(1, modes).constructdReal()

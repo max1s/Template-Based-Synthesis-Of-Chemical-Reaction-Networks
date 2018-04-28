@@ -40,7 +40,7 @@ def synthesize_with_isat(crn):
     # specification = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
     #specification = [('','PThree_dot >= 0','PThree_dot = 0'),('','PThree_dot < 0','')]
     # specification = [('','PThree_dot >= 0',' (PThree_dot = 0) and (PThree > 0.4) '),('','PThree_dot <= 0','(PThree < 0.3)')]
-    # 
+    #
     hys = iSATParser.constructISAT(crn, specification, flow, other_constraints='PThree < 0.4;',scale_factor=1)
     with open('sixreactionnetwork.hys', 'w') as file:
         file.write(hys)
