@@ -17,33 +17,22 @@ def form_crn():
     k_1 = RateConstant('k_1', 0.1, 2)
     k_2 = RateConstant('k_2', 0.1, 2)
 
-    ArbitraryRateReaction([],[lacIStar],'(k_2 * lacI)/ (k_1 * IPTG) + k_2')
-
-
-
-    a_1 = RateConstant('a_2', 0.1, 2)
-    a_1 = RateConstant('a_4', 0.1, 2)
-
-    #alpha_1 = RateConstant('alpha_1', 0.1, 5)
-    #alpha_2 = RateConstant('alpha_2', 0.1, 5)
-
-    # a_1 = RateConstant(str(alpha_1.symbol / 1 + (clts.symbol ** beta.symbol)), 0, 5)
-    # a_3 = RateConstant(str(alpha_2.symbol / 1 + (lacl.symbol ** gamma.symbol)), 0, 5)
-
-    # a_1 = RateConstant('a_1', 0, 5)
-
+    alpha_1 = RateConstant('alpha_1', 0.1, 2)
+    alpha_2 = RateConstant('alpha_2', 0.1, 2)
 
     beta = RateConstant('beta', 2, 2)
     gamma = RateConstant('gamma', 2, 2)
 
+    degredation_1 = RateConstant('degredation_1', 0.1, 2)
+    degredation_2 = RateConstant('degredation_2', 0.1, 2)
 
-    reactionI = Reaction([Term(input1, 1)], [Term(lacI, 1)], RateConstant('inpt', 1.0, 1.0))
-    reaction1 = HillActivationReaction([Term(cIts, 1)], [Term(cIts, 1),Term(lacI, 1)], 1, cIts, beta)
-    reaction3 = HillActivationReaction([Term(lacI, 1)], [Term(lacI, 1),Term(cIts, 1)], 1, lacl, gamma)
-    reaction2 = Reaction([Term(lacI, 1)], [], a_2)
-    reaction4 = Reaction([Term(cIts, 1)], [], a_4)
+    reaction1 = ArbitraryRateReaction([], [Term(lacI, 1)], 1, 'alpha_2 / (1 + ((k_2 * lacI)/ (k_1 * IPTG) + k_2) ** gamma)')
+    reaction2 = HillRepressionReaction([Term(lacI, 1)], [Term(lacI, 1),Term(cIts, 1)], alpha_1, 1, beta)
 
-    return CRNSketch([reactionI, reaction1, reaction2, reaction3, reaction4], [], [input1])
+    reaction3 = Reaction([Term(lacI, 1)], [], degredation_1)
+    reaction4 = Reaction([Term(cIts, 1)], [], degredation_2)
+
+    return CRNSketch([reaction1, reaction2, reaction3, reaction4], [], [input1])
 
 
 def synthesize_with_isat(crn):
