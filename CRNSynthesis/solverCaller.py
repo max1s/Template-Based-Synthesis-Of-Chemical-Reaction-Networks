@@ -98,7 +98,7 @@ class SolverCaller(object):
         :param species_list: list of species names (SymPy objects)
         :return:
         """
-        vals = {"t": t}
+        vals = {"inputTime": t}
 
         for i, species in enumerate(species_list):
             vals[species] = X[i]
@@ -250,7 +250,7 @@ class SolverCallerISAT(SolverCaller):
                 if p.match(line):
                     var_name = p.match(line).groups()[0].strip()
 
-                    if "solver" in var_name or "_trigger" in var_name or var_name == "t":
+                    if "solver" in var_name or "_trigger" in var_name or var_name == "inputTime":
                         var_name = False
 
                 elif p2.match(line) and var_name:
@@ -365,7 +365,7 @@ class SolverCallerDReal(SolverCaller):
                     var_name = "_".join(var_name.split("_")[:-2])
 
                     # Mode transition times contain only a single underscore (e.g. time_0)
-                    if not var_name or var_name == 't':
+                    if not var_name or var_name == 'inputTime':
                         continue
 
                     values = p.match(line).groups()[1:]
