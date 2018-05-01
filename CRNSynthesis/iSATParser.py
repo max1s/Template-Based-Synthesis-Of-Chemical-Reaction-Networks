@@ -44,7 +44,7 @@ class Declaration:
         s += "\tfloat [0, MAX_TIME] time;\n"
         s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
         if len(self.crn.input_species) > 0:
-            s += "\tfloat [0, MAX_TIME] t;\n\n"
+            s += "\tfloat [0, MAX_TIME] f;\n\n"
 
         s += "\t-- declare cost variables\n"
         s += "\tdefine MAX_COST = 1000;\n"
@@ -271,7 +271,7 @@ class Transition:
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
         if len(self.crn.input_species) > 0:
-            s += '\t(%s) -> (d.t/d.time  = 1);\n' % modes_string
+            s += '(d.f/d.time  = 1);\n'
 
         return s
 
