@@ -45,69 +45,64 @@ def form_crn():
 
     reactionI = Reaction([Term(input1, 1)], [Term(POne, 1)], RateConstant('inpt', 1.0, 1.0))
 
-    #POne ->POneStar
-    #POne + POneStar -> POneStar + POneStar
-    reaction1 = Reaction([Term(POne, 1)], [Term(POneStar, 1)], k1)
-    reaction2 = Reaction([Term(POne, 1),Term(POneStar, 1)], [Term(POneStar, 1),Term(POneStar, 1)], k2)
+    # POne              -> POneStar
+    # POne + POneStar   -> POneStar + POneStar
+    # POne + PTwoStar   -> POneStar + PTwoStar
+    # POne + PThreeStar -> POneStar + PThreeStar
 
-    #POne + PTwoStar -> POneStar + PTwoStar
-    #POne + PThreeStar -> POneStar + PThreeStar
-    reaction3 = Reaction([Term(POne, 1),Term(PTwoStar, 1)], [Term(POneStar, 1),Term(PTwoStar, 1)], k3)
-    reaction4 = Reaction([Term(POne, 1),Term(PThreeStar, 1)], [Term(POneStar, 1),Term(PThreeStar, 1)], k4)
+    reaction1 = Reaction([Term(POne, 1)],                      [Term(POneStar, 1)],                      k1)
+    reaction2 = Reaction([Term(POne, 1), Term(POneStar, 1)],   [Term(POneStar, 1), Term(POneStar, 1)],   k2)
+    reaction3 = Reaction([Term(POne, 1), Term(PTwoStar, 1)],   [Term(POneStar, 1), Term(PTwoStar, 1)],   k3)
+    reaction4 = Reaction([Term(POne, 1), Term(PThreeStar, 1)], [Term(POneStar, 1), Term(PThreeStar, 1)], k4)
 
 
-    # POneStar -> POne
-    # POneStar + POneStar -> POne + POneStar
-    reaction5 = Reaction([Term(POneStar, 1)], [Term(POne, 1)], k5)
-    reaction6 = Reaction([Term(POneStar, 1),Term(POneStar, 1)], [Term(POne, 1),Term(POneStar, 1)], k6)
-
-    # POneStar + PTwoStar -> POne + PTwoStar
+    # POneStar              -> POne
+    # POneStar + POneStar   -> POne + POneStar
+    # POneStar + PTwoStar   -> POne + PTwoStar
     # POneStar + PThreeStar -> POne + PThreeStar
-    reaction7 = Reaction([Term(POneStar, 1),Term(PTwoStar, 1)], [Term(POne, 1),Term(PTwoStar, 1)], k7)
-    reaction8 = Reaction([Term(POneStar, 1),Term(PThreeStar, 1)], [Term(POne, 1),Term(PThreeStar, 1)], k8)
+    reaction5 = Reaction([Term(POneStar, 1)],                      [Term(POne, 1)],                      k5)
+    reaction6 = Reaction([Term(POneStar, 1), Term(POneStar, 1)],   [Term(POne, 1), Term(POneStar, 1)],   k6)
+    reaction7 = Reaction([Term(POneStar, 1), Term(PTwoStar, 1)],   [Term(POne, 1), Term(PTwoStar, 1)],   k7)
+    reaction8 = Reaction([Term(POneStar, 1), Term(PThreeStar, 1)], [Term(POne, 1), Term(PThreeStar, 1)], k8)
 
 
-    # PTwo -> PTwoStar
-    # PTwo + POneStar -> PTwoStar + POneStar
-    reaction9 = Reaction([Term(PTwo, 1)], [Term(PTwoStar, 1)], k9)
-    reaction10 = Reaction([Term(PTwo, 1), Term(POneStar, 1)], [Term(PTwoStar, 1), Term(POneStar, 1)], k11)
-
-    # PTwo + PTwoStar -> PTwoStar + PTwoStar
+    # PTwo              -> PTwoStar
+    # PTwo + POneStar   -> PTwoStar + POneStar
+    # PTwo + PTwoStar   -> PTwoStar + PTwoStar
     # PTwo + PThreeStar -> PTwoStar + PThreeStar
-    reaction11 = Reaction([Term(PTwo, 1),Term(PTwoStar, 1)], [Term(PTwoStar, 1),Term(PTwoStar, 1)], k10)
+    reaction9 =  Reaction([Term(PTwo, 1)],                      [Term(PTwoStar, 1)],                       k9)
+    reaction10 = Reaction([Term(PTwo, 1), Term(POneStar, 1)],   [Term(PTwoStar, 1), Term(POneStar, 1)],   k11)
+    reaction11 = Reaction([Term(PTwo, 1), Term(PTwoStar, 1)],   [Term(PTwoStar, 1), Term(PTwoStar, 1)],   k10)
     reaction12 = Reaction([Term(PTwo, 1), Term(PThreeStar, 1)], [Term(PTwoStar, 1), Term(PThreeStar, 1)], k12)
 
 
-    # PTwoStar -> PTwo
-    # PTwoStar + POneStar -> PTwo + POneStar
-    reaction13 = Reaction([Term(PTwoStar, 1)], [Term(PTwo, 1)], k13)
-    reaction14 = Reaction([Term(PTwoStar, 1), Term(POneStar, 1)], [Term(PTwo, 1), Term(POneStar, 1)], k15)
-
-    # PTwoStar + PTwoStar -> PTwo + PTwoStar
+    # PTwoStar              -> PTwo
+    # PTwoStar + POneStar   -> PTwo + POneStar
+    # PTwoStar + PTwoStar   -> PTwo + PTwoStar
     # PTwoStar + PThreeStar -> PTwo + PThreeStar
-    reaction15 = Reaction([Term(PTwoStar, 1),Term(PTwoStar, 1)], [Term(PTwo, 1),Term(PTwoStar, 1)], k14)
+    reaction13 = Reaction([Term(PTwoStar, 1)],                      [Term(PTwo, 1)],                      k13)
+    reaction14 = Reaction([Term(PTwoStar, 1), Term(POneStar, 1)],   [Term(PTwo, 1), Term(POneStar, 1)],   k15)
+    reaction15 = Reaction([Term(PTwoStar, 1), Term(PTwoStar, 1)],   [Term(PTwo, 1), Term(PTwoStar, 1)],   k14)
     reaction16 = Reaction([Term(PTwoStar, 1), Term(PThreeStar, 1)], [Term(PTwo, 1), Term(PThreeStar, 1)], k16)
 
  
-    # PThree -> ThreeStar
-    # PThree + POneStar -> PThreeStar + POneStar
-    reaction17 = Reaction([Term(PThree, 1)], [Term(PThreeStar, 1)], k17)
-    reaction18 = Reaction([Term(PThree, 1), Term(POneStar, 1)], [Term(PThreeStar, 1), Term(POneStar, 1)], k19)
-
+    # PThree              -> ThreeStar
+    # PThree + POneStar   -> PThreeStar + POneStar
     # PThree + PTwoStar -> PThreeStar + PTwoStar
     # PThree + PThreeStar -> PThreeStar + PThreeStar
-    reaction19 = Reaction([Term(PThree, 1), Term(PTwoStar, 1)], [Term(PThreeStar, 1), Term(PTwoStar, 1)], k20)
+    reaction17 = Reaction([Term(PThree, 1)],                      [Term(PThreeStar, 1)],                      k17)
+    reaction18 = Reaction([Term(PThree, 1), Term(POneStar, 1)],   [Term(PThreeStar, 1), Term(POneStar, 1)],   k19)
+    reaction19 = Reaction([Term(PThree, 1), Term(PTwoStar, 1)],   [Term(PThreeStar, 1), Term(PTwoStar, 1)],   k20)
     reaction20 = Reaction([Term(PThree, 1), Term(PThreeStar, 1)], [Term(PThreeStar, 1), Term(PThreeStar, 1)], k18)
 
 
     # PThreeStar -> PThree
     # PThreeStar + POneStar -> PThree + POneStar
-    reaction21 = Reaction([Term(PThreeStar, 1)], [Term(PThree, 1)], k21)
-    reaction22 = Reaction([Term(PThreeStar, 1), Term(POneStar, 1)], [Term(PThree, 1), Term(POneStar, 1)], k23)
-
     # PThreeStar + PTwoStar -> PThree + PTwoStar
     # PThreeStar + PThreeStar -> PThree + PThreeStar
-    reaction23 = Reaction([Term(PThreeStar, 1), Term(PTwoStar, 1)], [Term(PThree, 1), Term(PTwoStar, 1)], k24)
+    reaction21 = Reaction([Term(PThreeStar, 1)],                      [Term(PThree, 1)],                      k21)
+    reaction22 = Reaction([Term(PThreeStar, 1), Term(POneStar, 1)],   [Term(PThree, 1), Term(POneStar, 1)],   k23)
+    reaction23 = Reaction([Term(PThreeStar, 1), Term(PTwoStar, 1)],   [Term(PThree, 1), Term(PTwoStar, 1)],   k24)
     reaction24 = Reaction([Term(PThreeStar, 1), Term(PThreeStar, 1)], [Term(PThree, 1), Term(PThreeStar, 1)], k22)
 
 
