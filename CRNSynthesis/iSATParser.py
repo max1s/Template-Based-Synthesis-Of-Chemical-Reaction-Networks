@@ -1,4 +1,4 @@
-from sympy import integrate, Symbol
+from sympy import integrate, Symbol, sympify
 
 """
 
@@ -44,7 +44,7 @@ class Declaration:
         s += "\tfloat [0, MAX_TIME] time;\n"
         s += "\tfloat [0, MAX_TIME] delta_time;\n\n"
         if len(self.crn.input_species) > 0:
-            s += "\tfloat [0, MAX_TIME] t;\n\n"
+            s += "\tfloat [0, MAX_TIME] inputTime;\n\n"
 
         s += "\t-- declare cost variables\n"
         s += "\tdefine MAX_COST = 1000;\n"
@@ -121,7 +121,7 @@ class Declaration:
         s += "\t// declare time variables\n"
         s += "\t[0, MAX_TIME] time;\n"
         if len(self.crn.input_species) > 0:
-            s += "\t[0, MAX_TIME] t;\n\n"
+            s += "\t[0, MAX_TIME] inputTime;\n\n"
 
         if len(self.crn.real_species) > 0:
             s += "\n\t//Define State Variables\n"
@@ -271,7 +271,7 @@ class Transition:
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
         if len(self.crn.input_species) > 0:
-            s += '\t(%s) -> (d.t/d.time  = 1);\n' % modes_string
+            s += '\t(%s) -> (d.inputTime/d.time  = 1);\n' % modes_string
 
         return s
 
@@ -331,7 +331,7 @@ class Transition:
                         s += '\t%s\n' % (f)
 
                 if len(self.crn.input_species) > 0:
-                    s += "\td/dt[t] = 1;"
+                    s += "\td/dt[inputTime] = 1;"
 
                 #mode jump
                 terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
@@ -439,6 +439,8 @@ class Initial:
         s = "\nINIT\n"
 
         s += "\ttime = 0;\n\n"
+        s += "\tinputTime = 0;\n\n"
+
 
         s += "\t-- cost condition\n"
         s += "\t(((%s) <= MAX_COST) or (NO_COST_LIMIT = 1));\n\n" % self.crn.get_cost()
@@ -497,6 +499,7 @@ class Initial:
         s += "\t // cost condition\n"
         s += "\t( (or ( (%s) <= MAX_COST) (NO_COST_LIMIT = 1)))\n\n" % self.crn.get_cost()
 
+        s += "\tinputTime = 0;\n\n"
 
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t// Integer encoding of lambda variables\n"
@@ -551,7 +554,7 @@ class Flow:
         """
         self.variable = var
         self.time = t
-        self.flow = flow
+        self.flow = flow.subs(sympify('t'), sympify('inputTime'))
         self.crn = crn
 
     def constructiSAT(self):
