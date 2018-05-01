@@ -43,7 +43,7 @@ def form_crn():
     k23 = RateConstant('k_23', 0, 1)
     k24 = RateConstant('k_24', 0, 1)
 
-    reactionI = Reaction([Term(input1, 1)], [Term(POne, 1)], RateConstant('inpt', 1.0, 1.0))
+    reactionI = Reaction([Term(input1, 1), Term(POne, 1)], [Term(POneStar, 1)], RateConstant('inpt', 1.0, 1.0))
 
     # POne              -> POneStar
     # POne + POneStar   -> POneStar + POneStar
