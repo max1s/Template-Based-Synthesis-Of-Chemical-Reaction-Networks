@@ -615,7 +615,7 @@ class Post:
             post_condition = ""
 
         s = "\nTARGET \n"
-        s += "\tmode_%s and (time < %s) %s;\n" % (len(self.modes), self.time, post_condition)
+        s += "\tmode_%s and (time <= %s) %s;\n" % (len(self.modes), self.time, post_condition)
         return s
 
     def constructdReal(self):
@@ -648,7 +648,7 @@ def constructISAT(crn, modes, flow, other_constraints=False, scale_factor=1, max
     d = Declaration(crn, numModes, []).constructiSAT(scale_factor=scale_factor, max_time=max_time)
     i = Initial(crn, numModes, other_constraints).constructiSAT()
     t = Transition(crn, m_flow, modes).constructiSAT()
-    p = Post(1, modes).constructiSAT()  # TODO: set maxtime
+    p = Post(max_time, modes).constructiSAT()  # TODO: set maxtime
 
     return d + i + t + p
 
@@ -668,5 +668,5 @@ def constructdReal(crn, modes, flow, other_constraints=False, scale_factor=1, ma
     d = Declaration(crn, numModes, m_flow).constructdReal(scale_factor=scale_factor, max_time=max_time)
     i = Initial(crn, numModes, other_constraints).constructdReal()
     t = Transition(crn, m_flow, modes).constructdReal()
-    p = Post(1, modes).constructdReal()
+    p = Post(max_time, modes).constructdReal()
     return d + t + i + p
