@@ -207,10 +207,9 @@ class Transition:
 
         s += "\n\t-- No state change without time consumption.\n"
 
-        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.real_species]
+        terms = ["(%s' = %s)" % (x.name, x.name) for x in self.crn.species]
         if len(self.crn.input_species) > 0:
-            s += "\n\t(inputTime = inputTime';)\n"
-        s += "\t(delta_time = 0) -> (%s);\n" % " and ".join(terms)
+            terms.append("(inputTime' = inputTime)")
 
         for c in self.crn.choice_variables:
             terms = ["(%s_%s' = %s_%s)" % (c.name, i, c.name, i) for i in list(range(c.minValue, c.maxValue + 1))]
