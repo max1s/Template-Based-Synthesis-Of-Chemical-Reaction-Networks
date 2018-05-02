@@ -20,14 +20,17 @@ def form_crn():
     alpha_1 = RateConstant('alpha_1', 0.1, 2)
     alpha_2 = RateConstant('alpha_2', 0.1, 2)
 
-    beta = RateConstant('beta', 2, 2)
-    gamma = RateConstant('gamma', 2, 2)
+    # Gamma and Beta have special meanings to sympy
+    beta = RateConstant('beta_1', 2, 2)
+    gamma = RateConstant('gamma_1', 2, 2)
 
     degredation_1 = RateConstant('degredation_1', 0.1, 2)
     degredation_2 = RateConstant('degredation_2', 0.1, 2)
 
-    reaction1 = ArbitraryRateReaction([], [Term(lacI, 1)], 1, 'alpha_2 / (1 + ((k_2 * lacI)/ (k_1 * IPTG) + k_2) ** gamma)')
-    reaction2 = HillRepressionReaction([Term(lacI, 1)], [Term(lacI, 1),Term(cIts, 1)], alpha_1, 1, beta)
+    Ka = RateConstant('Ka', 1, 1)
+
+    reaction1 = ArbitraryRateReaction([], [Term(lacI, 1)], 'alpha_2 / (1 + ((k_2 * lacI)/ (k_1 * IPTG) + k_2) ** gamma_1)', [alpha_2, k_1, k_2, gamma])
+    reaction2 = HillRepressionReaction([Term(lacI, 1)], [Term(lacI, 1),Term(cIts, 1)], alpha_1, Ka, beta)
 
     reaction3 = Reaction([Term(lacI, 1)], [], degredation_1)
     reaction4 = Reaction([Term(cIts, 1)], [], degredation_2)
