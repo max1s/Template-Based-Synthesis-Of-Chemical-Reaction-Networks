@@ -25,7 +25,7 @@ def form_crn():
 
     Ka = RateConstant('Ka', 1, 1)
 
-    reaction1 = ArbitraryRateReaction([], [Term(lacI, 1)], 'alpha_2 / (1 + ((k_2 * lacI)/ (k_1 * IPTG) + k_2) ** 2)', [alpha_2, k_1, k_2])
+    reaction1 = ArbitraryRateReaction([Term(input1, 1)], [Term(lacI, 1), Term(input1, 1)], 'alpha_2 / (1 + ((k_2 * lacI)/ (k_1 * IPTG) + k_2) ** 2)', [alpha_2, k_1, k_2])
     reaction2 = HillRepressionReaction([Term(lacI, 1)], [Term(lacI, 1),Term(cIts, 1)], alpha_1, Ka, 2)
 
     reaction3 = Reaction([Term(lacI, 1)], [], degredation_1)
