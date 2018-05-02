@@ -98,7 +98,7 @@ class SolverCaller(object):
         :param species_list: list of species names (SymPy objects)
         :return:
         """
-        vals = {"inputTime": t}
+        vals = {"t": t}
 
         for i, species in enumerate(species_list):
             vals[species] = X[i]
