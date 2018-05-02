@@ -326,14 +326,22 @@ class HillActivationReaction(Reaction):
         """
         Returns list of constants appearing in this reaction's propensity expression.
         """
-        return [self.reactionrate, self.Ka, self.n]
+        if isinstance(self.n, RateConstant):
+            return [self.reactionrate, self.Ka, self.n]
+        else:
+            return [self.reactionrate, self.Ka]
 
     def get_propensity(self):
         """
         Return propensity of this reaction as a sympPy expression.
         """
         species = getSpeciesFromTerm(self.reactants[0])
-        return self.reactionrate.symbol * (species ** self.n.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol))
+        if isinstance(self.n, RateConstant):
+            hill_coefficient = self.n.symbol
+        else:
+            hill_coefficient = self.n
+
+        return self.reactionrate.symbol * (species ** hill_coefficient / (self.Ka.symbol ** hill_coefficient + species ** hill_coefficient))
 
 class HillRepressionReaction(Reaction):
     """
@@ -353,14 +361,21 @@ class HillRepressionReaction(Reaction):
         """
         Returns list of constants appearing in this reaction's propensity expression.
         """
-        return [self.reactionrate, self.Ka, self.n]
+        if isinstance(self.n, RateConstant):
+            return [self.reactionrate, self.Ka, self.n]
+        else:
+            return [self.reactionrate, self.Ka]
 
     def get_propensity(self):
         """
         Return propensity of this reaction as a sympPy expression.
         """
         species = getSpeciesFromTerm(self.reactants[0])
-        return self.reactionrate.symbol / (self.Ka.symbol ** self.n.symbol + species ** self.n.symbol)
+        if isinstance(self.n, RateConstant):
+            hill_coefficient = self.n.symbol
+        else:
+            hill_coefficient = self.n
+        return self.reactionrate.symbol / (self.Ka.symbol ** hill_coefficient + species ** hill_coefficient)
 
 
 class MichaelisMentenReaction(Reaction):
