@@ -32,7 +32,7 @@ class InputSpecies:
         Returns string that defines variable in iSAT (.hys) format.
         """
 
-        return "\tfloat[%s, %s] %s;\n" % (0, 10, self.name) # TODO: set min/max better
+        return "\tfloat[%s, %s] %s;\n" % (0, 1, self.name) # TODO: set min/max better
 
     def iSATInitialization(self):
         """
@@ -44,7 +44,7 @@ class InputSpecies:
         """
         Returns string that defines variable in dReach (.drh) format.
         """
-        return "\t[%s, %s] %s;\n" % (0, 10, self.name) # TODO: set min/max better
+        return "\t[%s, %s] %s;\n" % (0, 1, self.name) # TODO: set min/max better
 
     def dRealInitialization(self):
         """
@@ -120,7 +120,7 @@ class Species:
         """
         Returns string that defines variable in dReach (.drh) format.
         """
-        return "\t[0, %s] %s;\n" % (10, self.name)
+        return "\t[0, %s] %s;\n" % (1, self.name)
 
     def dRealInitialization(self):
         """
