@@ -6,7 +6,7 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    input1 = InputSpecies("Input1", sympify("(-355.556 * exp(-177.778 * (-0.5 + t) ** 2) * (-0.5 + t))"), initial_value=0.01)
+    input1 = InputSpecies("Input1", sympify("-(-150 + t)/(50 * exp((-150 + t)**2/100))"), initial_value=0.01)
 
     POne = Species('POne',initial_max=1)
     PTwo = Species('PTwo', initial_max=1)
@@ -116,19 +116,17 @@ def synthesize_with_isat(crn):
     derivatives = [{"variable": 'PThreeStar', "order": 1, "is_variance": False, "name": "PThreeStar_dot"}]
     flow = crn.flow(False, derivatives)
     specification = [('','','')]
-    # specification = [('', 'PThree_dot >= 0', '((PThree > 0.1) and (PThree_dot < 0.001))'), ('', 'PThree_dot <= 0', '')]
-    # specification = [('', '(K > 0.3) and (PThree_dot >= 0)', '(PThree_dot = 0)' ), ('', '(PThree_dot < 0)', '(K < 0.1) and (PThree_dot < 0)')]
-    # specification = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-    #specification = [('','PThree_dot >= 0','PThree_dot = 0'),('','PThree_dot < 0','')]
-    #specification = [('','PThreeStar_dot >= 0',' (PThreeStar_dot = 0) and (PThreeStar > 0.3) '),('','PThreeStar_dot <= 0','(PThreeStar < 0.2)')]
-    #specification =  [('','','(PThree > 0.3) '),('','','(PThree < 0.2)')]
-    hys = iSATParser.constructISAT(crn, specification, flow, max_time=10, other_constraints='PThree < 0.2; POne + POneStar = 1; PTwo + PTwoStar = 1; PThree + PThreeStar = 1;',scale_factor=1)
-    with open('sixreactionstar.hys', 'w') as file:
-        file.write(hys)
+
+    specification =  [('','','(inputTime > 100) and (PThreeStar < 0.75)'), ('','','(PThreeStar > 0.9)')]  # try to capture an inverted-bellshape response
+
+    hys = iSATParser.constructISAT(crn, specification, flow, max_time=350, other_constraints='',scale_factor=1)
+    #with open('sixreactionstar.hys', 'w') as file:
+    #    file.write(hys)
 
     sc = SolverCallerISAT("./sixreactionstar.hys", isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
     result_files = sc.single_synthesis(cost=0, precision=0.01, msw=0.05)
+    #result_files = ["./results/sixreactionstar_0_0.01-isat.txt"]
 
     for file_name in result_files:
         print("\n\n")
@@ -141,7 +139,7 @@ def synthesize_with_isat(crn):
         print("Flow:", parametrised_flow)
 
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                       plot_name=file_name + "-simulation.png", t = linspace(0, 10, 1000))
+                                                       plot_name=file_name + "-simulation.png", t = linspace(0, 350, 1000))
         print("\n\n")
         print(variable_names)
         print(sol)
@@ -155,8 +153,9 @@ def synthesize_with_dreal(crn):
     #specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
     #specification_dreal = [('','','(PThreeStar > 0.5) '),('','','(PThreeStar < 0.4)')]
     #specification_dreal = [('', 'PThree_dot >= 0', '(and (PThree > 0.3) (PThree_dot = 0))'), ('', 'PThree_dot <= 0', '(and (PThree >= 0)(PThree < 0.1))')]
-    specification_dreal = [('','','')]
-    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=10, other_constraints='(and (PThreeStar < 0.4) (POne + POneStar = 1) (PTwo + PTwoStar = 1) (PThree + PThreeStar = 1))',scale_factor=1)
+
+    specification_dreal = [('','','inputTime > 100'), ('', '', 'PThreeStar < 0.75'), ('', '', 'POneStar > 0.9')]
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='',scale_factor=1)
     with open('sixreactionstar.drh', 'w') as file:
         file.write(drh)
 
@@ -179,5 +178,5 @@ def synthesize_with_dreal(crn):
 
 if __name__ == "__main__":
     crn = form_crn()
-    #synthesize_with_isat(crn)
-    synthesize_with_dreal(crn)
+    synthesize_with_isat(crn)
+    #synthesize_with_dreal(crn)
