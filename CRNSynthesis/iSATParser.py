@@ -273,8 +273,7 @@ class Transition:
         s += "\n\n\t-- Flows\n"
         s += ''.join(['\t(%s) -> %s;\n' % (modes_string, x.constructiSAT()) for x in self.flow])
         if len(self.crn.input_species) > 0:
-            s += '\t(d.inputTime/d.time  = 1);\n'
-
+            s += '\t(%s) -> (d.inputTime/d.time  = 1);\n' % modes_string
 
         return s
 
@@ -504,12 +503,8 @@ class Initial:
         s += "\t // cost condition\n"
         s += "\t( (or ( (%s) <= MAX_COST) (NO_COST_LIMIT = 1)))\n\n" % self.crn.get_cost()
 
-<<<<<<< HEAD
-        s += "\t(inputTime = 0)\n\n"
-=======
         if len(self.crn.input_species) > 0:
             s += "\tinputTime = 0;\n\n"
->>>>>>> 3534e80a69c7fdad498ebc1267a913f124518b72
 
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t// Integer encoding of lambda variables\n"
