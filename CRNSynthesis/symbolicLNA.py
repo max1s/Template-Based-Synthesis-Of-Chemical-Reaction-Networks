@@ -859,7 +859,7 @@ class CRNSketch:
         a.update(derivative_expressions)
 
         for sp in self.input_species:
-            a[sp.symbol] = sp.ode.subs(sympify('t'), sympify('t*SF'))
+            a[sp.symbol] = sympify("SF") * sp.ode.subs(sympify('t'), sympify('t*SF'))
 
         constants_to_remove = []
         for key in a:
