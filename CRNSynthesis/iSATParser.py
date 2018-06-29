@@ -504,7 +504,7 @@ class Initial:
         s += "\t( (or ( (%s) <= MAX_COST) (NO_COST_LIMIT = 1)))\n\n" % self.crn.get_cost()
 
         if len(self.crn.input_species) > 0:
-            s += "\tinputTime = 0;\n\n"
+            s += "\t(and (inputTime = 0))\n\n"
 
         if len(self.crn.lambda_variables) > 0:
             s += "\n\t// Integer encoding of lambda variables\n"
@@ -590,7 +590,9 @@ class Flow:
 
     def constructdRealDerivativeDefinitions(self):
         
-        flow = integrate(self.flow, Symbol('t')).doit()
+        #flow = integrate(self.flow, Symbol('t')).doit()
+        flow = self.flow
+
         flow = str(flow).replace('**', '^')
 
         derivative_names = [x["name"] for x in self.crn.derivatives]
