@@ -1,4 +1,0 @@
-dReal Options: --precision 0.1
-For k = 0, there is no feasible path to check.
-For k = 1, there is no feasible path to check.
-For k = 2, there is no feasible path to check.
