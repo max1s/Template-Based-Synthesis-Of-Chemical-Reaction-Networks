@@ -8,41 +8,6 @@ from numpy import linspace
 
 # This is based on topology 583
 
-def parametrise_flow_365(flow):
-    vals = {}
-
-    sa = 0.01
-    vals = {'SF': 1, 'k_1': sa, 'k_5': sa, 'k_9': sa, 'k_13': sa, 'k_17': sa, 'k_21': sa}
-    vals['inpt'] = 1
-
-    # rows are species doing effect, so go down cols
-    vals['k_3'] = 0  # P2 activating P1
-    vals['k_4'] = 0.87  # P3 activating P1
-    vals['k_7'] = 0.94  # P2 inactivating P1
-    vals['k_8'] = 0  # P3 inactivating P1
-
-    vals['k_11'] = 0.03  # P1 activating P2
-    vals['k_12'] = 0  # P3 activating P2
-    vals['k_15'] = 0  # P1 inactivating P2
-    vals['k_16'] = 0.43  # P3 inactivating P2
-
-    vals['k_19'] = 0  # P1 activating P3
-    vals['k_20'] = 0.43  # P2 activating P3
-    vals['k_23'] = 0.85  # P1 inactivating P3
-    vals['k_24'] = 0.99  # P2 inactivating P3
-
-    # No self interactions
-    for i in [2, 6, 9, 10, 13, 14, 15, 17, 18, 22]:
-        vals['k_' + str(i)] = 0
-
-    for x in flow:
-        for v in vals:
-            flow[x] = flow[x].subs(sympify(v), sympify(vals[v]))
-
-    print(flow)
-    return flow
-
-
 def create_rate_constant(name, val):
     return RateConstant(name, val, val)
 
