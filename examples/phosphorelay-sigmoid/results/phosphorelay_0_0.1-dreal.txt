@@ -1,0 +1,4 @@
+dReal Options: --precision 0.1 --proof
+SMT: ./phosphorelay_0_0.smt2, PATH : [1]
+delta-sat with delta = 0.10000000000000001
+For k = 0, [1] -- SAT

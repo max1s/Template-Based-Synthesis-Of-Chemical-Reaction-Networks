@@ -1,0 +1,1915 @@
+######## VariableCNodeMap: #########
+NO_COST_LIMIT = ( 1 / 1 )
+MAX_COST = ( 0 / 1 )
+SF = ( 1 / 1 )
+MAX_TIME = ( 100 / 1 )
+
+######## Bounds #######
+( ( 0 / 1 ) <= time )
+( time <= ( 100 / 1 ) )
+( ( 0 / 1 ) <= delta_time )
+( delta_time <= ( 100 / 1 ) )
+( ( 0 / 1 ) <= L2p )
+( L2p <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= L2 )
+( L2 <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= L3 )
+( L3 <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= B )
+( B <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= L3p )
+( L3p <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= L1p )
+( L1p <= ( 1 / 1 ) )
+( ( 0 / 1 ) <= L1 )
+( L1 <= ( 1 / 1 ) )
+( ( -4 / 1 ) <= L3p_dot )
+( L3p_dot <= ( 4 / 1 ) )
+( ( -4 / 1 ) <= L3p_dot_dot )
+( L3p_dot_dot <= ( 4 / 1 ) )
+( ( 81 / 500 ) <= k_4 )
+( k_4 <= ( 81 / 500 ) )
+( ( 1 / 1 ) <= k_5 )
+( k_5 <= ( 1 / 1 ) )
+( ( 13 / 25 ) <= k_3 )
+( k_3 <= ( 13 / 25 ) )
+( ( 21 / 50 ) <= k_1 )
+( k_1 <= ( 21 / 50 ) )
+( ( 47 / 100 ) <= k_2 )
+( k_2 <= ( 47 / 100 ) )
+( 0  <= __help_0 )
+( __help_0 <= 1  )
+( 0  <= __help_1 )
+( __help_1 <= 1  )
+
+######## INIT #########
+( ( __help_0 >= 1  ) and
+( __help_0 <= 1  ) and
+( __help_1 >= 1  ) and
+( __help_1 <= 1  ) and
+( time >= 0  ) and
+( time <= 0  ) and
+( L2 >= ( 33 / 100 ) ) and
+( L2 <= ( 33 / 100 ) ) and
+( L3 >= ( 33 / 100 ) ) and
+( L3 <= ( 33 / 100 ) ) and
+( L1 >= ( 33 / 100 ) ) and
+( L1 <= ( 33 / 100 ) ) and
+( mode_1 -> ( ( __help_0 >= 1  ) and
+( __help_0 <= 1  ) ) ) and
+( not( mode_1 ) -> ( ( __help_0 >= 0  ) and
+( __help_0 <= 0  ) ) ) and
+( mode_1 -> ( ( __help_1 >= 1  ) and
+( __help_1 <= 1  ) ) ) and
+( not( mode_1 ) -> ( ( __help_1 >= 0  ) and
+( __help_1 <= 0  ) ) ) )
+######## TRANS #########
+( ( ( time' - ( time + delta_time ) ) >= 0  ) and
+( ( time' - ( time + delta_time ) ) <= 0  ) and
+( ( k_4 - k_4' ) >= 0  ) and
+( ( k_4 - k_4' ) <= 0  ) and
+( ( k_5 - k_5' ) >= 0  ) and
+( ( k_5 - k_5' ) <= 0  ) and
+( ( k_3 - k_3' ) >= 0  ) and
+( ( k_3 - k_3' ) <= 0  ) and
+( ( k_1 - k_1' ) >= 0  ) and
+( ( k_1 - k_1' ) <= 0  ) and
+( ( k_2 - k_2' ) >= 0  ) and
+( ( k_2 - k_2' ) <= 0  ) and
+( mode_1 -> (d.B / d.time = k_5) ) and
+( mode_1 -> (d.L3 / d.time = ( ( L3p * k_4 ) + ( L3 * ( L2p * ( k_3 * -1  ) ) ) )) ) and
+( mode_1 -> (d.L3p / d.time = ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) )) ) and
+( mode_1 -> (d.L2p / d.time = ( ( L2 * ( L1p * k_2 ) ) - ( L3 * ( L2p * k_3 ) ) )) ) and
+( mode_1 -> (d.L2 / d.time = ( ( L3 * ( L2p * k_3 ) ) + ( L2 * ( L1p * ( k_2 * -1  ) ) ) )) ) and
+( mode_1 -> ( ( ( L3p_dot_dot - ( ( k_3 * ( ( L2p * ( -1  * ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) ) + ( L3 * ( ( L2 * ( L1p * k_2 ) ) - ( L3 * ( L2p * k_3 ) ) ) ) ) ) - ( k_4 * ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) ) ) >= 0  ) and
+( ( L3p_dot_dot - ( ( k_3 * ( ( L2p * ( -1  * ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) ) + ( L3 * ( ( L2 * ( L1p * k_2 ) ) - ( L3 * ( L2p * k_3 ) ) ) ) ) ) - ( k_4 * ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) ) ) <= 0  ) ) ) and
+( mode_1 -> (d.L1p / d.time = ( ( L1 * ( B * k_1 ) ) - ( L2 * ( L1p * k_2 ) ) )) ) and
+( mode_1 -> (d.L1 / d.time = ( ( L2 * ( L1p * k_2 ) ) + ( L1 * ( B * ( k_1 * -1  ) ) ) )) ) and
+( mode_1 -> ( ( ( L3p_dot - ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) >= 0  ) and
+( ( L3p_dot - ( ( L3 * ( L2p * k_3 ) ) - ( L3p * k_4 ) ) ) <= 0  ) ) ) and
+(d.k_2 / d.time = 0 ) and
+(d.k_1 / d.time = 0 ) and
+(d.k_3 / d.time = 0 ) and
+(d.k_5 / d.time = 0 ) and
+(d.k_4 / d.time = 0 ) and
+( ( ( delta_time >= 0  ) and
+( delta_time <= 0  ) ) -> ( ( ( k_4' - k_4 ) >= 0  ) and
+( ( k_4' - k_4 ) <= 0  ) and
+( ( k_5' - k_5 ) >= 0  ) and
+( ( k_5' - k_5 ) <= 0  ) and
+( ( k_3' - k_3 ) >= 0  ) and
+( ( k_3' - k_3 ) <= 0  ) and
+( ( k_1' - k_1 ) >= 0  ) and
+( ( k_1' - k_1 ) <= 0  ) and
+( ( k_2' - k_2 ) >= 0  ) and
+( ( k_2' - k_2 ) <= 0  ) ) ) and
+( ( ( delta_time >= 0  ) and
+( delta_time <= 0  ) ) -> ( ( ( L2p' - L2p ) >= 0  ) and
+( ( L2p' - L2p ) <= 0  ) and
+( ( L2' - L2 ) >= 0  ) and
+( ( L2' - L2 ) <= 0  ) and
+( ( L3' - L3 ) >= 0  ) and
+( ( L3' - L3 ) <= 0  ) and
+( ( B' - B ) >= 0  ) and
+( ( B' - B ) <= 0  ) and
+( ( L3p' - L3p ) >= 0  ) and
+( ( L3p' - L3p ) <= 0  ) and
+( ( L1p' - L1p ) >= 0  ) and
+( ( L1p' - L1p ) <= 0  ) and
+( ( L1' - L1 ) >= 0  ) and
+( ( L1' - L1 ) <= 0  ) ) ) )
+######## TARGET #########
+( mode_1 and
+( time <= 100  ) )
+
+   86:    Andexp(
+   42:     GTEexp(
+    1:      Integervar[__help_0], 
+    2:      Integerconst[1 ]), 
+   43:     LTEexp(
+    1:      Integervar[__help_0], 
+    2:      Integerconst[1 ]), 
+   46:     GTEexp(
+   10:      Integervar[__help_1], 
+    2:      Integerconst[1 ]), 
+   47:     LTEexp(
+   10:      Integervar[__help_1], 
+    2:      Integerconst[1 ]), 
+   50:     GTEexp(
+   17:      Realvar[time], 
+    4:      Integerconst[0 ]), 
+   51:     LTEexp(
+   17:      Realvar[time], 
+    4:      Integerconst[0 ]), 
+   55:     GTEexp(
+   29:      Realvar[L2], 
+   30:      Realconst[( 33 / 100 )]), 
+   56:     LTEexp(
+   29:      Realvar[L2], 
+   30:      Realconst[( 33 / 100 )]), 
+   57:     GTEexp(
+   34:      Realvar[L3], 
+   30:      Realconst[( 33 / 100 )]), 
+   58:     LTEexp(
+   34:      Realvar[L3], 
+   30:      Realconst[( 33 / 100 )]), 
+   59:     GTEexp(
+   38:      Realvar[L1], 
+   30:      Realconst[( 33 / 100 )]), 
+   60:     LTEexp(
+   38:      Realvar[L1], 
+   30:      Realconst[( 33 / 100 )]), 
+   81:     R_Implexp(
+   64:      Boolvar[mode_1], 
+   63:      Andexp(
+   42:       GTEexp(
+    1:        Integervar[__help_0], 
+    2:        Integerconst[1 ]), 
+   43:       LTEexp(
+    1:        Integervar[__help_0], 
+    2:        Integerconst[1 ]))), 
+   82:     R_Implexp(
+   65:      Notexp(
+   64:       Boolvar[mode_1]), 
+   66:      Andexp(
+   44:       GTEexp(
+    1:        Integervar[__help_0], 
+    4:        Integerconst[0 ]), 
+   45:       LTEexp(
+    1:        Integervar[__help_0], 
+    4:        Integerconst[0 ]))), 
+   83:     R_Implexp(
+   64:      Boolvar[mode_1], 
+   67:      Andexp(
+   46:       GTEexp(
+   10:        Integervar[__help_1], 
+    2:        Integerconst[1 ]), 
+   47:       LTEexp(
+   10:        Integervar[__help_1], 
+    2:        Integerconst[1 ]))), 
+   84:     R_Implexp(
+   65:      Notexp(
+   64:       Boolvar[mode_1]), 
+   68:      Andexp(
+   48:       GTEexp(
+   10:        Integervar[__help_1], 
+    4:        Integerconst[0 ]), 
+   49:       LTEexp(
+   10:        Integervar[__help_1], 
+    4:        Integerconst[0 ]))))
+  383:    Andexp(
+   91:     GTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   92:     LTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+  154:     GTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  155:     LTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  157:     GTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  158:     LTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  160:     GTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  161:     LTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  163:     GTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  164:     LTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  166:     GTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+  167:     LTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+  286:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  285:      Odeexp(
+  110:       Realvar[B], 
+  134:       Realvar[k_5])), 
+  360:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  359:      Odeexp(
+   34:       Realvar[L3], 
+  332:       Addexp(
+  171:        Multexp(
+  115:         Realvar[L3p], 
+  129:         Realvar[k_4]), 
+  331:        Multexp(
+   34:         Realvar[L3], 
+  330:         Multexp(
+   97:          Realvar[L2p], 
+  329:          Multexp(
+  139:           Realvar[k_3], 
+  231:           Integerconst[-1 ])))))), 
+  362:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  361:      Odeexp(
+  115:       Realvar[L3p], 
+  340:       Subexp(
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3])), 
+  171:        Multexp(
+  115:         Realvar[L3p], 
+  129:         Realvar[k_4])))), 
+  364:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  363:      Odeexp(
+   97:       Realvar[L2p], 
+  343:       Subexp(
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2])), 
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3]))))), 
+  366:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  365:      Odeexp(
+   29:       Realvar[L2], 
+  339:       Addexp(
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3])), 
+  338:        Multexp(
+   29:         Realvar[L2], 
+  337:         Multexp(
+  120:          Realvar[L1p], 
+  336:          Multexp(
+  149:           Realvar[k_2], 
+  231:           Integerconst[-1 ])))))), 
+  372:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  371:      Andexp(
+  369:       GTEexp(
+  368:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+  367:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]), 
+  370:       LTEexp(
+  368:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+  367:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]))), 
+  375:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  374:      Odeexp(
+  120:       Realvar[L1p], 
+  373:       Subexp(
+  349:        Multexp(
+   38:         Realvar[L1], 
+  348:         Multexp(
+  110:          Realvar[B], 
+  144:          Realvar[k_1])), 
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2]))))), 
+  377:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  376:      Odeexp(
+   38:       Realvar[L1], 
+  353:       Addexp(
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2])), 
+  352:        Multexp(
+   38:         Realvar[L1], 
+  351:         Multexp(
+  110:          Realvar[B], 
+  350:          Multexp(
+  144:           Realvar[k_1], 
+  231:           Integerconst[-1 ])))))), 
+  382:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  381:      Andexp(
+  379:       GTEexp(
+  378:        Subexp(
+  168:         Realvar[L3p_dot], 
+  340:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]), 
+  380:       LTEexp(
+  378:        Subexp(
+  168:         Realvar[L3p_dot], 
+  340:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]))), 
+  310:     Odeexp(
+  149:      Realvar[k_2], 
+    4:      Integerconst[0 ]), 
+  313:     Odeexp(
+  144:      Realvar[k_1], 
+    4:      Integerconst[0 ]), 
+  316:     Odeexp(
+  139:      Realvar[k_3], 
+    4:      Integerconst[0 ]), 
+  319:     Odeexp(
+  134:      Realvar[k_5], 
+    4:      Integerconst[0 ]), 
+  322:     Odeexp(
+  129:      Realvar[k_4], 
+    4:      Integerconst[0 ]), 
+  324:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  277:      Andexp(
+  131:       GTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  132:       LTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  136:       GTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  137:       LTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  141:       GTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  142:       LTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  146:       GTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  147:       LTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  151:       GTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]), 
+  152:       LTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]))), 
+  326:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  268:      Andexp(
+   99:       GTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  103:       GTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  104:       LTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  107:       GTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  108:       LTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  112:       GTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  113:       LTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  117:       GTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  118:       LTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  122:       GTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  123:       LTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  126:       GTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]), 
+  127:       LTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]))))
+  358:    Andexp(
+   64:     Boolvar[mode_1], 
+  357:     LTEexp(
+   17:      Realvar[time], 
+  354:      Integerconst[100 ]))
+Replacing ODEs in transition system.
+  383:    Andexp(
+   91:     GTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   92:     LTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+  154:     GTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  155:     LTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  157:     GTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  158:     LTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  160:     GTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  161:     LTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  163:     GTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  164:     LTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  166:     GTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+  167:     LTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+  286:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  285:      Odeexp(
+  110:       Realvar[B], 
+  134:       Realvar[k_5])), 
+  360:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  359:      Odeexp(
+   34:       Realvar[L3], 
+  332:       Addexp(
+  171:        Multexp(
+  115:         Realvar[L3p], 
+  129:         Realvar[k_4]), 
+  331:        Multexp(
+   34:         Realvar[L3], 
+  330:         Multexp(
+   97:          Realvar[L2p], 
+  329:          Multexp(
+  139:           Realvar[k_3], 
+  231:           Integerconst[-1 ])))))), 
+  362:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  361:      Odeexp(
+  115:       Realvar[L3p], 
+  340:       Subexp(
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3])), 
+  171:        Multexp(
+  115:         Realvar[L3p], 
+  129:         Realvar[k_4])))), 
+  364:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  363:      Odeexp(
+   97:       Realvar[L2p], 
+  343:       Subexp(
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2])), 
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3]))))), 
+  366:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  365:      Odeexp(
+   29:       Realvar[L2], 
+  339:       Addexp(
+  333:        Multexp(
+   34:         Realvar[L3], 
+  180:         Multexp(
+   97:          Realvar[L2p], 
+  139:          Realvar[k_3])), 
+  338:        Multexp(
+   29:         Realvar[L2], 
+  337:         Multexp(
+  120:          Realvar[L1p], 
+  336:          Multexp(
+  149:           Realvar[k_2], 
+  231:           Integerconst[-1 ])))))), 
+  372:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  371:      Andexp(
+  369:       GTEexp(
+  368:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+  367:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]), 
+  370:       LTEexp(
+  368:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+  367:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]))), 
+  375:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  374:      Odeexp(
+  120:       Realvar[L1p], 
+  373:       Subexp(
+  349:        Multexp(
+   38:         Realvar[L1], 
+  348:         Multexp(
+  110:          Realvar[B], 
+  144:          Realvar[k_1])), 
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2]))))), 
+  377:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  376:      Odeexp(
+   38:       Realvar[L1], 
+  353:       Addexp(
+  335:        Multexp(
+   29:         Realvar[L2], 
+  334:         Multexp(
+  120:          Realvar[L1p], 
+  149:          Realvar[k_2])), 
+  352:        Multexp(
+   38:         Realvar[L1], 
+  351:         Multexp(
+  110:          Realvar[B], 
+  350:          Multexp(
+  144:           Realvar[k_1], 
+  231:           Integerconst[-1 ])))))), 
+  382:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  381:      Andexp(
+  379:       GTEexp(
+  378:        Subexp(
+  168:         Realvar[L3p_dot], 
+  340:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]), 
+  380:       LTEexp(
+  378:        Subexp(
+  168:         Realvar[L3p_dot], 
+  340:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]))), 
+  310:     Odeexp(
+  149:      Realvar[k_2], 
+    4:      Integerconst[0 ]), 
+  313:     Odeexp(
+  144:      Realvar[k_1], 
+    4:      Integerconst[0 ]), 
+  316:     Odeexp(
+  139:      Realvar[k_3], 
+    4:      Integerconst[0 ]), 
+  319:     Odeexp(
+  134:      Realvar[k_5], 
+    4:      Integerconst[0 ]), 
+  322:     Odeexp(
+  129:      Realvar[k_4], 
+    4:      Integerconst[0 ]), 
+  324:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  277:      Andexp(
+  131:       GTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  132:       LTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  136:       GTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  137:       LTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  141:       GTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  142:       LTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  146:       GTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  147:       LTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  151:       GTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]), 
+  152:       LTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]))), 
+  326:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  268:      Andexp(
+   99:       GTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  103:       GTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  104:       LTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  107:       GTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  108:       LTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  112:       GTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  113:       LTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  117:       GTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  118:       LTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  122:       GTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  123:       LTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  126:       GTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]), 
+  127:       LTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]))))
+
+Since detect_independent_ode_groups is disabled, all variables will be used at the same time for deduction. There will be one group containing all constraints.
+Group 0
+    ODEs:
+        (d.ode_var_1['B'] / d.time = ode_var_2['k_5'])
+        (d.ode_var_3['L3'] / d.time = ((ode_var_4['L3p'] * ode_var_5['k_4']) + (ode_var_3['L3'] * (ode_var_6['L2p'] * (ode_var_7['k_3'] * -1)))))
+        (d.ode_var_4['L3p'] / d.time = ((ode_var_3['L3'] * (ode_var_6['L2p'] * ode_var_7['k_3'])) - (ode_var_4['L3p'] * ode_var_5['k_4'])))
+        (d.ode_var_6['L2p'] / d.time = ((ode_var_8['L2'] * (ode_var_9['L1p'] * ode_var_10['k_2'])) - (ode_var_3['L3'] * (ode_var_6['L2p'] * ode_var_7['k_3']))))
+        (d.ode_var_8['L2'] / d.time = ((ode_var_3['L3'] * (ode_var_6['L2p'] * ode_var_7['k_3'])) + (ode_var_8['L2'] * (ode_var_9['L1p'] * (ode_var_10['k_2'] * -1)))))
+        (d.ode_var_9['L1p'] / d.time = ((ode_var_11['L1'] * (ode_var_1['B'] * ode_var_12['k_1'])) - (ode_var_8['L2'] * (ode_var_9['L1p'] * ode_var_10['k_2']))))
+        (d.ode_var_11['L1'] / d.time = ((ode_var_8['L2'] * (ode_var_9['L1p'] * ode_var_10['k_2'])) + (ode_var_11['L1'] * (ode_var_1['B'] * (ode_var_12['k_1'] * -1)))))
+        (d.ode_var_10['k_2'] / d.time = 0)
+        (d.ode_var_12['k_1'] / d.time = 0)
+        (d.ode_var_7['k_3'] / d.time = 0)
+        (d.ode_var_2['k_5'] / d.time = 0)
+        (d.ode_var_5['k_4'] / d.time = 0)
+    Flow invariants:
+        <none>
+
+    0:    Andexp(
+   91:     GTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+   92:     LTEexp(
+   90:      Subexp(
+   87:       Realvar[time'], 
+   89:       Addexp(
+   17:        Realvar[time], 
+   88:        Realvar[delta_time])), 
+    4:      Integerconst[0 ]), 
+  154:     GTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  155:     LTEexp(
+  153:      Subexp(
+  129:       Realvar[k_4], 
+  128:       Realvar[k_4']), 
+    4:      Integerconst[0 ]), 
+  157:     GTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  158:     LTEexp(
+  156:      Subexp(
+  134:       Realvar[k_5], 
+  133:       Realvar[k_5']), 
+    4:      Integerconst[0 ]), 
+  160:     GTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  161:     LTEexp(
+  159:      Subexp(
+  139:       Realvar[k_3], 
+  138:       Realvar[k_3']), 
+    4:      Integerconst[0 ]), 
+  163:     GTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  164:     LTEexp(
+  162:      Subexp(
+  144:       Realvar[k_1], 
+  143:       Realvar[k_1']), 
+    4:      Integerconst[0 ]), 
+  166:     GTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+  167:     LTEexp(
+  165:      Subexp(
+  149:       Realvar[k_2], 
+  148:       Realvar[k_2']), 
+    4:      Integerconst[0 ]), 
+    0:     R_Implexp(
+   64:      Boolvar[mode_1], 
+    0:      Andexp(
+    0:       GTEexp(
+    0:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+    0:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]), 
+    0:       LTEexp(
+    0:        Subexp(
+  177:         Realvar[L3p_dot_dot], 
+    0:         Subexp(
+  346:          Multexp(
+  139:           Realvar[k_3], 
+  345:           Addexp(
+  342:            Multexp(
+   97:             Realvar[L2p], 
+  341:             Multexp(
+  231:              Integerconst[-1 ], 
+  340:              Subexp(
+  333:               Multexp(
+   34:                Realvar[L3], 
+  180:                Multexp(
+   97:                 Realvar[L2p], 
+  139:                 Realvar[k_3])), 
+  171:               Multexp(
+  115:                Realvar[L3p], 
+  129:                Realvar[k_4])))), 
+  344:            Multexp(
+   34:             Realvar[L3], 
+  343:             Subexp(
+  335:              Multexp(
+   29:               Realvar[L2], 
+  334:               Multexp(
+  120:                Realvar[L1p], 
+  149:                Realvar[k_2])), 
+  333:              Multexp(
+   34:               Realvar[L3], 
+  180:               Multexp(
+   97:                Realvar[L2p], 
+  139:                Realvar[k_3])))))), 
+  347:          Multexp(
+  129:           Realvar[k_4], 
+  340:           Subexp(
+  333:            Multexp(
+   34:             Realvar[L3], 
+  180:             Multexp(
+   97:              Realvar[L2p], 
+  139:              Realvar[k_3])), 
+  171:            Multexp(
+  115:             Realvar[L3p], 
+  129:             Realvar[k_4]))))), 
+    4:        Integerconst[0 ]))), 
+    0:     R_Implexp(
+   64:      Boolvar[mode_1], 
+    0:      Andexp(
+    0:       GTEexp(
+    0:        Subexp(
+  168:         Realvar[L3p_dot], 
+    0:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]), 
+    0:       LTEexp(
+    0:        Subexp(
+  168:         Realvar[L3p_dot], 
+    0:         Subexp(
+  333:          Multexp(
+   34:           Realvar[L3], 
+  180:           Multexp(
+   97:            Realvar[L2p], 
+  139:            Realvar[k_3])), 
+  171:          Multexp(
+  115:           Realvar[L3p], 
+  129:           Realvar[k_4]))), 
+    4:        Integerconst[0 ]))), 
+  324:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  277:      Andexp(
+  131:       GTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  132:       LTEexp(
+  130:        Subexp(
+  128:         Realvar[k_4'], 
+  129:         Realvar[k_4]), 
+    4:        Integerconst[0 ]), 
+  136:       GTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  137:       LTEexp(
+  135:        Subexp(
+  133:         Realvar[k_5'], 
+  134:         Realvar[k_5]), 
+    4:        Integerconst[0 ]), 
+  141:       GTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  142:       LTEexp(
+  140:        Subexp(
+  138:         Realvar[k_3'], 
+  139:         Realvar[k_3]), 
+    4:        Integerconst[0 ]), 
+  146:       GTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  147:       LTEexp(
+  145:        Subexp(
+  143:         Realvar[k_1'], 
+  144:         Realvar[k_1]), 
+    4:        Integerconst[0 ]), 
+  151:       GTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]), 
+  152:       LTEexp(
+  150:        Subexp(
+  148:         Realvar[k_2'], 
+  149:         Realvar[k_2]), 
+    4:        Integerconst[0 ]))), 
+  326:     R_Implexp(
+  255:      Andexp(
+  245:       GTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ]), 
+  246:       LTEexp(
+   88:        Realvar[delta_time], 
+    4:        Integerconst[0 ])), 
+  268:      Andexp(
+   99:       GTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  100:       LTEexp(
+   98:        Subexp(
+   96:         Realvar[L2p'], 
+   97:         Realvar[L2p]), 
+    4:        Integerconst[0 ]), 
+  103:       GTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  104:       LTEexp(
+  102:        Subexp(
+  101:         Realvar[L2'], 
+   29:         Realvar[L2]), 
+    4:        Integerconst[0 ]), 
+  107:       GTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  108:       LTEexp(
+  106:        Subexp(
+  105:         Realvar[L3'], 
+   34:         Realvar[L3]), 
+    4:        Integerconst[0 ]), 
+  112:       GTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  113:       LTEexp(
+  111:        Subexp(
+  109:         Realvar[B'], 
+  110:         Realvar[B]), 
+    4:        Integerconst[0 ]), 
+  117:       GTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  118:       LTEexp(
+  116:        Subexp(
+  114:         Realvar[L3p'], 
+  115:         Realvar[L3p]), 
+    4:        Integerconst[0 ]), 
+  122:       GTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  123:       LTEexp(
+  121:        Subexp(
+  119:         Realvar[L1p'], 
+  120:         Realvar[L1p]), 
+    4:        Integerconst[0 ]), 
+  126:       GTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]), 
+  127:       LTEexp(
+  125:        Subexp(
+  124:         Realvar[L1'], 
+   38:         Realvar[L1]), 
+    4:        Integerconst[0 ]))), 
+  386:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  385:      GTEexp(
+  384:       Integervar[ode_trigger_0], 
+    2:       Integerconst[1 ])), 
+  389:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  388:      GTEexp(
+  387:       Integervar[ode_trigger_1], 
+    2:       Integerconst[1 ])), 
+  392:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  391:      GTEexp(
+  390:       Integervar[ode_trigger_2], 
+    2:       Integerconst[1 ])), 
+  395:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  394:      GTEexp(
+  393:       Integervar[ode_trigger_3], 
+    2:       Integerconst[1 ])), 
+  398:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  397:      GTEexp(
+  396:       Integervar[ode_trigger_4], 
+    2:       Integerconst[1 ])), 
+  401:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  400:      GTEexp(
+  399:       Integervar[ode_trigger_5], 
+    2:       Integerconst[1 ])), 
+  404:     R_Implexp(
+   64:      Boolvar[mode_1], 
+  403:      GTEexp(
+  402:       Integervar[ode_trigger_6], 
+    2:       Integerconst[1 ])), 
+  406:     GTEexp(
+  405:      Integervar[ode_trigger_7], 
+    2:      Integerconst[1 ]), 
+  408:     GTEexp(
+  407:      Integervar[ode_trigger_8], 
+    2:      Integerconst[1 ]), 
+  410:     GTEexp(
+  409:      Integervar[ode_trigger_9], 
+    2:      Integerconst[1 ]), 
+  412:     GTEexp(
+  411:      Integervar[ode_trigger_10], 
+    2:      Integerconst[1 ]), 
+  414:     GTEexp(
+  413:      Integervar[ode_trigger_11], 
+    2:      Integerconst[1 ]), 
+  420:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  419:      GTEexp(
+  418:       Integervar[dimension_trigger_0], 
+    2:       Integerconst[1 ])), 
+  424:     Orexp(
+  421:      LTEexp(
+  418:       Integervar[dimension_trigger_0], 
+    4:       Integerconst[0 ]), 
+  423:      Andexp(
+  385:       GTEexp(
+  384:        Integervar[ode_trigger_0], 
+    2:        Integerconst[1 ]), 
+  422:       LTEexp(
+  384:        Integervar[ode_trigger_0], 
+    2:        Integerconst[1 ]))), 
+  427:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  426:      GTEexp(
+  425:       Integervar[dimension_trigger_1], 
+    2:       Integerconst[1 ])), 
+  431:     Orexp(
+  428:      LTEexp(
+  425:       Integervar[dimension_trigger_1], 
+    4:       Integerconst[0 ]), 
+  430:      Andexp(
+  412:       GTEexp(
+  411:        Integervar[ode_trigger_10], 
+    2:        Integerconst[1 ]), 
+  429:       LTEexp(
+  411:        Integervar[ode_trigger_10], 
+    2:        Integerconst[1 ]))), 
+  434:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  433:      GTEexp(
+  432:       Integervar[dimension_trigger_2], 
+    2:       Integerconst[1 ])), 
+  438:     Orexp(
+  435:      LTEexp(
+  432:       Integervar[dimension_trigger_2], 
+    4:       Integerconst[0 ]), 
+  437:      Andexp(
+  388:       GTEexp(
+  387:        Integervar[ode_trigger_1], 
+    2:        Integerconst[1 ]), 
+  436:       LTEexp(
+  387:        Integervar[ode_trigger_1], 
+    2:        Integerconst[1 ]))), 
+  441:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  440:      GTEexp(
+  439:       Integervar[dimension_trigger_3], 
+    2:       Integerconst[1 ])), 
+  445:     Orexp(
+  442:      LTEexp(
+  439:       Integervar[dimension_trigger_3], 
+    4:       Integerconst[0 ]), 
+  444:      Andexp(
+  391:       GTEexp(
+  390:        Integervar[ode_trigger_2], 
+    2:        Integerconst[1 ]), 
+  443:       LTEexp(
+  390:        Integervar[ode_trigger_2], 
+    2:        Integerconst[1 ]))), 
+  448:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  447:      GTEexp(
+  446:       Integervar[dimension_trigger_4], 
+    2:       Integerconst[1 ])), 
+  452:     Orexp(
+  449:      LTEexp(
+  446:       Integervar[dimension_trigger_4], 
+    4:       Integerconst[0 ]), 
+  451:      Andexp(
+  414:       GTEexp(
+  413:        Integervar[ode_trigger_11], 
+    2:        Integerconst[1 ]), 
+  450:       LTEexp(
+  413:        Integervar[ode_trigger_11], 
+    2:        Integerconst[1 ]))), 
+  455:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  454:      GTEexp(
+  453:       Integervar[dimension_trigger_5], 
+    2:       Integerconst[1 ])), 
+  459:     Orexp(
+  456:      LTEexp(
+  453:       Integervar[dimension_trigger_5], 
+    4:       Integerconst[0 ]), 
+  458:      Andexp(
+  394:       GTEexp(
+  393:        Integervar[ode_trigger_3], 
+    2:        Integerconst[1 ]), 
+  457:       LTEexp(
+  393:        Integervar[ode_trigger_3], 
+    2:        Integerconst[1 ]))), 
+  462:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  461:      GTEexp(
+  460:       Integervar[dimension_trigger_6], 
+    2:       Integerconst[1 ])), 
+  466:     Orexp(
+  463:      LTEexp(
+  460:       Integervar[dimension_trigger_6], 
+    4:       Integerconst[0 ]), 
+  465:      Andexp(
+  410:       GTEexp(
+  409:        Integervar[ode_trigger_9], 
+    2:        Integerconst[1 ]), 
+  464:       LTEexp(
+  409:        Integervar[ode_trigger_9], 
+    2:        Integerconst[1 ]))), 
+  469:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  468:      GTEexp(
+  467:       Integervar[dimension_trigger_7], 
+    2:       Integerconst[1 ])), 
+  473:     Orexp(
+  470:      LTEexp(
+  467:       Integervar[dimension_trigger_7], 
+    4:       Integerconst[0 ]), 
+  472:      Andexp(
+  397:       GTEexp(
+  396:        Integervar[ode_trigger_4], 
+    2:        Integerconst[1 ]), 
+  471:       LTEexp(
+  396:        Integervar[ode_trigger_4], 
+    2:        Integerconst[1 ]))), 
+  476:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  475:      GTEexp(
+  474:       Integervar[dimension_trigger_8], 
+    2:       Integerconst[1 ])), 
+  480:     Orexp(
+  477:      LTEexp(
+  474:       Integervar[dimension_trigger_8], 
+    4:       Integerconst[0 ]), 
+  479:      Andexp(
+  400:       GTEexp(
+  399:        Integervar[ode_trigger_5], 
+    2:        Integerconst[1 ]), 
+  478:       LTEexp(
+  399:        Integervar[ode_trigger_5], 
+    2:        Integerconst[1 ]))), 
+  483:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  482:      GTEexp(
+  481:       Integervar[dimension_trigger_9], 
+    2:       Integerconst[1 ])), 
+  487:     Orexp(
+  484:      LTEexp(
+  481:       Integervar[dimension_trigger_9], 
+    4:       Integerconst[0 ]), 
+  486:      Andexp(
+  406:       GTEexp(
+  405:        Integervar[ode_trigger_7], 
+    2:        Integerconst[1 ]), 
+  485:       LTEexp(
+  405:        Integervar[ode_trigger_7], 
+    2:        Integerconst[1 ]))), 
+  490:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  489:      GTEexp(
+  488:       Integervar[dimension_trigger_10], 
+    2:       Integerconst[1 ])), 
+  494:     Orexp(
+  491:      LTEexp(
+  488:       Integervar[dimension_trigger_10], 
+    4:       Integerconst[0 ]), 
+  493:      Andexp(
+  403:       GTEexp(
+  402:        Integervar[ode_trigger_6], 
+    2:        Integerconst[1 ]), 
+  492:       LTEexp(
+  402:        Integervar[ode_trigger_6], 
+    2:        Integerconst[1 ]))), 
+  497:     Orexp(
+  417:      LTEexp(
+  416:       Integervar[odes_active0], 
+    4:       Integerconst[0 ]), 
+  496:      GTEexp(
+  495:       Integervar[dimension_trigger_11], 
+    2:       Integerconst[1 ])), 
+  501:     Orexp(
+  498:      LTEexp(
+  495:       Integervar[dimension_trigger_11], 
+    4:       Integerconst[0 ]), 
+  500:      Andexp(
+  408:       GTEexp(
+  407:        Integervar[ode_trigger_8], 
+    2:        Integerconst[1 ]), 
+  499:       LTEexp(
+  407:        Integervar[ode_trigger_8], 
+    2:        Integerconst[1 ]))), 
+    0:     Orexp(
+  514:      GTEexp(
+  416:       Integervar[odes_active0], 
+    2:       Integerconst[1 ]), 
+    0:      LTEexp(
+  692:       Addexp(
+  384:        Integervar[ode_trigger_0], 
+  691:        Addexp(
+  387:         Integervar[ode_trigger_1], 
+  690:         Addexp(
+  390:          Integervar[ode_trigger_2], 
+  689:          Addexp(
+  393:           Integervar[ode_trigger_3], 
+  688:           Addexp(
+  396:            Integervar[ode_trigger_4], 
+  687:            Addexp(
+  399:             Integervar[ode_trigger_5], 
+  686:             Addexp(
+  402:              Integervar[ode_trigger_6], 
+  685:              Addexp(
+  405:               Integervar[ode_trigger_7], 
+  684:               Addexp(
+  407:                Integervar[ode_trigger_8], 
+  683:                Addexp(
+  409:                 Integervar[ode_trigger_9], 
+  682:                 Addexp(
+  411:                  Integervar[ode_trigger_10], 
+  413:                  Integervar[ode_trigger_11]))))))))))), 
+    4:       Integerconst[0 ])))
+
+Settings.
+Minimum splitting width    : 0.05
+Absolute bound progress    : 0.01
+Relative bound progress    : 0
+Interval divide parameter  : 2
+Filter vars using strongsat: off
+Decide interval borders    : random
+Variable decision order    : natural
+ Dynamically prefer current absolute width : false
+ Dynamically prefer current relative width : false
+Restarts                   : disabled
+Clause deletion            : enabled
+Implied clause deletion    : enabled
+Check SAT often            : disabled
+Point splitting            : disabled
+Purification               : disabled
+Continue after UNKNOWN     : disabled
+
+
+ODE-Options set to the following values:
+	dump_files = false
+	dump_files_for_call_number_fw = <>
+	dump_files_for_call_number_bw = <>
+	cache_handling = ADDALL
+	backwards_propagation = true
+	shown variables = <auto>
+	enc_params.max_number_of_tois = -1(ignored)
+	enc_params.use_bracketing_system = true
+	enc_params.stop_when_vnode_did_not_reach_horizon = false
+	enc_params.intersect_refined_with_original = true
+	enc_params.deduce_directions_at_beginning_of_trajectory = true
+	enc_params.use_direct_enclosures = true
+	enc_params.refine_using_stored_its = true
+	enc_params.may_stop_enclosure_when_flowinv_covered = true
+	enc_params.num_stored_max_widths_for_stopping_enc = 5
+	enc_params.must_stop_as_soon_as_flowinv_covered = false
+	enc_params.recover_from_brsys_failure = false
+	enc_params.optimization_for_jacobian_entries = true
+	enc_params.recover_from_direct_failure = 'never'
+	enc_params.harmonize_enclosures_threshold = -1
+	Cache tree settings:
+	    Maximum number of boxes in cache leaves = 2
+	    Maximum number of split points when splitting leaves = 2
+	    Maximum imbalance between maximum paths in tree cache = (deactivated rebalancing)
+	deduce_from_tightest_bounds = false
+	detect_independent_ode_groups = false
+	disable_conservative_toi_hull_deduction = false
+	dynamic_resolution = false
+
+This is iSAT (with ODE support) 0.1.
+
+SOLVING:
+    k = 0
+
+Calling ODE solver under the assumption that there might not be another split with 
+   allow_weaker_than_specified           : false
+   min_dist_to_rededuce                  : 0.01
+   enclosure_horizon_temporal_resolution : 1e-05
+   temporal_resolution                   : 0.001
+   spatial_resolution                    : 0.001
+ODE profiling: timers.
+   cache                : (not initialized)
+     add                : (not initialized)
+     contain            : (not initialized)
+       intersect        : (not initialized)
+     tree-add           : (not initialized)
+       split points     : (not initialized)
+       tree-rebalance   : (not initialized)
+     tree-lookup        : (not initialized)
+   solver_run cache     : (not initialized)
+   solver (fw)          : (not initialized)
+   solver (bw)          : (not initialized)
+   solver (dense)       : (not initialized)
+     solver (horizon)   : (not initialized)
+     solver (refine)    : (not initialized)
+     solver (horizon br): (not initialized)
+     solver (refine br) : (not initialized)
+     solver (intersect) : (not initialized)
+   * solver (reinit br) : (not initialized)
+   total ODE layer      : 0s
+CANDIDATE SOLUTION:
+    mode_1 (boolean):
+        @0:  [1,1] (point interval)
+
+    odes_active0 (int):
+
+    dimension_trigger_5 (int):
+
+    dimension_trigger_10 (int):
+
+    dimension_trigger_4 (int):
+
+    dimension_trigger_11 (int):
+
+    dimension_trigger_7 (int):
+
+    dimension_trigger_6 (int):
+
+    dimension_trigger_1 (int):
+
+    dimension_trigger_0 (int):
+
+    dimension_trigger_3 (int):
+
+    dimension_trigger_2 (int):
+
+    ode_trigger_10 (int):
+
+    ode_trigger_11 (int):
+
+    dimension_trigger_9 (int):
+
+    dimension_trigger_8 (int):
+
+    ode_trigger_9 (int):
+
+    ode_trigger_8 (int):
+
+    ode_trigger_7 (int):
+
+    ode_trigger_6 (int):
+
+    ode_trigger_5 (int):
+
+    ode_trigger_4 (int):
+
+    ode_trigger_3 (int):
+
+    ode_trigger_2 (int):
+
+    ode_trigger_1 (int):
+
+    ode_trigger_0 (int):
+
+    L1 (float):
+        @0:  [0.32999999,0.33000001] (width: 5.55111512e-17)
+
+    k_2 (float):
+
+    L3 (float):
+        @0:  [0.32999999,0.33000001] (width: 5.55111512e-17)
+
+    time (float):
+        @0:  [0,0] (point interval)
+
+    k_4 (float):
+
+    delta_time (float):
+
+    B (float):
+
+    k_1 (float):
+
+    L3p_dot_dot (float):
+
+    L2 (float):
+        @0:  [0.32999999,0.33000001] (width: 5.55111512e-17)
+
+    k_3 (float):
+
+    k_5 (float):
+
+    L3p_dot (float):
+
+    L1p (float):
+
+    L2p (float):
+
+    L3p (float):
+
+RESULT:
+    unknown
+
+Statistics.
+Number of variables                    : 16
+    Boolean variables                  : 6
+    Integer variables                  : 2
+    Real variables                     : 8
+Number of complex bounds               : 3
+Number of problem clauses              : 31
+Number of decisions (current / total)  : 0 / 0
+Variables preferred for splitting      : (none)
+Number of point splits                 : 0 / 0
+Number of assignments                  : 53 / 53
+    Number of IQ additions             : 53 / 53
+Maximum decision level                 : 0 / 0
+Maximum number of deductions per DL    : 53 / 53
+Number of conflicts                    : 0 / 0
+Average size of learnt clauses         : 0 / 0
+Maximum backjump distance              : 0 / 0
+Number of restarts                     : 0 / 0
+Number of conflict clauses
+implied by conflict clauses            : 0 / 0
+
+Time solver                            : 0 / 0 sec
+
