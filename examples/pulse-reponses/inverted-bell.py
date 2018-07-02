@@ -6,6 +6,8 @@ from numpy import savetxt
 from numpy import linspace
 
 
+# This is based on topology 583
+
 def create_rate_constant(name, val):
     return RateConstant(name, val, val)
 
@@ -13,12 +15,12 @@ def create_rate_constant(name, val):
 def form_crn():
     input1 = InputSpecies("Input1", sympify("-(-50 + t)/(50 * exp((-50 + t)**2/100))"), initial_value=0.1)
 
-    POne = Species('POne', initial_max=1, initial_value=0.5)
-    PTwo = Species('PTwo', initial_max=1, initial_value=0.8)
-    PThree = Species('PThree', initial_max=1, initial_value=0.875)
-    POneStar = Species('POneStar', initial_max=1, initial_value=0.5)
-    PTwoStar = Species('PTwoStar', initial_max=1, initial_value=0.2)
-    PThreeStar = Species('PThreeStar', initial_max =1, initial_value=0.125)
+    POne = Species('POne', initial_max=1, initial_value=0.95)
+    PTwo = Species('PTwo', initial_max=1, initial_value=0.05)
+    PThree = Species('PThree', initial_max=1, initial_value=0.06)
+    POneStar = Species('POneStar', initial_max=1, initial_value=0.05)
+    PTwoStar = Species('PTwoStar', initial_max=1, initial_value=0.95)
+    PThreeStar = Species('PThreeStar', initial_max =1, initial_value=0.94)
 
     sa = 0.01
 
@@ -29,30 +31,30 @@ def form_crn():
     k1 = create_rate_constant('k_1', sa)
     k2 = create_rate_constant('k_2', 0)
     k3 = create_rate_constant('k_3', 0)
-    k4 = create_rate_constant('k_4', 0.87)
+    k4 = create_rate_constant('k_4', 0)
     k5 = create_rate_constant('k_5', sa)
     k6 = create_rate_constant('k_6', 0)
 
-    k7 = create_rate_constant('k_7', 0.94)
-    k8 = create_rate_constant('k_8', 0)
-    k9 = create_rate_constant('k_9', 0)
+    k7 = create_rate_constant('k_7', 1)
+    k8 = create_rate_constant('k_8', 1)
+    k9 = create_rate_constant('k_9', sa)
     k10 = create_rate_constant('k_10', 0)
-    k11 = create_rate_constant('k_11', 0.03)
-    k12 = create_rate_constant('k_12', 0)
+    k11 = create_rate_constant('k_11', 0)
+    k12 = create_rate_constant('k_12', 1)
 
-    k13 = create_rate_constant('k_13', 0)
+    k13 = create_rate_constant('k_13', sa)
     k14 = create_rate_constant('k_14', 0)
-    k15 = create_rate_constant('k_15', 0)
-    k16 = create_rate_constant('k_16', 0.43)
-    k17 = create_rate_constant('k_17', 0)
+    k15 = create_rate_constant('k_15', 1)
+    k16 = create_rate_constant('k_16', 0)
+    k17 = create_rate_constant('k_17', sa)
     k18 = create_rate_constant('k_18', 0)
 
     k19 = create_rate_constant('k_19', 0)
-    k20 = create_rate_constant('k_20', 0.43)
+    k20 = create_rate_constant('k_20', 1)
     k21 = create_rate_constant('k_21', sa)
     k22 = create_rate_constant('k_22', 0)
-    k23 = create_rate_constant('k_23', 0.85)
-    k24 = create_rate_constant('k_24', 0.99)
+    k23 = create_rate_constant('k_23', 1)
+    k24 = create_rate_constant('k_24', 0)
 
     reactionI = Reaction([Term(input1, 1), Term(POne, 1)], [Term(POneStar, 1)], RateConstant('inpt', 1.0, 1.0))
 
@@ -119,42 +121,6 @@ def form_crn():
          reaction22, reaction23, reaction24, reactionI], [], [input1])
 
 
-def synthesize_with_isat(crn):
-    # derivatives = []
-    derivatives = [{"variable": 'PThreeStar', "order": 1, "is_variance": False, "name": "PThreeStar_dot"}]
-    flow = crn.flow(False, derivatives)
-    specification = [('', '', '')]
-
-    specification = [('', '', '(inputTime > 100) and (PThreeStar < 0.75)'),
-                     ('', '', '(PThreeStar > 0.9)')]  # try to capture an inverted-bellshape response
-
-    hys = iSATParser.constructISAT(crn, specification, flow, max_time=350, other_constraints='', scale_factor=1)
-    # with open('sixreactionstar.hys', 'w') as file:
-    #    file.write(hys)
-
-    sc = SolverCallerISAT("./sixreactionstar.hys",
-                          isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
-
-    result_files = sc.single_synthesis(cost=0, precision=0.01, msw=0.05)
-    # result_files = ["./results/sixreactionstar_0_0.01-isat.txt"]
-
-    for file_name in result_files:
-        print("\n\n")
-        # print(sc.getCRNValues(file_name))
-
-        vals, all_vals = sc.getCRNValues(file_name)
-        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
-
-        print("Initial Conditions", initial_conditions)
-        print("Flow:", parametrised_flow)
-
-        t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                       plot_name=file_name + "-simulation.png",
-                                                       t=linspace(0, 350, 1000))
-        print("\n\n")
-        print(variable_names)
-        print(sol)
-        savetxt(file_name + "-simulation.csv", sol, delimiter=",")
 
 
 def synthesize_with_dreal(crn):
@@ -163,29 +129,25 @@ def synthesize_with_dreal(crn):
     derivatives = [{"variable": 'PThreeStar', "order": 1, "is_variance": False, "name": "PThreeStar_dot"}]
     flow = crn.flow(False, derivatives)
 
-    # specification_dreal = [('', '', 'PThree > 0.4 '), ('', '', 'PThree < 0.3')]
-    # specification_dreal = [('','','(PThreeStar > 0.5) '),('','','(PThreeStar < 0.4)')]
-    # specification_dreal = [('', 'PThree_dot >= 0', '(and (PThree > 0.3) (PThree_dot = 0))'), ('', 'PThree_dot <= 0', '(and (PThree >= 0)(PThree < 0.1))')]
-    # specification_dreal = [('', '', '(and ((inputTime > 100)(PThreeStar < 0.75))'),
-    #  ('', '', '(PThreeStar > 0.9)')]
 
 
+    specification_dreal = [('', '', '(inputTime > 20)'),
+                           ('', '(PThreeStar_dot < 0)', '(abs(PThreeStar_dot) < 0.1)'),
+                           ('', '(PThreeStar_dot > 0)', '(abs(PThreeStar_dot) < 0.1)'),
+                           ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 100)')]
 
-
-    specification_dreal = [('', '', 'inputTime > 20'), ('', 'PThreeStar_dot < 0', '(PThreeStar_dot=0)'), ('','PThreeStar_dot > 0','(PThreeStar_dot=0'), ('','PThreeStar_dot < 0','PThreeStar_dot = 0'), ('','PThreeStar_dot = 0','inputTime > 100')]
-    #flow = crn.flow(False, [])
-
-
+    #flow = crn.flow(False, derivatives)
+    #specification_dreal = [('', '', '')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
-    with open('topology365.drh', 'w') as file:
+    with open('inverted-bell.drh', 'w') as file:
         file.write(drh)
 
-    sc = SolverCallerDReal("./topology365.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-    result_files = sc.single_synthesis(cost=0, precision=0.1)
+    sc = SolverCallerDReal("./inverted-bell.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+    result_files = sc.single_synthesis(cost=0, precision=0.1, max_depth=len(specification_dreal))
 
     for file_name in result_files:
-        vals, all_vals = sc.getCRNValues('./topology365_0_0.smt2.proof')
+        vals, all_vals = sc.getCRNValues('./inverted-bell_3_0.smt2.proof')
         initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
         print("Initial Conditions", initial_conditions)
@@ -201,5 +163,4 @@ def synthesize_with_dreal(crn):
 
 if __name__ == "__main__":
     crn = form_crn()
-    # synthesize_with_isat(crn)
     synthesize_with_dreal(crn)
