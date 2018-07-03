@@ -839,6 +839,10 @@ class CRNSketch:
 
         propensities = self.parametricPropensity()
         stoichiometry_change = self.parametricNetReactionChange()
+        # print Matrix(stoichiometry_change).transpose()
+        # print Matrix(propensities)
+        # print sympify("SF")
+        # quit()
         dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities) * sympify("SF")
 
         for i, sp in enumerate(self.real_species):
