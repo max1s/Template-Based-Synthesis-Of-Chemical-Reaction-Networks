@@ -94,7 +94,8 @@ def synthesize_with_dreal(crn):
             print("Initial Conditions", initial_conditions)
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 10, 100))
+                                                           plot_name=file_name + "-simulationdreal.png",
+                                                           t = linspace(0, 10, 100), mode_times=all_vals["time"])
             print("\n\n")
             print(variable_names)
             print(sol)

@@ -85,6 +85,10 @@ class SolverCaller(object):
             plt.figure()
             lines = plt.plot(t, sol[:, variables_to_keep])
             plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])
+
+            for time in mode_times:
+                plt.axvline(x=time, color='k')
+
             plt.xlabel("Time")
             plt.savefig(plot_name + "-simulation.png")
 
@@ -130,6 +134,9 @@ class SolverCaller(object):
         var_names = [str(var) for var in flow.keys()]
 
         for val in vals:
+            if val == "time":
+                continue
+
             if val in var_names:
                 initial_conditions[val] = (float(vals[val][0]) + float(vals[val][1])) / 2
             else:
@@ -361,18 +368,31 @@ class SolverCallerDReal(SolverCaller):
 
         constant_values = {}
         all_values = {} # includes state variables
+        all_values["time"] = []
+
+
         with open(file_path, "r") as f:
             for line in f:
 
                 if p.match(line):
-                    var_name = p.match(line).groups()[0].strip()
+                    groups = p.match(line).groups()
+
+                    var_name = groups[0].strip()
                     var_name = "_".join(var_name.split("_")[:-2])
 
                     # Mode transition times contain only a single underscore (e.g. time_0)
-                    if not var_name or var_name == 'inputTime':
+                    if var_name == 'inputTime':
                         continue
 
-                    values = p.match(line).groups()[1:]
+                    if not var_name and groups[0].startswith("time_"):
+                        time = groups[0].strip()[5:]
+                        all_values["time"].append(float(groups[2]))
+                        #mode_transition_times[int(time)] = float(groups[2])
+                        continue
+                    elif not var_name:
+                        continue
+
+                    values = groups[1:]
 
                     if "mode_" in var_name:
                         continue
