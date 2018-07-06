@@ -52,7 +52,7 @@ class SolverCaller(object):
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name=""):
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables=""):
         """
         Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
         Requires a specific initial_condition and flow dictionary in which parameters have been
@@ -77,10 +77,14 @@ class SolverCaller(object):
         sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
         variable_names = [str(x) for x in parametrised_flow]
 
+        if not hidden_variables:
+            hidden_variables = []
+        variables_to_keep = map(lambda v: v not in hidden_variables, variable_names)
+
         if plot_name:
             plt.figure()
-            lines = plt.plot(t, sol)
-            plt.legend(iter(lines), variable_names)
+            lines = plt.plot(t, sol[:, variables_to_keep])
+            plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])
             plt.xlabel("Time")
             plt.savefig(plot_name + "-simulation.png")
 
