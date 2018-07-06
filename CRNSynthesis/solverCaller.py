@@ -47,12 +47,12 @@ class SolverCaller(object):
         :param msw:
         :return:
         """
-        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw)
+        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw, max_depth=max_depth)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables=""):
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables="", mode_times=None):
         """
         Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
         Requires a specific initial_condition and flow dictionary in which parameters have been
