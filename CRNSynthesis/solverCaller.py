@@ -37,7 +37,7 @@ class SolverCaller(object):
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-    def single_synthesis(self, cost=20, precision=0.01, msw=0):
+    def single_synthesis(self, cost=20, precision=0.01, msw=0, max_depth=2):
         """
         Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
         is used.
@@ -161,7 +161,7 @@ class SolverCallerISAT(SolverCaller):
     This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the
     extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated
     """
-    def __init__(self, model_path="./bellshape.hys", isat_path=""):
+    def __init__(self, model_path="./bellshape.hys", isat_path="", num_modes=False):
         """
 
         :param model_path: path to the .hys file containing the SAT-ODE problem to be solved
@@ -173,7 +173,9 @@ class SolverCallerISAT(SolverCaller):
         if not isat_path:
             self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+        self.num_modes = num_modes
+
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
         Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.
 
@@ -185,9 +187,16 @@ class SolverCallerISAT(SolverCaller):
         """
         cost = max_cost
         result_file_names = []
+
+        if not max_depth:
+            if self.num_modes:
+                max_depth = self.num_modes
+            else:
+                max_depth = 2
+
         while cost >= min_cost:
             self.edit_cost(cost)
-            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon', msw=msw)
+            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon', msw=msw, max_depth=max_depth)
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
@@ -277,12 +286,16 @@ class SolverCallerISAT(SolverCaller):
                         # it's not a constant parameter, so don't record it
                         constant_values.pop(var_name, None)
 
-        return constant_values, all_values
+        #mode_times = {}
+        #for i, time in enumerate(all_values["time"]):
+        #    mode_times[i] = time
+
+        return constant_values, all_values#, mode_times
 
 
 class SolverCallerDReal(SolverCaller):
 
-    def __init__(self, model_path="./bellshape.drh", dreal_path="/Users/maxtby/local/bin/dreach"):
+    def __init__(self, model_path="./bellshape.drh", dreal_path="/Users/maxtby/local/bin/dreach", num_modes=False):
         """
 
         :param model_path: path to the .drh file containing the SAT-ODE problem to be solved
@@ -290,8 +303,9 @@ class SolverCallerDReal(SolverCaller):
         """
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
+        self.num_modes = num_modes
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
         Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.
 
@@ -302,11 +316,17 @@ class SolverCallerDReal(SolverCaller):
         :return: list of file names, each containing the output from dReach from one iteration
         """
 
+        if not max_depth:
+            if self.num_modes:
+                max_depth = self.num_modes
+            else:
+                max_depth = 2
+
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
             self.edit_cost(cost)
-            result_file_name = self.call_solver(precision, cost, '')
+            result_file_name = self.call_solver(precision, cost, '', max_depth=max_depth)
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
