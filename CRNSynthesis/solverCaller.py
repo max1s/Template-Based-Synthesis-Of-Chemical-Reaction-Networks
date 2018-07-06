@@ -79,7 +79,7 @@ class SolverCaller(object):
 
         if not hidden_variables:
             hidden_variables = []
-        variables_to_keep = map(lambda v: v not in hidden_variables, variable_names)
+        variables_to_keep = np.array(map(lambda v: v not in hidden_variables, variable_names))
 
         if plot_name:
             plt.figure()
