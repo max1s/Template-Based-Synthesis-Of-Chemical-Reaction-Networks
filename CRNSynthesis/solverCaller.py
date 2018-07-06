@@ -174,6 +174,8 @@ class SolverCallerISAT(SolverCaller):
             self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
         self.num_modes = num_modes
+        if not self.num_modes:
+            self.num_modes = 2
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
@@ -189,10 +191,7 @@ class SolverCallerISAT(SolverCaller):
         result_file_names = []
 
         if not max_depth:
-            if self.num_modes:
-                max_depth = self.num_modes
-            else:
-                max_depth = 2
+            max_depth = self.num_modes
 
         while cost >= min_cost:
             self.edit_cost(cost)
@@ -303,7 +302,10 @@ class SolverCallerDReal(SolverCaller):
         """
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
+
         self.num_modes = num_modes
+        if not self.num_modes:
+            self.num_modes = 2
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
@@ -372,7 +374,7 @@ class SolverCallerDReal(SolverCaller):
             sub.call(command.split(), stdout=f, stderr=sub.PIPE)
 
         # dREach
-        return os.path.join(os.getcwd(), "%s_0_0.smt2.proof" % self.model_name)
+        return os.path.join(os.getcwd(), "%s_%s_0.smt2.proof" % (self.model_name, self.num_modes - 1))
 
     def getCRNValues(self, file_path):
         """
