@@ -161,7 +161,7 @@ class SolverCallerISAT(SolverCaller):
     This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the
     extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated
     """
-    def __init__(self, model_path="./bellshape.hys", isat_path="", num_modes=False):
+    def __init__(self, model_path="./bellshape.hys", isat_path="isat-ode", num_modes=False):
         """
 
         :param model_path: path to the .hys file containing the SAT-ODE problem to be solved
@@ -170,8 +170,6 @@ class SolverCallerISAT(SolverCaller):
         super(SolverCallerISAT, self).__init__(model_path)
 
         self.isat_path = isat_path
-        if not isat_path:
-            self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
         self.num_modes = num_modes
         if not self.num_modes:
@@ -294,7 +292,7 @@ class SolverCallerISAT(SolverCaller):
 
 class SolverCallerDReal(SolverCaller):
 
-    def __init__(self, model_path="./bellshape.drh", dreal_path="/Users/maxtby/local/bin/dreach", num_modes=False):
+    def __init__(self, model_path="./bellshape.drh", dreal_path="dreach", num_modes=False):
         """
 
         :param model_path: path to the .drh file containing the SAT-ODE problem to be solved

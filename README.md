@@ -14,6 +14,7 @@ After downloading the code (either as a ZIP file or at the command-line using ``
 
 This will automatically install required dependencies ([listed here](https://github.com/max1s/CRNSynthesis/blob/master/setup.py#L12)).
 
+You can either install the solver that you wish to use (iSAT or dReach) in a location that is on your ``$PATH`` (for example, by executing the command ``export PATH=$PATH:/some/path/dReal-3.16.09.01-linux/bin`` in the terminal), or provide the path to the correpsonding binary as an argument the the solver caller constructor (``isat_path=`` to ``SolverCallerISAT``, or ``dreal_path=`` to ``SolverCallerDReal``).
 
 ## Usage
 
