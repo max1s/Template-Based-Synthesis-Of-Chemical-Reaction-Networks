@@ -11,17 +11,19 @@ class InputSpecies:
     rather than being determined by the kinetics of reactions in which it is a reactant or product.
     """
 
-    def __init__(self, name, ode, initial_value=None):
+    def __init__(self, name, ode, initial_value=None, max_value=None):
         """
         :param name: name of the species (string)
         :param ode: time-derivative of the cocnentration, expressed in terms of 't' (SymPy expression)
         :param initial_value: initial value of the concentration (float)
+        :param max_value: maximum value for this input (used in variable definition in iSAT/dReach file)
 
         """
 
         self.name = name  # a string, to be printed
         self.symbol = Symbol(name)  # a sympy symbol, to be used when constructing formulae
         self.initial_value = initial_value
+        self.max_value = max_value
         self.ode = ode
 
     def __str__(self):
@@ -32,7 +34,7 @@ class InputSpecies:
         Returns string that defines variable in iSAT (.hys) format.
         """
 
-        return "\tfloat[%s, %s] %s;\n" % (0, 1, self.name) # TODO: set min/max better
+        return "\tfloat[%s, %s] %s;\n" % (0, self.max_value, self.name)
 
     def iSATInitialization(self):
         """
@@ -44,7 +46,7 @@ class InputSpecies:
         """
         Returns string that defines variable in dReach (.drh) format.
         """
-        return "\t[%s, %s] %s;\n" % (0, 1, self.name) # TODO: set min/max better
+        return "\t[%s, %s] %s;\n" % (0, self.max_value, self.name)
 
     def dRealInitialization(self):
         """

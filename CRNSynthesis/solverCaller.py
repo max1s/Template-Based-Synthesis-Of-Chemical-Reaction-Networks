@@ -37,7 +37,7 @@ class SolverCaller(object):
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-    def single_synthesis(self, cost=20, precision=0.01, msw=0):
+    def single_synthesis(self, cost=20, precision=0.01, msw=0, max_depth=2):
         """
         Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
         is used.
@@ -47,12 +47,12 @@ class SolverCaller(object):
         :param msw:
         :return:
         """
-        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw)
+        return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw, max_depth=max_depth)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name=""):
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables="", mode_times=None):
         """
         Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
         Requires a specific initial_condition and flow dictionary in which parameters have been
@@ -77,10 +77,18 @@ class SolverCaller(object):
         sol = odeint(self.gradient_function, ic, t, args=(parametrised_flow,species_list))
         variable_names = [str(x) for x in parametrised_flow]
 
+        if not hidden_variables:
+            hidden_variables = []
+        variables_to_keep = np.array(map(lambda v: v not in hidden_variables, variable_names))
+
         if plot_name:
             plt.figure()
-            lines = plt.plot(t, sol)
-            plt.legend(iter(lines), variable_names)
+            lines = plt.plot(t, sol[:, variables_to_keep])
+            plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])
+
+            for time in mode_times:
+                plt.axvline(x=time, color='k')
+
             plt.xlabel("Time")
             plt.savefig(plot_name + "-simulation.png")
 
@@ -126,6 +134,9 @@ class SolverCaller(object):
         var_names = [str(var) for var in flow.keys()]
 
         for val in vals:
+            if val == "time":
+                continue
+
             if val in var_names:
                 initial_conditions[val] = (float(vals[val][0]) + float(vals[val][1])) / 2
             else:
@@ -150,7 +161,7 @@ class SolverCallerISAT(SolverCaller):
     This class is responsible for calling iSAT to solve a SAT-ODE problem, parsing the result, and substituting the
     extracted parameter values into the ``CRNSketch`` to obtain a model that can be simulated
     """
-    def __init__(self, model_path="./bellshape.hys", isat_path=""):
+    def __init__(self, model_path="./bellshape.hys", isat_path="isat-ode", num_modes=False):
         """
 
         :param model_path: path to the .hys file containing the SAT-ODE problem to be solved
@@ -159,10 +170,12 @@ class SolverCallerISAT(SolverCaller):
         super(SolverCallerISAT, self).__init__(model_path)
 
         self.isat_path = isat_path
-        if not isat_path:
-            self.isat_path = "./isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt"
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+        self.num_modes = num_modes
+        if not self.num_modes:
+            self.num_modes = 2
+
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
         Call iSAT repeatedly, decreasing the permitted cost by 1 between each iteration.
 
@@ -174,9 +187,13 @@ class SolverCallerISAT(SolverCaller):
         """
         cost = max_cost
         result_file_names = []
+
+        if not max_depth:
+            max_depth = self.num_modes
+
         while cost >= min_cost:
             self.edit_cost(cost)
-            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon', msw=msw)
+            result_file_name = self.call_solver(precision, cost, ' --ode-opts --continue-after-not-reaching-horizon', msw=msw, max_depth=max_depth)
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
@@ -266,12 +283,16 @@ class SolverCallerISAT(SolverCaller):
                         # it's not a constant parameter, so don't record it
                         constant_values.pop(var_name, None)
 
-        return constant_values, all_values
+        #mode_times = {}
+        #for i, time in enumerate(all_values["time"]):
+        #    mode_times[i] = time
+
+        return constant_values, all_values#, mode_times
 
 
 class SolverCallerDReal(SolverCaller):
 
-    def __init__(self, model_path="./bellshape.drh", dreal_path="/Users/maxtby/local/bin/dreach"):
+    def __init__(self, model_path="./bellshape.drh", dreal_path="dreach", num_modes=False):
         """
 
         :param model_path: path to the .drh file containing the SAT-ODE problem to be solved
@@ -280,7 +301,11 @@ class SolverCallerDReal(SolverCaller):
         super(SolverCallerDReal, self).__init__(model_path)
         self.dreal_path = dreal_path
 
-    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0):
+        self.num_modes = num_modes
+        if not self.num_modes:
+            self.num_modes = 2
+
+    def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1, msw=0, max_depth=False):
         """
         Call dReal repeatedly, decreasing the permitted cost by 1 between each iteration.
 
@@ -291,11 +316,17 @@ class SolverCallerDReal(SolverCaller):
         :return: list of file names, each containing the output from dReach from one iteration
         """
 
+        if not max_depth:
+            if self.num_modes:
+                max_depth = self.num_modes
+            else:
+                max_depth = 2
+
         cost = max_cost
         result_file_names = []
         while cost >= min_cost:
             self.edit_cost(cost)
-            result_file_name = self.call_solver(precision, cost, '')
+            result_file_name = self.call_solver(precision, cost, '', max_depth=max_depth)
             result_file_names.append(result_file_name)
             cost -= 1
         return result_file_names
@@ -341,7 +372,7 @@ class SolverCallerDReal(SolverCaller):
             sub.call(command.split(), stdout=f, stderr=sub.PIPE)
 
         # dREach
-        return os.path.join(os.getcwd(), "%s_0_0.smt2.proof" % self.model_name)
+        return os.path.join(os.getcwd(), "%s_%s_0.smt2.proof" % (self.model_name, self.num_modes - 1))
 
     def getCRNValues(self, file_path):
         """
@@ -357,18 +388,31 @@ class SolverCallerDReal(SolverCaller):
 
         constant_values = {}
         all_values = {} # includes state variables
+        all_values["time"] = []
+
+
         with open(file_path, "r") as f:
             for line in f:
 
                 if p.match(line):
-                    var_name = p.match(line).groups()[0].strip()
+                    groups = p.match(line).groups()
+
+                    var_name = groups[0].strip()
                     var_name = "_".join(var_name.split("_")[:-2])
 
                     # Mode transition times contain only a single underscore (e.g. time_0)
-                    if not var_name or var_name == 'inputTime':
+                    if var_name == 'inputTime':
                         continue
 
-                    values = p.match(line).groups()[1:]
+                    if not var_name and groups[0].startswith("time_"):
+                        time = groups[0].strip()[5:]
+                        all_values["time"].append(float(groups[2]))
+                        #mode_transition_times[int(time)] = float(groups[2])
+                        continue
+                    elif not var_name:
+                        continue
+
+                    values = groups[1:]
 
                     if "mode_" in var_name:
                         continue
