@@ -67,7 +67,9 @@ class SolverCaller(object):
         if t is False:
             t = np.linspace(0, 1, 100)
 
-        parametrised_flow = {k: v for k, v in parametrised_flow.items() if str(k) in initial_conditions.keys()}
+        if not mode_times:
+            mode_times = []
+
 
         ic = []
         species_list = parametrised_flow.keys()
@@ -260,6 +262,8 @@ class SolverCallerISAT(SolverCaller):
 
         constant_values = {}
         all_values = {} # includes state variables
+        all_values["time"] = []
+
         var_name = False
         with open(file_path, "r") as f:
             for line in f:
@@ -273,7 +277,10 @@ class SolverCallerISAT(SolverCaller):
                 elif p2.match(line) and var_name:
                     values = p2.match(line).groups()
 
-                    if var_name not in all_values.keys():
+                    if var_name == "time":
+                        all_values["time"].append(values[1])
+
+                    elif var_name not in all_values.keys():
                         # this is the first value encountered for this variable
                         constant_values[var_name] = values
                         all_values[var_name] = values
