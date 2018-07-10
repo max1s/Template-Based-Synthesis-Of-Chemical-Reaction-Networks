@@ -18,6 +18,7 @@ import numpy as np
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import random
 
 class SolverCaller(object):
     """
@@ -88,9 +89,17 @@ class SolverCaller(object):
             lines = plt.plot(t, sol[:, variables_to_keep])
             plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])
 
-            for time in mode_times:
-                plt.axvline(x=time, color='k')
-
+            if len(mode_times) > 0:
+                mode_times.append(t[-1])
+                mode_times = [ float(x) for x in mode_times]
+                mode_times.sort()
+                #for time in mode_times:
+                for x in range(1, len(mode_times)):
+                    #plt.axvline(x=time, color='k')
+                    r = float(random.randrange(50,100))/100
+                    g = float(random.randrange(60,100))/100
+                    b = float(random.randrange(60,100))/100
+                    plt.axvspan(mode_times[x-1],mode_times[x], alpha=0.5, color=(r,g,b), label='mode_' + str(x))
             plt.xlabel("Time")
             plt.savefig(plot_name + "-simulation.png")
 
