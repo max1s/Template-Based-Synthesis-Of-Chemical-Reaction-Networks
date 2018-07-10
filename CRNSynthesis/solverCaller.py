@@ -53,7 +53,7 @@ class SolverCaller(object):
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
         pass
 
-    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables="", mode_times=None):
+    def simulate_solutions(self, initial_conditions, parametrised_flow, t=False, plot_name="", hidden_variables="", mode_times=None, lna=False):
         """
         Numerically integrates the system using ``scipy.odeint`` to obtain a simulated time-course.
         Requires a specific initial_condition and flow dictionary in which parameters have been
@@ -82,11 +82,15 @@ class SolverCaller(object):
 
         if not hidden_variables:
             hidden_variables = []
-        variables_to_keep = np.array(map(lambda v: v not in hidden_variables, variable_names))
-
+        variables_to_keep = np.array(map(lambda v: v not in hidden_variables and not 'var' in v and not 'cov' in v, variable_names))
+        lna_to_keep = np.array(map(lambda v: v not in hidden_variables and 'var' in v, variable_names))
         if plot_name:
             plt.figure()
             lines = plt.plot(t, sol[:, variables_to_keep])
+            if lna:
+                lna = plt.fill_between(t, sol[:, variables_to_keep] + sol[:,lna_to_keep], y - sol[:,lna_to_keep],
+                            alpha=1, edgecolor='#3F7F4C', facecolor='#7EFF99',
+                            linewidth=0)
             plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])
 
             if len(mode_times) > 0:
