@@ -1045,7 +1045,7 @@ def generateCovarianceMatrix(species_names):
     for i, m in enumerate(species_names):
         for j, n in enumerate(species_names):
             if m == n:
-                mat[i, j] = 'cov' + str(m)
+                mat[i, j] = 'var' + str(m)
             else:
                 mat[i, j] = 'cov' + str(n) + str(m)
 
