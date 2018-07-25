@@ -5,6 +5,45 @@ from sympy import init_printing, Matrix, transpose, pprint
 from numpy import savetxt
 from numpy import linspace
 
+
+def parametrise_flow_365(flow):
+    vals = {}
+
+    sa = 0.01
+    vals = {'SF': 1, 'k_1': sa, 'k_5': sa, 'k_9': sa, 'k_13': sa, 'k_17': sa, 'k_21': sa}
+    vals['inpt'] = 1
+
+    # rows are species doing effect, so go down cols
+    vals['k_3'] = 0  # P2 activating P1
+    vals['k_4'] = 0.87  # P3 activating P1
+    vals['k_7'] = 0.94  # P2 inactivating P1
+    vals['k_8'] = 0  # P3 inactivating P1
+
+    vals['k_11'] = 0.03  # P1 activating P2
+    vals['k_12'] = 0  # P3 activating P2
+    vals['k_15'] = 0  # P1 inactivating P2
+    vals['k_16'] = 0.43  # P3 inactivating P2
+
+    vals['k_19'] = 0  # P1 activating P3
+    vals['k_20'] = 0.43  # P2 activating P3
+    vals['k_23'] = 0.85  # P1 inactivating P3
+    vals['k_24'] = 0.99  # P2 inactivating P3
+
+    # No self interactions
+    for i in [2, 6, 9, 10, 13, 14, 15, 17, 18, 22]:
+        vals['k_' + str(i)] = 0
+
+    for x in flow:
+        for v in vals:
+            flow[x] = flow[x].subs(sympify(v), sympify(vals[v]))
+
+    print flow
+    return flow
+
+def create_rate_constant(name, val):
+    return RateConstant(name, val, val)
+
+
 def form_crn():
     input1 = InputSpecies("Input1", sympify("-(-150 + t)/(50 * exp((-150 + t)**2/100))"), initial_value=0.01)
 
@@ -14,6 +53,11 @@ def form_crn():
     POneStar = Species('POneStar',initial_max=1)
     PTwoStar = Species('PTwoStar', initial_max=1)
     PThreeStar = Species('PThreeStar', initial_max=1)
+
+    sa = 0.01
+
+    #vals = {'SF': 1, 'k_1': sa, 'k_5': sa, 'k_9': sa, 'k_13': sa, 'k_17': sa, 'k_21': sa}
+    #create_rate_constant('k_1', sa)
 
     k1 = RateConstant('k_1', 0, 1)
     k2 = RateConstant('k_2', 0, 1)
@@ -178,5 +222,5 @@ def synthesize_with_dreal(crn):
 
 if __name__ == "__main__":
     crn = form_crn()
-    synthesize_with_isat(crn)
-    #synthesize_with_dreal(crn)
+    #synthesize_with_isat(crn)
+    synthesize_with_dreal(crn)

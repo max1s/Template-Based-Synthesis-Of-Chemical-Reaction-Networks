@@ -58,8 +58,8 @@ def synthesize_with_dreal(crn):
     derivatives = []
     flow = crn.flow(True, derivatives)
 
-    #specification_dreal = [('','cA > A','')]
-    specification_dreal = [('','','')]
+    specification_dreal = [('','varA >= A','')]
+    #specification_dreal = [('','','')]
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
     with open('superpoisson.drh', 'w') as file:
         file.write(drh)
@@ -75,7 +75,8 @@ def synthesize_with_dreal(crn):
             print("Initial Conditions", initial_conditions)
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 10, 100))
+                                                           plot_name=file_name + "-simulationdreal.png",
+                                                           t = linspace(0, 10, 100), lna=True)
             print("\n\n")
             print(variable_names)
             print(sol)

@@ -88,7 +88,7 @@ class SolverCaller(object):
             plt.figure()
             lines = plt.plot(t, sol[:, variables_to_keep])
             if lna:
-                lna = plt.fill_between(t, sol[:, variables_to_keep] + sol[:,lna_to_keep], y - sol[:,lna_to_keep],
+                lna = plt.fill_between(t, (sol[:, variables_to_keep] + sol[:,lna_to_keep]).flatten(), (sol[:, variables_to_keep] - sol[:,lna_to_keep]).flatten(),
                             alpha=1, edgecolor='#3F7F4C', facecolor='#7EFF99',
                             linewidth=0)
             plt.legend(iter(lines), np.array(variable_names)[variables_to_keep])

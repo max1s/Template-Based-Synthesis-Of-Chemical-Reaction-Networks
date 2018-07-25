@@ -53,8 +53,8 @@ class Declaration:
 
         if len(self.crn.real_species) > 0:
             s += "\n\t-- Define State Variables\n"
-        for d in self.crn.real_species:
-            s += d.iSATDefinition()
+            for d in self.crn.real_species:
+                s += d.iSATDefinition()
 
         if len(self.crn.input_species) > 0:
             s += "\n\t-- Define Input Variables\n"
@@ -126,8 +126,8 @@ class Declaration:
 
         if len(self.crn.real_species) > 0:
             s += "\n\t//Define State Variables\n"
-        for d in self.crn.real_species:
-            s += d.dRealDefinition()
+            for d in self.crn.real_species:
+                s += d.dRealDefinition()
 
         if len(self.crn.input_species) > 0:
             s += "\n\t// Define Input Variables\n"

@@ -73,7 +73,7 @@ class Species:
      in which it is a reactant or product.
     """
 
-    def __init__(self, name, initial_value=None, initial_min=None, initial_max=None):
+    def __init__(self, name, initial_value=None, initial_min=0, initial_max=1):
         """
         This constructor requires the speification of either the initial value of the concentration,
          or upper and lower limits on the initial cocentration.
@@ -98,7 +98,7 @@ class Species:
         """
         Returns string that defines variable in iSAT (.hys) format.
         """
-        return "\tfloat[0, %s] %s;\n" % (1, self.name)
+        return "\tfloat[%s, %s] %s;\n" % (self.initial_min, self.initial_max, self.name)
 
     def iSATInitialization(self):
         """
@@ -122,7 +122,7 @@ class Species:
         """
         Returns string that defines variable in dReach (.drh) format.
         """
-        return "\t[0, %s] %s;\n" % (1, self.name)
+        return "\t[%s, %s] %s;\n" % (self.initial_min, self.initial_max, self.name)
 
     def dRealInitialization(self):
         """
@@ -154,6 +154,7 @@ class Species:
         Returns an list containing self, as this InputSpecies is a real (non-input) species.
         """
         return [self]
+
 
 class Term:
     """
@@ -796,7 +797,6 @@ class CRNSketch:
 
         :param include_inputs: if True, include InputSpecies in list.
         """
-
         x = set()
         for y in self.all_reactions:
             reactants_or_products = y.reactants[:]
@@ -807,7 +807,6 @@ class CRNSketch:
                         x = x.union(sp.get_species())
                     else:
                         x = x.union(sp.get_real_species())
-
         return list(x)
 
     def getRateConstants(self):
@@ -860,6 +859,8 @@ class CRNSketch:
             dCovdt = J * C + C * transpose(J)
             for i in range(C.cols * C.rows):
                 a[C[i]] = dCovdt[i]
+                if dCovdt[i] not in self.real_species:
+                    self.real_species.append(Species(str(C[i]),initial_min=0,initial_max=4))
 
         derivative_expressions = compute_derivatives(derivatives, a)
         a.update(derivative_expressions)
@@ -871,14 +872,13 @@ class CRNSketch:
         for key in a:
             if a[key] is None and not isinstance(a[key], str):
                 a[key] = 0
-            if str(key) not in [str(sp) for sp in self.species] and not str(key).startswith("cov"):
+            if str(key) not in [str(sp) for sp in self.species] and not str(key).startswith("cov") and not str(key).startswith('var'):
                 constants_to_remove.append(key)
 
         # remove constant keys from flowDict, as they are handled separately when output generated
         for key in constants_to_remove:
             if str(key) not in [x["name"] for x in derivatives]:
                 a.pop(key, None)
-
         return a
 
     def get_cost(self):
