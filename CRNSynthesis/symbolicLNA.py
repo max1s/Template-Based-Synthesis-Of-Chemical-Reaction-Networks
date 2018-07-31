@@ -944,7 +944,7 @@ class CRNSketch:
 
             cost -= 3*(1-stoich_prod)
 
-        return sympify(cost).symplify()
+        return sympify(cost).simplify()
 
     def parametricPropensity(self):
         """
