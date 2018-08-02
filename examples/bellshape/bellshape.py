@@ -36,7 +36,7 @@ def synthesize_with_isat(crn):
     specification = [('(K < 0.1)', 'dK_dt >= 0', '(dK_dt = 0) and (K > 0.4)'), ('', 'dK_dt <= 0', '')]
 
     flow = crn.flow(False, derivatives)
-    hys = iSATParser.constructISAT(crn, specification, flow, max_time=100)
+    hys = iSATParser.constructISAT(crn, specification, flow, max_time=100/SF, scale_factor=SF)
     with open('bellshape.hys', 'w') as file:
         file.write(hys)
 
@@ -44,7 +44,7 @@ def synthesize_with_isat(crn):
     sc = SolverCallerISAT("./bellshape.hys",
                           isat_path="../isat-ode-r2806-static-x86_64-generic-noSSE-stripped.txt")
 
-    result_files = sc.single_synthesis(cost=0, precision=0.01, msw=0.05, scale_factor=SF)
+    result_files = sc.single_synthesis(cost=0, precision=0.01, msw=0.05)
     # result_files = ["./results/sixreactionstar_0_0.01-isat.txt"]
 
     for file_name in result_files:
@@ -52,7 +52,7 @@ def synthesize_with_isat(crn):
         # print(sc.getCRNValues(file_name))
 
         vals, all_vals = sc.getCRNValues(file_name)
-        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals, scale_factor=SF)
 
         print("Initial Conditions", initial_conditions)
         print("Flow:", parametrised_flow)
