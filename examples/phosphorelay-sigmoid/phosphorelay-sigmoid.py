@@ -14,10 +14,10 @@ def form_crn():
     L3 = Species('L3', initial_value=0.33)
     L3p = Species('L3p', initial_value=0)
 
-    r1 = Reaction([(B, 1), (L1, 1)], [(B, 1), (L1p, 1)], RateConstant('k_1', 0.42, 0.42))
-    r2 = Reaction([(L2, 1), (L1p, 1)], [(L2p, 1), (L1, 1)], RateConstant('k_2', 0.47, 0.47))
-    r3 = Reaction([(L3, 1), (L2p, 1)], [(L3p, 1), (L2, 1)], RateConstant('k_3', 0.52, 0.52))
-    r4 = Reaction([(L3p, 1)], [(L3, 1)], RateConstant('k_4', 0.162, 0.162))
+    r1 = Reaction([(B, 1), (L1, 1)], [(B, 1), (L1p, 1)], RateConstant('k_1', 0, 1)) #0.42
+    r2 = Reaction([(L2, 1), (L1p, 1)], [(L2p, 1), (L1, 1)], RateConstant('k_2', 0, 1)) #0.47
+    r3 = Reaction([(L3, 1), (L2p, 1)], [(L3p, 1), (L2, 1)], RateConstant('k_3', 0, 1)) #0.52
+    r4 = Reaction([(L3p, 1)], [(L3, 1)], RateConstant('k_4', 0, 1)) #0.162
     r5 = Reaction([], [(B, 1)], RateConstant('k_5', 1, 1))
 
     return CRNSketch([r1, r2, r3, r4, r5], [], [])
@@ -68,10 +68,10 @@ def synthesize_with_dreal(crn):
                    {"variable": 'L3p', "order": 2, "is_variance": False, "name": "L3p_dot_dot"}]
     flow = crn.flow(False, derivatives)
 
-    #specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(L3p_dot_dot < 0.001)'),
-    #                       ('', '(and (L3p_dot >= 0)(L3p_dot_dot <= 0))', '(L3p > 100)')]
-    specification_dreal = [('','','')]
-    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
+    specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(L3p_dot_dot < 0.001)'),
+                           ('', '(and (L3p_dot >= 0)(L3p_dot_dot <= 0))', '')]
+    #specification_dreal = [('','','')]
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=50)
     with open('phosphorelay.drh', 'w') as file:
         file.write(drh)
 
@@ -86,7 +86,7 @@ def synthesize_with_dreal(crn):
             print("Initial Conditions", initial_conditions)
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 10, 100))
+                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 50, 100), mode_times=all_vals["time"], hidden_variables="B")
             print("\n\n")
             print(variable_names)
             print(sol)

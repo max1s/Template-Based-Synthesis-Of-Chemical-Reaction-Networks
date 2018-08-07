@@ -840,10 +840,6 @@ class CRNSketch:
 
         propensities = self.parametricPropensity()
         stoichiometry_change = self.parametricNetReactionChange()
-        # print Matrix(stoichiometry_change).transpose()
-        # print Matrix(propensities)
-        # print sympify("SF")
-        # quit()
         dSpeciesdt = Matrix(stoichiometry_change).transpose() * Matrix(propensities) * sympify("SF")
 
         for i, sp in enumerate(self.real_species):
@@ -856,7 +852,8 @@ class CRNSketch:
             jmat = [sp.symbol for sp in self.real_species]
             J = Matrix(dSpeciesdt).jacobian(jmat)
             C = generateCovarianceMatrix(self.real_species)
-            dCovdt = J * C + C * transpose(J)
+            G = generateG(stoichiometry_change, propensities)
+            dCovdt = J * C + C * transpose(J) + G
             for i in range(C.cols * C.rows):
                 a[C[i]] = dCovdt[i]
                 if dCovdt[i] not in self.real_species:
@@ -880,6 +877,8 @@ class CRNSketch:
             if str(key) not in [x["name"] for x in derivatives]:
                 a.pop(key, None)
         return a
+
+
 
     def get_cost(self):
         """
@@ -1053,6 +1052,15 @@ def generateCovarianceMatrix(species_names):
         for y in range(len(species_names)):
             mat[x, y] = mat[y, x]
     return mat
+
+
+def generateG(stochVector, propensityVector):
+    #return Matrix(stochVector) * Matrix(stochVector).transpose() * Matrix(propensityVector)
+    i = 0
+    G = 0
+    for i in range(len(propensityVector)):
+        G +=  Matrix(stochVector)[i].transpose() * Matrix(stochVector)[i] * Matrix(propensityVector)[i]
+    return Matrix([[G]])
 
 
 def compute_derivatives(derivatives, flow):

@@ -6,13 +6,13 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    A = Species('A', initial_value=0)
-    B = Species('B', initial_value=0)
+    A = Species('A', initial_value=0.1)
+    B = Species('B', initial_value=0.1)
     lam1 = LambdaChoice([A, B], 1)
 
 
-    r1 = Reaction([], [(A, 2)], RateConstant('k_1', 0.23, 0.23))
-    r2 = Reaction([(A, 1)], [], RateConstant('k_2', 0.94, 0.94))
+    r1 = Reaction([], [(A, 2)], RateConstant('k_1', 0, 1))
+    r2 = Reaction([(A, 1)], [], RateConstant('k_2', 0, 1))
 
     return CRNSketch([r1, r2], [], [])
 
@@ -58,9 +58,9 @@ def synthesize_with_dreal(crn):
     derivatives = []
     flow = crn.flow(True, derivatives)
 
-    specification_dreal = [('','varA >= A','')]
+    specification_dreal = [('','varA >= A','A > 0.3')]
     #specification_dreal = [('','','')]
-    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=20)
     with open('superpoisson.drh', 'w') as file:
         file.write(drh)
 
@@ -76,7 +76,7 @@ def synthesize_with_dreal(crn):
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                            plot_name=file_name + "-simulationdreal.png",
-                                                           t = linspace(0, 10, 100), lna=True)
+                                                           t = linspace(0, 20, 100), lna=True)
             print("\n\n")
             print(variable_names)
             print(sol)

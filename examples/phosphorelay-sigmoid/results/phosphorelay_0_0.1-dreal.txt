@@ -1,4 +1,5 @@
 dReal Options: --precision 0.1 --proof
-SMT: ./phosphorelay_0_0.smt2, PATH : [1]
+For k = 0, dReach tried 0 feasible paths, all of them are unsat.
+SMT: ./phosphorelay_1_0.smt2, PATH : [1,2]
 delta-sat with delta = 0.10000000000000001
-For k = 0, [1] -- SAT
+For k = 1, [1,2] -- SAT

@@ -144,7 +144,7 @@ def synthesize_with_dreal(crn):
         file.write(drh)
 
     sc = SolverCallerDReal("./inverted-bell.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-    result_files = sc.single_synthesis(cost=0, precision=0.1, max_depth=len(specification_dreal))
+    result_files = sc.single_synthesis(cost=0, precision=0.1)
 
     for file_name in result_files:
         vals, all_vals = sc.getCRNValues('./inverted-bell_3_0.smt2.proof')
