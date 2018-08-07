@@ -5,6 +5,9 @@ from sympy import init_printing, Matrix, transpose, pprint
 from numpy import savetxt
 from numpy import linspace
 
+
+SF = 10
+
 def form_crn():
     K = Species('K', initial_value=0.001)
     A = Species('A', initial_value=0.5)
@@ -33,7 +36,7 @@ def synthesize_with_isat(crn):
     specification = [('(K < 0.1)', 'dK_dt >= 0', '(dK_dt = 0) and (K > 0.4)'), ('', 'dK_dt <= 0', '')]
 
     flow = crn.flow(False, derivatives)
-    hys = iSATParser.constructISAT(crn, specification, flow, max_time=100)
+    hys = iSATParser.constructISAT(crn, specification, flow, max_time=100/SF, scale_factor=SF)
     with open('bellshape.hys', 'w') as file:
         file.write(hys)
 
@@ -49,14 +52,14 @@ def synthesize_with_isat(crn):
         # print(sc.getCRNValues(file_name))
 
         vals, all_vals = sc.getCRNValues(file_name)
-        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+        initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals, scale_factor=SF)
 
         print("Initial Conditions", initial_conditions)
         print("Flow:", parametrised_flow)
 
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulation.png",
-                                                       t=linspace(0, 100, 1000),
+                                                       t=linspace(0, 100/SF, 1000),
                                                        mode_times=all_vals["time"])
         print("\n\n")
         print(variable_names)
@@ -74,22 +77,22 @@ def synthesize_with_dreal(crn):
     #('', 'dK_dt <= 0', '(and (K >= 0)(K < 0.1))')]
 
     #specification_dreal = []
-    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100.0/SF, scale_factor=SF)
     with open('bellshape.drh', 'w') as file:
         file.write(drh)
 
     sc = SolverCallerDReal("./bellshape.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-    result_files = sc.single_synthesis(cost=0, precision=0.1)
+    result_files = sc.single_synthesis(cost=0, precision=0.01)
 
 
     for file_name in result_files:
             vals, all_vals = sc.getCRNValues('./bellshape_1_0.smt2.proof')
-            initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
+            initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals, scale_factor=SF)
 
             print("Initial Conditions", initial_conditions)
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
-                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 100, 1000),
+                                                           plot_name=file_name + "-simulationdreal.png", t = linspace(0, 100/SF, 1000),
                                                            mode_times=all_vals["time"])
             print("\n\n")
             print(variable_names)
