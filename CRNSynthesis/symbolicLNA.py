@@ -11,7 +11,7 @@ class InputSpecies:
     rather than being determined by the kinetics of reactions in which it is a reactant or product.
     """
 
-    def __init__(self, name, ode, initial_value=None, max_value=None):
+    def __init__(self, name, ode, initial_value=0, max_value=2):
         """
         :param name: name of the species (string)
         :param ode: time-derivative of the cocnentration, expressed in terms of 't' (SymPy expression)
