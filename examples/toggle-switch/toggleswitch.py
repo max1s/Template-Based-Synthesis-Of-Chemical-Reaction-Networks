@@ -77,7 +77,7 @@ def synthesize_with_dreal(crn):
 
     isLNA = False
     derivatives = []
-    specification_dreal = [('','','')]
+    specification_dreal = [('','','(inputTime > 90)(cIts > 10)')]
     flow = crn.flow(False, derivatives)
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
     with open('toggleswitch.drh', 'w') as file:
@@ -95,7 +95,7 @@ def synthesize_with_dreal(crn):
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                            plot_name=file_name + "-simulationdreal.png",
-                                                           t = linspace(0, 1000, 100), mode_times=all_vals["time"])
+                                                           t = linspace(0, 100, 100), mode_times=all_vals["time"])
 
             print("\n\n")
             print(variable_names)
