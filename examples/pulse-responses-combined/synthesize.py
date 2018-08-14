@@ -6,6 +6,7 @@ from numpy import savetxt
 from numpy import linspace
 
 
+SF = 100
 # This is based on topology 362
 
 def create_rate_constant(name, val):
@@ -26,6 +27,7 @@ def form_crn():
 
     sa = 0
     sd = 0
+
 
     # vals = {'SF': 1, 'k_1': sa, 'k_5': sa, 'k_9': sa, 'k_13': sa, 'k_17': sa, 'k_21': sa}
     # create_rate_constant('k_1', sa)
@@ -135,12 +137,13 @@ def synthesize_with_dreal(crn, name, specification_dreal, result_file):
     #flow = crn.flow(False, derivatives)
     #specification_dreal = [('', '', '')]
 
-    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
+    drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350/SF, other_constraints='', scale_factor=SF)
     with open(name, 'w') as file:
         file.write(drh)
 
-    sc = SolverCallerDReal(name, dreal_path="/code/dReal-3.16.06.02-linux/bin/dReach")
-    result_files = sc.single_synthesis(cost=0, precision=0.1, max_depth=len(specification_dreal))
+    #sc = SolverCallerDReal(name, dreal_path="/code/dReal-3.16.06.02-linux/bin/dReach")
+    sc = SolverCallerDReal(name, dreal_path="/code/dReal-3.16.09.01-linux/bin/dReach")
+    result_files = sc.single_synthesis(cost=0, precision=0.1)
 
     for file_name in [result_file]: # TODO: remove ths aegument
 
@@ -154,8 +157,9 @@ def synthesize_with_dreal(crn, name, specification_dreal, result_file):
         print("Flow:", parametrised_flow)
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulationdreal.png",
-                                                       t=linspace(0, 300, 1000),
-                                                       mode_times=all_vals["time"])
+                                                       t=linspace(0, 350, 1000),
+                                                       mode_times=all_vals["time"],
+                                                       hidden_variables="POne,POneStar,PTwo,PTwoStar,PThree")
         print("\n\n")
         print(variable_names)
         print(sol)
@@ -165,15 +169,32 @@ def synthesize_with_dreal(crn, name, specification_dreal, result_file):
 if __name__ == "__main__":
     crn = form_crn()
 
+    #print "\n\n\n\nSynthesizing nothing:"
+    #name = "./test.drh"
+    #spec = [('', '', '(inputTime > 1)')]
+    # on previous iteration, constraints on gradient were /- 0 rather than +/- 0.1
+
+    #synthesize_with_dreal(crn, name, spec, 'test_0_0.smt2.proof')
+    #quit()
+    print "\n\n\n\nSynthesizing a constant:"
+    name = "./inverted-bellshape.drh"
+    spec = [('', '', '(inputTime > 20/SF)'),
+                       ('', '(PThreeStar_dot < -0.1)', '(abs(PThreeStar_dot) < 0.1)'),
+                       ('', '(PThreeStar_dot > 0.1)', '(abs(PThreeStar_dot) < 0.1)'),
+                       ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 100/SF)')]
+                       # on previous iteration, constraints on gradient were /- 0 rather than +/- 0.1
+
+    synthesize_with_dreal(crn, name, spec, 'inverted-bellshape_3_0.smt2.proof')
+
 
 
 
     print "\n\n\n\nSynthesizing an inverted bellshape:"
     name = "./inverted-bellshape.drh"
-    spec = [('', '', '(inputTime > 20)'),
+    spec = [('', '', '(inputTime > 2)'),
                        ('', '(PThreeStar_dot < -0.1)', '(abs(PThreeStar_dot) < 0.1)'),
                        ('', '(PThreeStar_dot > 0.1)', '(abs(PThreeStar_dot) < 0.1)'),
-                       ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 100)')]
+                       ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 10)')]
                        # on previous iteration, constraints on gradient were /- 0 rather than +/- 0.1
 
     synthesize_with_dreal(crn, name, spec, 'inverted-bellshape_3_0.smt2.proof')

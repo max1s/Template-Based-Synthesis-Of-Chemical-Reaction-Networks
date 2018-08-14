@@ -6,8 +6,8 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    rate = sympify("SF*(-6*(1/(SF*t))^10.0/(SF*t*(49*(1/(SF*t))^10.0 + 1)^2) + 42*(1/(SF*t))^10.0/(SF*t*(39*(1/(SF*t))^10.0 + 1)^2))")
-
+    #rate = sympify("SF*(-6*(1/(SF*t))^10.0/(SF*t*(49*(1/(SF*t))^10.0 + 1)^2) + 42*(1/(SF*t))^10.0/(SF*t*(39*(1/(SF*t))^10.0 + 1)^2))")
+    rate =  sympify("SF*(-1.2175*10^20*(1/(SF*t))^10.0/(SF*t*(1.29*10^17*(1/(SF*t))^10.0 + 1)^2) + 74539337510769.1*(1/(SF*t))^10.0/(SF*t*(74539337510.7691*(1/(SF*t))^10.0 + 1)^2))")
 
     lacI = Species('lacI')
     cIts = Species('cIts')
@@ -95,7 +95,7 @@ def synthesize_with_dreal(crn):
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                            plot_name=file_name + "-simulationdreal.png",
-                                                           t = linspace(0, 100, 100), mode_times=all_vals["time"])
+                                                           t = linspace(0, 1000, 100), mode_times=all_vals["time"])
 
             print("\n\n")
             print(variable_names)
