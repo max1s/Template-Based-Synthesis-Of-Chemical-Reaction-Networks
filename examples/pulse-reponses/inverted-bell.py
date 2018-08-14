@@ -143,7 +143,7 @@ def synthesize_with_dreal(crn):
     with open('inverted-bell.drh', 'w') as file:
         file.write(drh)
 
-    sc = SolverCallerDReal("./inverted-bell.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
+    sc = SolverCallerDReal("./inverted-bell.drh", dreal_path="/code/dReal-3.16.06.02-linux/bin/dReach", num_modes=len(specification_dreal))
     result_files = sc.single_synthesis(cost=0, precision=0.1)
 
     for file_name in result_files:
