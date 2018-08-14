@@ -172,7 +172,7 @@ def synthesize_with_dreal(crn):
 
 
 
-    specification_dreal = [('', '', 'inputTime > 20'), ('', 'PThreeStar_dot < 0', '(PThreeStar_dot=0)'), ('','PThreeStar_dot > 0','(PThreeStar_dot=0'), ('','PThreeStar_dot < 0','PThreeStar_dot = 0'), ('','PThreeStar_dot = 0','inputTime > 100')]
+    specification_dreal = [('', '', 'inputTime > 20'), ('', 'PThreeStar_dot < 0', '(PThreeStar_dot=0)'), ('','PThreeStar_dot > 0','(PThreeStar_dot=0)'), ('','PThreeStar_dot < 0','PThreeStar_dot = 0'), ('','PThreeStar_dot = 0','inputTime > 100')]
     #flow = crn.flow(False, [])
 
 
