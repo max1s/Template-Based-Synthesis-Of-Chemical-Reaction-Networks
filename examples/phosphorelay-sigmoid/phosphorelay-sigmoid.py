@@ -6,17 +6,17 @@ from numpy import savetxt
 from numpy import linspace
 
 def form_crn():
-    B = Species('B', initial_value=0)
-    L1 = Species('L1', initial_value=0.33)
-    L1p = Species('L1p', initial_value=0)
-    L2 = Species('L2', initial_value=0.33)
-    L2p = Species('L2p', initial_value=0)
-    L3 = Species('L3', initial_value=0.33)
-    L3p = Species('L3p', initial_value=0)
+    B = Species('B', initial_value=0, initial_min=0, initial_max=100)
+    L1 = Species('L1', initial_value=0.33, initial_min=0, initial_max=1)
+    L1p = Species('L1p', initial_value=0, initial_min=0, initial_max=1)
+    L2 = Species('L2', initial_value=0.33, initial_min=0, initial_max=1)
+    L2p = Species('L2p', initial_value=0, initial_min=0, initial_max=1)
+    L3 = Species('L3', initial_value=0.33, initial_min=0, initial_max=1)
+    L3p = Species('L3p', initial_value=0, initial_min=0, initial_max=1)
 
-    r1 = Reaction([(B, 1), (L1, 1)], [(B, 1), (L1p, 1)], RateConstant('k_1', 0, 1)) #0.42
-    r2 = Reaction([(L2, 1), (L1p, 1)], [(L2p, 1), (L1, 1)], RateConstant('k_2', 0, 1)) #0.47
-    r3 = Reaction([(L3, 1), (L2p, 1)], [(L3p, 1), (L2, 1)], RateConstant('k_3', 0, 1)) #0.52
+    r1 = Reaction([(B, 1), (L1, 1)], [(B, 1), (L1p, 1)], RateConstant('k_1', 0.42, 0.42)) #0.42
+    r2 = Reaction([(L2, 1), (L1p, 1)], [(L2p, 1), (L1, 1)], RateConstant('k_2', 0.47, 0.47)) #0.47
+    r3 = Reaction([(L3, 1), (L2p, 1)], [(L3p, 1), (L2, 1)], RateConstant('k_3', 0.52, 0.52)) #0.52
     r4 = Reaction([(L3p, 1)], [(L3, 1)], RateConstant('k_4', 0, 1)) #0.162
     r5 = Reaction([], [(B, 1)], RateConstant('k_5', 1, 1))
 
@@ -57,7 +57,7 @@ def synthesize_with_isat(crn):
 
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulation.png",
-                                                       t=linspace(0, 100, 1000))
+                                                       t=linspace(0, 100, 1000), mode_times=all_vals["time"])
         print("\n\n")
         print(variable_names)
         print(sol)
@@ -69,7 +69,7 @@ def synthesize_with_dreal(crn):
                    {"variable": 'L3p', "order": 2, "is_variance": False, "name": "L3p_dot_dot"}]
     flow = crn.flow(False, derivatives)
 
-    specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(L3p_dot_dot < 0.001)'),
+    specification_dreal = [('', '(and (L3p_dot >= 0)(L3p_dot_dot >= 0))', '(and (L3p_dot_dot = 0)(B > 4))'),
                            ('', '(and (L3p_dot >= 0)(L3p_dot_dot <= 0))', '')]
     #specification_dreal = [('','','')]
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=50)
@@ -81,7 +81,7 @@ def synthesize_with_dreal(crn):
 
 
     for file_name in result_files:
-            vals, all_vals = sc.getCRNValues('./phosphorelay_0_0.smt2.proof')
+            vals, all_vals = sc.getCRNValues('./phosphorelay_1_0.smt2.proof')
             initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
             print("Initial Conditions", initial_conditions)
