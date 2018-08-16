@@ -21,7 +21,6 @@ def synthesize_with_isat(crn):
     specification = []
 
     a = ''
-    a.
 
     flow = crn.flow(isLNA, derivatives)
 
@@ -65,7 +64,7 @@ def synthesize_with_dreal(crn):
     result_files = sc.single_synthesis(cost=0)
 
     for file_name in result_files:
-            vals, all_vals = sc.getCRNValues('./testinput_1_0.smt2.proof')
+            vals, all_vals = sc.getCRNValues('./testinput_0_0.smt2.proof')
             initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
             print("Initial Conditions", initial_conditions)

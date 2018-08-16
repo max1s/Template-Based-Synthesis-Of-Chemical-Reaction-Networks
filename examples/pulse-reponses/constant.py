@@ -129,11 +129,11 @@ def synthesize_with_dreal(crn):
     derivatives = [{"variable": 'PThreeStar', "order": 1, "is_variance": False, "name": "PThreeStar_dot"}]
     flow = crn.flow(False, derivatives)
 
-    #specification_dreal = [('', '', '(and (inputTime > 5)(inputTime < 15)'),  # 'constant' mode starts before pulse, but after an equilibration time
-     #                      ('', ' abs(PThreeStar_dot) < 0.1', 'inputTime > 100')]
+
+    specification_dreal = [('', '', '(and (inputTime > 5)(inputTime < 15))'),  # 'constant' mode starts before pulse, but after an equilibration time
+                           ('', ' abs(PThreeStar_dot) < 0.1', 'inputTime > 100')]
 
     #flow = crn.flow(False, derivatives)
-    specification_dreal = [('', '', '')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
     with open('constant.drh', 'w') as file:

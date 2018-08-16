@@ -38,7 +38,7 @@ class SolverCaller(object):
         if not os.path.exists(self.results_dir):
             os.makedirs(self.results_dir)
 
-    def single_synthesis(self, cost=20, precision=0.01, msw=0, max_depth=2):
+    def single_synthesis(self, cost=20, precision=0.01, msw=0, max_depth=False):
         """
         Call the solver once to synthesize a single system. Interpretation of precision and msw depends on which solver
         is used.
@@ -48,6 +48,9 @@ class SolverCaller(object):
         :param msw:
         :return:
         """
+        if not max_depth:
+            max_depth = self.num_modes
+
         return self.optimal_synthesis_decreasing_cost(max_cost=cost, min_cost=cost, precision=precision, msw=msw, max_depth=max_depth)
 
     def optimal_synthesis_decreasing_cost(self, max_cost=35, min_cost=10, precision=0.1):
@@ -234,7 +237,7 @@ class SolverCallerISAT(SolverCaller):
         with open(self.model_path, 'w') as f:
             f.write('\n'.join(lines))
 
-    def call_solver(self, precision, cost, otherPrams, max_depth=2, msw=0):
+    def call_solver(self, precision, cost, otherPrams, max_depth=False, msw=0):
         """
         Call iSAT, and save its output to a file.
 
@@ -245,6 +248,9 @@ class SolverCallerISAT(SolverCaller):
         :param msw: value of --msw (minimum splitting width) parameter to pass to iSAT
         :return: name of output file
         """
+
+        if not max_depth:
+            max_depth = self.num_modes
 
         if msw == 0:
             msw = precision * 5
@@ -373,7 +379,7 @@ class SolverCallerDReal(SolverCaller):
         with open(self.model_path, 'w') as f:
             f.write('\n'.join(lines))
 
-    def call_solver(self, precision, cost, otherPrams, max_depth=2):
+    def call_solver(self, precision, cost, otherPrams, max_depth=False):
         """
         Call dReach, and save its output to a file.
 
@@ -383,6 +389,10 @@ class SolverCallerDReal(SolverCaller):
         :param max_depth: maximum unrolling depth for BMC
         :return: name of output file
         """
+
+        if not max_depth:
+            max_depth = self.num_modes
+
         out_file = os.path.join(self.results_dir, "%s_%s_%s-dreal.txt" % (self.model_name, cost, precision))
         command = "%s -k %s %s --precision %s --proof %s" % \
                   (self.dreal_path, max_depth, self.model_path, precision, otherPrams)
