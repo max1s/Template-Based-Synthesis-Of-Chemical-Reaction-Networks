@@ -29,6 +29,7 @@ def synthesize_with_isat(crn):
 
     #specification = [('', '(L3p_dot >= 0) and (L3p_dot_dot >= 0)', '(L3p_dot_dot < 0.001)'),
     #                 ('', '(L3p_dot >= 0) and (L3p_dot_dot <= 0)', '(L3p > 100)')]
+    #ok
 
     specification = [('','','')]
 

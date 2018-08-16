@@ -8,10 +8,12 @@ from numpy import linspace
 def form_crn():
     #rate = sympify("SF*(-6*(1/(SF*t))^10.0/(SF*t*(49*(1/(SF*t))^10.0 + 1)^2) + 42*(1/(SF*t))^10.0/(SF*t*(39*(1/(SF*t))^10.0 + 1)^2))")
     rate =  sympify("SF*(-1.2175*10^20*(1/(SF*t))^10.0/(SF*t*(1.29*10^17*(1/(SF*t))^10.0 + 1)^2) + 74539337510769.1*(1/(SF*t))^10.0/(SF*t*(74539337510.7691*(1/(SF*t))^10.0 + 1)^2))")
+    #rate = sympify("SF*(-7.48*10^21*(1 / (SF*t))^10.0/(SF*t*(7.1645*10^18*(1/(SF*t))^10.0 + 1)^2) + 6.851*10^17*(1 / (SF * t)) ^ 10.0 / (SF * t * (656575214694504 * (1 / (SF * t)) ^ 10.0 + 1) ^ 2))") #try three
 
-    lacI = Species('lacI')
-    cIts = Species('cIts')
-    lacIStar = Species('lacIStar')
+    #rate = sympify("0")
+    lacI = Species('lacI', initial_max=200, initial_min=0, initial_value=0)
+    cIts = Species('cIts', initial_max=100, initial_min=0, initial_value=0)
+    #lacIStar = Species('lacIStar', initial_max = 100, initial_min=0)
     # IPTG = Species('IPTG')
 
     input1 = InputSpecies("Input1",rate, initial_value=0)
@@ -77,7 +79,8 @@ def synthesize_with_dreal(crn):
 
     isLNA = False
     derivatives = []
-    specification_dreal = [('','','(inputTime > 90)(cIts > 10)')]
+    #specification_dreal = [('','','')]
+    specification_dreal = [('','','(and (inputTime > 70)(cIts > 10))')]
     flow = crn.flow(False, derivatives)
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=100)
     with open('toggleswitch.drh', 'w') as file:
@@ -95,7 +98,7 @@ def synthesize_with_dreal(crn):
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                            plot_name=file_name + "-simulationdreal.png",
-                                                           t = linspace(0, 100, 100), mode_times=all_vals["time"])
+                                                           t = linspace(0, 100, 100)) # mode_times=all_vals["time"])
 
             print("\n\n")
             print(variable_names)
