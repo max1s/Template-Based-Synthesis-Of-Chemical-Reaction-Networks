@@ -104,18 +104,22 @@ class Species:
         """
         Returns string that assigns initial value to variable in iSAT (.hys) format.
         """
-        if self.initial_value:
-            return "\t%s = %s;\n" % (self.name, self.initial_value)
 
         terms = []
-        if self.initial_min:
-            terms.append("(%s >= %s)" % (self.name, self.initial_min))
+        if self.initial_value is not None:
+             terms.append("\t(%s = %s)\n" % (self.name, self.initial_value))
 
-        if self.initial_max:
-            terms.append("(%s <= %s)" % (self.name, self.initial_max))
+        if self.initial_min is not None:
+            terms.append("\t(%s >= %s)" % (self.name, self.initial_min))
 
-        if len(terms) > 0:
+        if self.initial_max is not None:
+            terms.append("\t(%s <= %s)" % (self.name, self.initial_max))
+
+
+        if len(terms) > 1:
             return "\t" + " and ".join(terms) + ";\n"
+        if len(terms) > 0:
+            return "\t" + "".join(terms) + ";\n"
         return ""
 
     def dRealDefinition(self):
@@ -128,18 +132,19 @@ class Species:
         """
         Returns string that assigns initial value to variable in dReach (.drh) format.
         """
-        if self.initial_value:
-            return "\t(%s = %s)\n" % (self.name, self.initial_value)
-
         terms = []
-        if self.initial_min:
-            terms.append(" (%s >= %s)" % (self.name, self.initial_min))
+        if self.initial_value is not None:
+             terms.append("\t(%s = %s)\n" % (self.name, self.initial_value))
 
-        if self.initial_max:
-            terms.append(" (%s <= %s)" % (self.name, self.initial_max))
+        if self.initial_min is not None:
+            terms.append("\t(%s >= %s)" % (self.name, self.initial_min))
+
+        if self.initial_max is not None:
+            terms.append("\t(%s <= %s)" % (self.name, self.initial_max))
+
 
         if len(terms) > 0:
-            return "\t ( and" + " ".join(terms) + ")\n"
+            return "".join(terms) + "\n"
         return ""
 
 
