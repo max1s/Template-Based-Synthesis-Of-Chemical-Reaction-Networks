@@ -131,13 +131,13 @@ def synthesize_with_dreal(crn):
 
 
 
-    specification_dreal = [('', '', '(inputTime > 20)'),
-                           ('', '(PThreeStar_dot < 0)', '(abs(PThreeStar_dot) < 0.1)'),
-                           ('', '(PThreeStar_dot > 0)', '(abs(PThreeStar_dot) < 0.1)'),
-                           ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 100)')]
+    #specification_dreal = [('', '', '(inputTime > 20)'),
+    #                       ('', '(PThreeStar_dot < 0)', '(abs(PThreeStar_dot) < 0.1)'),
+    #                       ('', '(PThreeStar_dot > 0)', '(abs(PThreeStar_dot) < 0.1)'),
+    #                       ('', '(abs(PThreeStar_dot) < 0.1)', '(inputTime > 100)')]
 
     #flow = crn.flow(False, derivatives)
-    #specification_dreal = [('', '', '')]
+    specification_dreal = [('', '', '')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
     with open('inverted-bell.drh', 'w') as file:
@@ -147,7 +147,7 @@ def synthesize_with_dreal(crn):
     result_files = sc.single_synthesis(cost=0, precision=0.1)
 
     for file_name in result_files:
-        vals, all_vals = sc.getCRNValues('./inverted-bell_3_0.smt2.proof')
+        vals, all_vals = sc.getCRNValues('./inverted-bell_0_0.smt2.proof')
         initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
         print("Initial Conditions", initial_conditions)

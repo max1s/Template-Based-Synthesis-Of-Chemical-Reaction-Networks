@@ -150,7 +150,7 @@ def synthesize_with_isat(crn):
 
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulation.png",
-                                                       t=linspace(0, 350, 1000))
+                                                       t=linspace(0, 350, 1000), hidden_variables="POne,POneStar,PTwo,PTwoStar,PThree")
         print("\n\n")
         print(variable_names)
         print(sol)
@@ -172,9 +172,9 @@ def synthesize_with_dreal(crn):
 
 
 
-    specification_dreal = [('', '', 'inputTime > 20'), ('', 'PThreeStar_dot < 0', '(PThreeStar_dot=0)'), ('','PThreeStar_dot > 0','(PThreeStar_dot=0'), ('','PThreeStar_dot < 0','PThreeStar_dot = 0'), ('','PThreeStar_dot = 0','inputTime > 100')]
+    #specification_dreal = [('', '', 'inputTime > 20'), ('', 'PThreeStar_dot < 0', '(PThreeStar_dot=0)'), ('','PThreeStar_dot > 0','(PThreeStar_dot=0'), ('','PThreeStar_dot < 0','PThreeStar_dot = 0'), ('','PThreeStar_dot = 0','inputTime > 100')]
     #flow = crn.flow(False, [])
-
+    specification_dreal = [('','','')]
 
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
@@ -192,7 +192,7 @@ def synthesize_with_dreal(crn):
         print("Flow:", parametrised_flow)
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulationdreal.png",
-                                                       t=linspace(0, 300, 1000))
+                                                       t=linspace(0, 300, 1000), hidden_variables="POne,POneStar,PTwo,PTwoStar,PThree")
         print("\n\n")
         print(variable_names)
         print(sol)

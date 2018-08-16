@@ -129,11 +129,11 @@ def synthesize_with_dreal(crn):
     derivatives = [{"variable": 'PThreeStar', "order": 1, "is_variance": False, "name": "PThreeStar_dot"}]
     flow = crn.flow(False, derivatives)
 
-    specification_dreal = [('', '', '(and (inputTime > 5)(inputTime < 15)'),  # 'constant' mode starts before pulse, but after an equilibration time
-                           ('', ' abs(PThreeStar_dot) < 0.1', 'inputTime > 100')]
+    #specification_dreal = [('', '', '(and (inputTime > 5)(inputTime < 15)'),  # 'constant' mode starts before pulse, but after an equilibration time
+     #                      ('', ' abs(PThreeStar_dot) < 0.1', 'inputTime > 100')]
 
     #flow = crn.flow(False, derivatives)
-    #specification_dreal = [('', '', '')]
+    specification_dreal = [('', '', '')]
 
     drh = iSATParser.constructdReal(crn, specification_dreal, flow, max_time=350, other_constraints='', scale_factor=1)
     with open('constant.drh', 'w') as file:
@@ -143,14 +143,14 @@ def synthesize_with_dreal(crn):
     result_files = sc.single_synthesis(cost=0, precision=0.1, max_depth=len(specification_dreal))
 
     for file_name in result_files:
-        vals, all_vals = sc.getCRNValues('./constant_1_0.smt2.proof')
+        vals, all_vals = sc.getCRNValues('./constant_0_0.smt2.proof')
         initial_conditions, parametrised_flow = sc.get_full_solution(crn, flow, all_vals)
 
         print("Initial Conditions", initial_conditions)
         print("Flow:", parametrised_flow)
         t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                        plot_name=file_name + "-simulationdreal.png",
-                                                       t=linspace(0, 300, 1000))
+                                                       t=linspace(0, 300, 1000), hidden_variables="POne,POneStar,PTwo,PTwoStar,PThree")
         print("\n\n")
         print(variable_names)
         print(sol)
