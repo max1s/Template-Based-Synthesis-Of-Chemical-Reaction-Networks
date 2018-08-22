@@ -6,12 +6,12 @@ from numpy import savetxt
 from numpy import linspace
 
 
-SF = 10
+SF = 100
 
 def form_crn():
-    K = Species('K', initial_value=0.001)
-    A = Species('A', initial_value=0.5)
-    B = Species('B', initial_value=0.001)
+    K = Species('K', initial_value=0.001, initial_min=0, initial_max=2)
+    A = Species('A', initial_value=0.5, initial_min=0, initial_max=2)
+    B = Species('B', initial_value=0.001,initial_min=0, initial_max=2)
 
     lam1 = LambdaChoice([A, B], 1)
     lam2 = LambdaChoice([A, B], 2)
@@ -23,8 +23,8 @@ def form_crn():
     c6 = Choice(6, 0, 2)
     c7 = Choice(7, 1, 2)
 
-    reaction1 = Reaction([(A, 1), (K, 1)], [(K, 2)], RateConstant('k_1', 0.55, 0.57))
-    reaction2 = Reaction([(B, 1), (K, 1)], [(B, 2)], RateConstant('k_2', 0.42, 0.44))
+    reaction1 = Reaction([(A, c1), (K, c2)], [(K, c3)], RateConstant('k_1', 0, 1))
+    reaction2 = Reaction([(B, 1), (K, 1)], [(B, 2)], RateConstant('k_2', 0, 1))
     reaction3 = Reaction([], [TermChoice(1, [(lam2, 1), (K, c7)])], RateConstant('k_3', 0, 0))
 
     return CRNSketch([reaction1, reaction2], [], [])
@@ -82,7 +82,7 @@ def synthesize_with_dreal(crn):
         file.write(drh)
 
     sc = SolverCallerDReal("./bellshape.drh", dreal_path="../dReal-3.16.09.01-linux/bin/dReach")
-    result_files = sc.single_synthesis(cost=0, precision=0.01)
+    result_files = sc.single_synthesis(cost=0, precision=0.1)
 
 
     for file_name in result_files:
@@ -103,5 +103,5 @@ def synthesize_with_dreal(crn):
 if __name__ == "__main__":
     crn = form_crn()
 
-    synthesize_with_isat(crn)
+    #synthesize_with_isat(crn)
     synthesize_with_dreal(crn)

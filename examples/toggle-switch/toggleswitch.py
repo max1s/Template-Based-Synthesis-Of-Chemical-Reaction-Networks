@@ -20,8 +20,8 @@ def form_crn():
     #k_1 = RateConstant('k_1', 0.2, 2)
     #k_2 = RateConstant('k_2', 0.2, 2)
 
-    alpha_1 = RateConstant('alpha_1', 156.25, 156.25)
-    alpha_2 = RateConstant('alpha_2', 15.6, 15.6)
+    alpha_1 = RateConstant('alpha_1', 156.25, 156.25) #156.25
+    alpha_2 = RateConstant('alpha_2', 15.6, 15.6) #15.6
 
     degredation_1 = RateConstant('degredation_1', 1, 1)
     degredation_2 = RateConstant('degredation_2', 1, 1)
@@ -98,7 +98,7 @@ def synthesize_with_dreal(crn):
             print("Flow:", parametrised_flow)
             t, sol, variable_names = sc.simulate_solutions(initial_conditions, parametrised_flow,
                                                            plot_name=file_name + "-simulationdreal.png",
-                                                           t = linspace(0, 100, 100)) # mode_times=all_vals["time"])
+                                                           t = linspace(0, 100, 200)) # mode_times=all_vals["time"])
 
             print("\n\n")
             print(variable_names)
